@@ -11,6 +11,14 @@
   <description>Integration with Wikimedia Commons.</description>
   <url>https://commons.wikimedia.org/wiki/Commons:OpenRefine</url>
 
+  <licenses>
+    <license>
+      <name>BSD-3-Clause</name>
+      <url>https://raw.githubusercontent.com/OpenRefine/OpenRefine/master/LICENSE.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <properties>
     <openrefine.version>3.6-SNAPSHOT</openrefine.version>
     <jackson.version>2.12.3</jackson.version>
