@@ -47,14 +47,12 @@ public class ExtractCategories implements Function {
 
     @Override
     public String getDescription() {
-        // TODO Auto-generated method stub
-        return null;
+        return "extracts the list of categories from the wikitext of a page";
     }
 
     @Override
     public String getReturns() {
-        // TODO Auto-generated method stub
-        return null;
+        return "arrays of strings";
     }
 
 }
