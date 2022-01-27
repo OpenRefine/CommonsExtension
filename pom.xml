@@ -1,0 +1,159 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.openrefine.extensions</groupId>
+  <artifactId>refine-commons-extension</artifactId>
+  <version>0.1.0</version>
+  <packaging>jar</packaging>
+
+  <name>OpenRefine - Commons extension</name>
+  <description>Integration with Wikimedia Commons.</description>
+  <url>https://commons.wikimedia.org/wiki/Commons:OpenRefine</url>
+
+  <properties>
+    <openrefine.version>3.6-SNAPSHOT</openrefine.version>
+    <jackson.version>2.12.3</jackson.version>
+    <wdtk.version>0.12.1-SNAPSHOT</wdtk.version>
+    <swc-parser-lazy.version>3.1.9</swc-parser-lazy.version>
+    <surefire.version>2.22.2</surefire.version>
+  </properties>
+
+  <build>
+    <finalName>openrefine-commons</finalName>
+    <outputDirectory>module/MOD-INF/classes</outputDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <encoding>UTF-8</encoding>
+          <showDeprecation>false</showDeprecation>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire.version}</version>
+        <configuration>
+          <suiteXmlFiles>
+            <suiteXmlFile>src/test/conf/tests.xml</suiteXmlFile>
+          </suiteXmlFiles>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.1.2</version>
+        <executions>
+            <execution>
+            <phase>compile</phase>
+            <goals>
+                <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+                <outputDirectory>module/MOD-INF/lib</outputDirectory>
+                <includeScope>runtime</includeScope>
+            </configuration>
+            </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>module/MOD-INF/lib</directory>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openrefine</groupId>
+      <artifactId>main</artifactId>
+      <version>${openrefine.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openrefine.dependencies.wdtk</groupId>
+      <artifactId>wdtk-datamodel</artifactId>
+      <version>${wdtk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openrefine.dependencies.wdtk</groupId>
+      <artifactId>wdtk-util</artifactId>
+      <version>${wdtk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.30</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sweble.wikitext</groupId>
+      <artifactId>swc-parser-lazy</artifactId>
+      <version>${swc-parser-lazy.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- testing dependencies -->
+
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>7.4.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>mockwebserver</artifactId>
+      <version>4.9.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <!-- enabled to access our snapshots of Wikidata-Toolkit -->
+  <repositories>
+    <repository>
+      <id>snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+</project>
+
