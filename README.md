@@ -1,5 +1,5 @@
-Commons extension (name not final)
-==================================
+Commons extension
+=================
 
 This is a skeleton of OpenRefine extension for Wikimedia Commons, in the form of an independent Maven project.
 It works with OpenRefine 3.6+.
