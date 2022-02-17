@@ -17,7 +17,26 @@ import com.google.refine.expr.functions.Type;
 import com.google.refine.grel.ControlFunctionRegistry;
 import com.google.refine.grel.Function;
 
+import de.fau.cs.osr.ptk.common.AstVisitor;
+
 public class ExtractCategories implements Function {
+
+    public static class CategoriesExtractor extends AstVisitor<WtNode>{
+
+        private List<String> categories = new ArrayList<>();
+
+        public void visit(WtNode node) {
+            iterate(node);
+        }
+        public void visit(WtInternalLink internalLink) {
+            String currentInternalLink = internalLink.getTarget().getAsString();
+            if (currentInternalLink.startsWith("Category:")) {
+                categories.add(currentInternalLink);
+            }
+        }
+
+    }
+
     // Set-up a simple wiki configuration
     ParserConfig parserConfig = new SimpleParserConfig();
 
@@ -29,17 +48,13 @@ public class ExtractCategories implements Function {
 
         try {
             WtParsedWikitextPage parsedArticle = WikitextParsingUtilities.parseWikitext((String) args[0]);
-            
-            List<String> categories = new ArrayList<>();
-            for (WtNode node : parsedArticle) {
-                if (node instanceof WtInternalLink) {
-                    String linkTarget = ((WtInternalLink)node).getTarget().getAsString();
-                    if (linkTarget.startsWith("Category:")) { // TODO make this prefix configurable (passing another argument)
-                        categories.add(linkTarget);
-                    }
-                }
-            }
-            return categories;
+
+            CategoriesExtractor extractor = new CategoriesExtractor();
+            extractor.go(parsedArticle);
+            List<String> result = extractor.categories;
+
+            return result;
+
         } catch(IOException |xtc.parser.ParseException  e1) {
             return new EvalError("Could not parse wikitext: "+e1.getMessage());
         }
