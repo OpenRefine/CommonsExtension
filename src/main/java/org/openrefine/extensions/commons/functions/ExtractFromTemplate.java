@@ -3,12 +3,10 @@ package org.openrefine.extensions.commons.functions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.openrefine.extensions.commons.utils.WikitextParsingUtilities;
 import org.sweble.wikitext.parser.ParserConfig;
-import org.sweble.wikitext.parser.nodes.WtName;
 import org.sweble.wikitext.parser.nodes.WtNode;
 import org.sweble.wikitext.parser.nodes.WtParsedWikitextPage;
 import org.sweble.wikitext.parser.nodes.WtTemplate;
@@ -27,13 +25,13 @@ public class ExtractFromTemplate implements Function {
 
     public class FindTemplateValues extends AstVisitor<WtNode> {
 
-        private WtNode templateName;
+        private String templateName;
         private String paramName;
         private List<String> values = new ArrayList<>();
         
-        public FindTemplateValues(WtNode tName/*, String pName*/) {
+        public FindTemplateValues(String tName, String pName) {
             this.templateName = tName;
-            //this.paramName = pName;
+            this.paramName = pName;
         }
 
         public void visit(WtNode node) {
@@ -41,7 +39,7 @@ public class ExtractFromTemplate implements Function {
         }
         public void visit(WtTemplate template) {
             // only render templates if we are told to do so or inside a reference
-            if (templateName == template.getName()) {
+            if (templateName == template.getName().toString()) {
                 WtTemplateArguments args = template.getArgs();
                 for (int i = 0; i != args.size(); i++) {
                     iterate(args.get(i));
@@ -51,9 +49,9 @@ public class ExtractFromTemplate implements Function {
         public void visit(WtTemplateArgument args) {
             // do not render templates that are inside a reference
             String param = args.getName().getAsString();
-            /*if (param.startsWith(paramName)) {
+            if (param.startsWith(paramName)) {
                 values.add(param);
-            }*/
+            }
         }
 
     }
@@ -63,21 +61,23 @@ public class ExtractFromTemplate implements Function {
 
     @Override
     public Object call(Properties bindings, Object[] args) {
-        if (args.length != 1 || !(args[0] instanceof String)) {
+        if (args.length != 3 || !(args[0] instanceof String)) {
             return new EvalError("Unexpected arguments for "+ControlFunctionRegistry.getFunctionName(this) + "(): got '" + new Type().call(bindings, args) + "' but expected a single String as an argument");
         }
 
         try {
             WtParsedWikitextPage parsedArticle = WikitextParsingUtilities.parseWikitext((String) args[0]);
-            WtNode tName = parsedArticle.get(3);
+            //WtNode tName = parsedArticle.get(3);
+            String tName = (String) args[1];
+            String pName = (String) args[2];
 
-            FindTemplateValues extractor = new FindTemplateValues(tName/*, pName*/);
+            FindTemplateValues extractor = new FindTemplateValues(tName, pName);
             extractor.go(parsedArticle);
-            WtNode templateName = extractor.templateName;
+            //String templateName = extractor.templateName;
 
-            //List<String> values = extractor.values;
+            List<String> values = extractor.values;
 
-            return templateName;
+            return values;
 
         } catch(IOException |xtc.parser.ParseException  e1) {
             return new EvalError("Could not parse wikitext: "+e1.getMessage());

@@ -15,12 +15,12 @@ public class ExtractFromTemplateTest {
     @Test
     public void testTemplateName() {
         String wikitext = "{{some template|bar=test}}\n"
-                + "{{foo1|bar={{other template}}}}\n"
-                + "{{foo2| foo3 = not important| bar = second value }}";
+                + "{{foo|bar={{other template}}}}\n"
+                + "{{foo| foo = not important| bar = second value }}";
         
-        Object result = function.call(new Properties(), new Object[] {wikitext});
+        Object result = function.call(new Properties(), new Object[] {wikitext, "foo"});
 
-        Assert.assertEquals(result, Arrays.asList("other template"));
+        Assert.assertEquals(result, Arrays.asList("other template", "second value"));
     }
 
 }
