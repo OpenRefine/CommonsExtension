@@ -5,13 +5,20 @@ import java.util.Collections;
 import java.util.Properties;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.refine.grel.ControlFunctionRegistry;
 import com.google.refine.grel.Function;
 
 public class ExtractCategoriesTests {
 
     Function function = new ExtractCategories();
+    
+    @BeforeClass
+    public void registerFunction() {
+    	ControlFunctionRegistry.registerFunction("extractCategories", function);
+    }
     
     @Test
     public void testValidWikitext() {
