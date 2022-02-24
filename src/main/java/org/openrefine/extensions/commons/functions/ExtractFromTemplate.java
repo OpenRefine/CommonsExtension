@@ -28,7 +28,7 @@ public class ExtractFromTemplate implements Function {
         private String templateName;
         private String paramName;
         private List<String> values = new ArrayList<>();
-        
+
         public FindTemplateValues(String tName, String pName) {
             this.templateName = tName;
             this.paramName = pName;
@@ -39,19 +39,20 @@ public class ExtractFromTemplate implements Function {
         }
         public void visit(WtTemplate template) {
             // only render templates if we are told to do so or inside a reference
-            if (templateName == template.getName().toString()) {
+            if (templateName.equals(template.getName().toString())) {
                 WtTemplateArguments args = template.getArgs();
                 for (int i = 0; i != args.size(); i++) {
-                    iterate(args.get(i));
+                    iterate(args.get(i));//add WtTemplateArgument
                 }
             }
+            iterate(template);
         }
         public void visit(WtTemplateArgument args) {
             // do not render templates that are inside a reference
-            String param = args.getName().getAsString();
-            if (param.startsWith(paramName)) {
-                values.add(param);
+            if (paramName.equals(args.getName().getAsString())) {
+                values.add(args.getAttribute(paramName).toString());
             }
+            iterate(args);
         }
 
     }
@@ -67,13 +68,11 @@ public class ExtractFromTemplate implements Function {
 
         try {
             WtParsedWikitextPage parsedArticle = WikitextParsingUtilities.parseWikitext((String) args[0]);
-            //WtNode tName = parsedArticle.get(3);
             String tName = (String) args[1];
             String pName = (String) args[2];
 
             FindTemplateValues extractor = new FindTemplateValues(tName, pName);
             extractor.go(parsedArticle);
-            //String templateName = extractor.templateName;
 
             List<String> values = extractor.values;
 

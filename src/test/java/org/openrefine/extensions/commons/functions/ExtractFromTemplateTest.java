@@ -4,13 +4,20 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.refine.grel.ControlFunctionRegistry;
 import com.google.refine.grel.Function;
 
 public class ExtractFromTemplateTest {
 
     Function function = new ExtractFromTemplate();
+
+    @BeforeClass
+    public void registerFunction() {
+        ControlFunctionRegistry.registerFunction("extractFromTemplate", function);
+    }
 
     @Test
     public void testTemplateName() {
@@ -18,7 +25,7 @@ public class ExtractFromTemplateTest {
                 + "{{foo|bar={{other template}}}}\n"
                 + "{{foo| foo = not important| bar = second value }}";
         
-        Object result = function.call(new Properties(), new Object[] {wikitext, "foo"});
+        Object result = function.call(new Properties(), new Object[] {wikitext, "foo", "bar"});
 
         Assert.assertEquals(result, Arrays.asList("other template", "second value"));
     }
