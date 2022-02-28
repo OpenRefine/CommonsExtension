@@ -42,17 +42,13 @@ public class ExtractFromTemplate implements Function {
             if (templateName.equals(template.getName().toString())) {
                 WtTemplateArguments args = template.getArgs();
                 for (int i = 0; i != args.size(); i++) {
-                    iterate(args.get(i));//add WtTemplateArgument
+                    WtTemplateArgument arg = (WtTemplateArgument) args.get(i);
+                    if (paramName.equals(arg.getName().getAsString())) {
+                        values.add(arg.getValue().toString());
+                    }
                 }
             }
             iterate(template);
-        }
-        public void visit(WtTemplateArgument args) {
-            // do not render templates that are inside a reference
-            if (paramName.equals(args.getName().getAsString())) {
-                values.add(args.getAttribute(paramName).toString());
-            }
-            iterate(args);
         }
 
     }
