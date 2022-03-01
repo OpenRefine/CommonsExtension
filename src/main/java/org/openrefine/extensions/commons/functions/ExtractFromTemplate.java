@@ -13,6 +13,7 @@ import org.sweble.wikitext.parser.nodes.WtTemplate;
 import org.sweble.wikitext.parser.nodes.WtTemplateArgument;
 import org.sweble.wikitext.parser.nodes.WtTemplateArguments;
 import org.sweble.wikitext.parser.utils.SimpleParserConfig;
+import org.sweble.wikitext.parser.utils.WtPrettyPrinter;
 
 import com.google.refine.expr.EvalError;
 import com.google.refine.expr.functions.Type;
@@ -29,6 +30,7 @@ public class ExtractFromTemplate implements Function {
         private String paramName;
         private List<String> values = new ArrayList<>();
 
+        // Constructor
         public FindTemplateValues(String tName, String pName) {
             this.templateName = tName;
             this.paramName = pName;
@@ -38,17 +40,16 @@ public class ExtractFromTemplate implements Function {
             iterate(node);
         }
         public void visit(WtTemplate template) {
-            // only render templates if we are told to do so or inside a reference
-            if (templateName.equals(template.getName().toString())) {
+            if (templateName.equals(template.getName().getAsString())) {
                 WtTemplateArguments args = template.getArgs();
                 for (int i = 0; i != args.size(); i++) {
                     WtTemplateArgument arg = (WtTemplateArgument) args.get(i);
-                    if (paramName.equals(arg.getName().getAsString())) {
-                        values.add(arg.getValue().toString());
+
+                    if (paramName.equals(arg.getName().getAsString().trim())) {
+                        values.add(WtPrettyPrinter.print(arg.getValue()).trim());
                     }
                 }
             }
-            iterate(template);
         }
 
     }

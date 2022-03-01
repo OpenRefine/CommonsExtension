@@ -27,7 +27,7 @@ public class ExtractFromTemplateTest {
         
         Object result = function.call(new Properties(), new Object[] {wikitext, "foo", "bar"});
 
-        Assert.assertEquals(result, Arrays.asList("other template", "second value"));
+        Assert.assertEquals(result, Arrays.asList("{{other template}}", "second value"));
     }
 
 }
