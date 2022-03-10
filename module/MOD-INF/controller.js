@@ -22,4 +22,13 @@ function init() {
 
   CFR.registerFunction("extractCategories", new Packages.org.openrefine.extensions.commons.functions.ExtractCategories());
 
+  // Script files to inject into /index page
+  ClientSideResourceManager.addPaths(
+    "index/scripts",
+    module,
+    [
+      "scripts/index/commons-importing-controller.js",
+    ]
+  );
+
 }

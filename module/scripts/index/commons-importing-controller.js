@@ -18,5 +18,18 @@ $.ajax({
 $.i18n().load(dictionary, lang);
 // End internationalization
 
-// Add Refine.CommonsImportingController = function(createProjectUI) { }
-// Add corresponding java class
+Refine.CommonsImportingController = function(createProjectUI) {
+  this._createProjectUI = createProjectUI;
+  
+  this._parsingPanel = createProjectUI.addCustomPanel();
+
+  createProjectUI.addSourceSelectionUI({
+    label: "Google Data",
+    id: "gdata-source",
+    ui: new Refine.GDataSourceUI(this)
+  });
+  
+  $('#gdata-authorize').text($.i18n('gdata-auth/authorize-label')); 
+  $('#gdata-authorized').text($.i18n('gdata-auth/authorized-label'));
+};
+Refine.CreateProjectUI.controllers.push(Refine.GDataImportingController);
