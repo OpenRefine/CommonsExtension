@@ -22,12 +22,22 @@ function init() {
 
   CFR.registerFunction("extractCategories", new Packages.org.openrefine.extensions.commons.functions.ExtractCategories());
 
+  // Register importer and exporter
+  var IM = Packages.com.google.refine.importing.ImportingManager;
+
+  IM.registerController(
+    module,
+    "commons-importing-controller",
+    new Packages.org.openrefine.extensions.commons.utils.CommonsImportingController()
+  );
+
   // Script files to inject into /index page
   ClientSideResourceManager.addPaths(
     "index/scripts",
     module,
     [
       "scripts/index/commons-importing-controller.js",
+      "scripts/index/commons-source-ui.js"
     ]
   );
 

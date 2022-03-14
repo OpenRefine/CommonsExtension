@@ -1,0 +1,22 @@
+{
+    "commons-import/preparing": "Preparing …",
+    "commons-parsing/start-over": "&laquo; Start Over",
+    "commons-parsing/conf-pars": "Configure Parsing Options",
+    "commons-parsing/proj-name": "Project&nbsp;name",
+    "commons-parsing/create-proj": "Create Project &raquo;",
+    "commons-parsing/updating-preview": "Updating preview …",
+    "commons-parsing/document": "Documents",
+    "commons-parsing/option": "Options",
+    "commons-parsing/preview-button": "Update&nbsp;preview",
+    "commons-parsing/disable-auto-preview": "Disable auto preview",
+    "commons-parsing/ignore-first": "Ignore first",
+    "commons-parsing/ignore": "line(s) at beginning of file",
+    "commons-parsing/parse-next": "Parse next",
+    "commons-parsing/parse": "line(s) as column headers",
+    "commons-parsing/discard-next": "Discard initial",
+    "commons-parsing/discard": "row(s) of data",
+    "commons-parsing/limit-next": "Load at most",
+    "commons-parsing/limit": "row(s) of data",
+    "commons-parsing/store-row": "Store blank rows",
+    "commons-parsing/store-cell": "Store blank cells as nulls"
+}
