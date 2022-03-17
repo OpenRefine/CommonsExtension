@@ -20,6 +20,12 @@ import com.google.refine.ProjectManager;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.RefineServlet;
 import com.google.refine.commands.HttpUtilities;
+/*import com.google.refine.extension.gdata.GDataImporter;
+import com.google.refine.extension.gdata.TokenCookie;
+import com.google.refine.importing.DefaultImportingController;
+import com.google.refine.extension.database.DatabaseServiceException;
+import com.google.refine.extension.gdata.GoogleAPIExtension;
+import com.google.refine.extension.gdata.TokenCookie;*/
 import com.google.refine.importing.ImportingController;
 import com.google.refine.importing.ImportingJob;
 import com.google.refine.importing.ImportingManager;
@@ -30,7 +36,7 @@ import com.google.refine.util.ParsingUtilities;
 public class CommonsImportingController implements ImportingController {
     private static final Logger logger = LoggerFactory.getLogger("CommonsImportingController");
     protected RefineServlet servlet;
-    
+
     @Override
     public void init(RefineServlet servlet) {
         this.servlet = servlet;
@@ -50,22 +56,20 @@ public class CommonsImportingController implements ImportingController {
         }
         response.setCharacterEncoding("UTF-8");
         Properties parameters = ParsingUtilities.parseUrlParameters(request);
-        
+
         String subCommand = parameters.getProperty("subCommand");
-        
+
         if(logger.isDebugEnabled()){
             logger.info("doPost::subCommand::{}", subCommand);
         }
-        
-        if  ("list-documents".equals(subCommand)) {
-            doListDocuments(request, response, parameters);
-        } else if ("initialize-parser-ui".equals(subCommand)) {
+
+        if ("initialize-parser-ui".equals(subCommand)) {
             doInitializeParserUI(request, response, parameters);
         } else if ("parse-preview".equals(subCommand)) {
             try {
-                
+
                 doParsePreview(request, response, parameters);
-                
+
             } catch (Exception e) {
                 logger.error("doPost::DatabaseServiceException::{}", e);
                 HttpUtilities.respond(response, "error", "Unable to parse preview");
@@ -77,33 +81,6 @@ public class CommonsImportingController implements ImportingController {
         }
 
     }
-
-    private void doListDocuments(HttpServletRequest request, HttpServletResponse response, Properties parameters)
-            throws ServletException, IOException {
-
-            Writer w = response.getWriter();
-            JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
-            try {
-                writer.writeStartObject();
-                writer.writeArrayFieldStart("documents");
-                
-                try {
-                    //listSpreadsheets(GoogleAPIExtension.getDriveService(token), writer);
-                }  catch (Exception e) {
-                    logger.error("doListDocuments exception:" + ExceptionUtils.getStackTrace(e));
-                }  finally {
-                    writer.writeEndArray();
-                    writer.writeEndObject();
-                }
-            } catch (IOException e) {
-                throw new ServletException(e);
-            } finally {
-                writer.flush();
-                writer.close();
-                w.flush();
-                w.close();
-            }
-        }
 
     /**
      * 
@@ -166,7 +143,7 @@ public class CommonsImportingController implements ImportingController {
             List<Exception> exceptions = new LinkedList<Exception>();
             
             job.prepareNewProject();
-            
+
             /*parsePreview(
                 databaseQueryInfo,
                 job.project,
@@ -176,20 +153,19 @@ public class CommonsImportingController implements ImportingController {
                 optionObj,
                 exceptions
             );*/
-            
+
             Writer w = response.getWriter();
             JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
             try {
                 writer.writeStartObject();
                 if (exceptions.size() == 0) {
                     job.project.update(); // update all internal models, indexes, caches, etc.
-                    
+
                     writer.writeStringField("status", "ok");
                 } else {
                     writer.writeStringField("status", "error");
-                    
+
                     writer.writeArrayFieldStart("errors");
-                    //DefaultImportingController.writeErrors(writer, exceptions);
                     writer.writeEndArray();
                 }
                 writer.writeEndObject();
@@ -219,15 +195,15 @@ public class CommonsImportingController implements ImportingController {
                 HttpUtilities.respond(response, "error", "No such import job");
                 return;
             }
-            
+
             job.updating = true;
             final ObjectNode optionObj = ParsingUtilities.evaluateJsonStringToObjectNode(
                 request.getParameter("options"));
-            
+
             final List<Exception> exceptions = new LinkedList<Exception>();
-            
+
             job.setState("creating-project");
-            
+
             final Project project = new Project();
             new Thread() {
                 @Override
@@ -235,7 +211,7 @@ public class CommonsImportingController implements ImportingController {
                     ProjectMetadata pm = new ProjectMetadata();
                     pm.setName(JSONUtilities.getString(optionObj, "projectName", "Untitled"));
                     pm.setEncoding(JSONUtilities.getString(optionObj, "encoding", "UTF-8"));
-                    
+
                     /*try {
                         /*parsePreview(
                             databaseQueryInfo,
@@ -249,25 +225,25 @@ public class CommonsImportingController implements ImportingController {
                     } catch (IOException e) {
                         logger.error(ExceptionUtils.getStackTrace(e));
                     }*/
-                    
+
                     if (!job.canceled) {
                         if (exceptions.size() > 0) {
                             job.setError(exceptions);
                         } else {
                             project.update(); // update all internal models, indexes, caches, etc.
-                            
+
                             ProjectManager.singleton.registerProject(project, pm);
-                            
+
                             job.setState("created-project");
                             job.setProjectID(project.id);
                         }
-                        
+
                         job.touch();
                         job.updating = false;
                     }
                 }
             }.start();
-            
+
             HttpUtilities.respond(response, "ok", "done");
         }
 }
