@@ -21,6 +21,7 @@ function init() {
   var CFR = Packages.com.google.refine.grel.ControlFunctionRegistry;
 
   CFR.registerFunction("extractCategories", new Packages.org.openrefine.extensions.commons.functions.ExtractCategories());
+  CFR.registerFunction("extractFromTemplate", new Packages.org.openrefine.extensions.commons.functions.ExtractFromTemplate());
 
   // Register importer and exporter
   var IM = Packages.com.google.refine.importing.ImportingManager;
