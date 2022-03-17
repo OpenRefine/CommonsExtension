@@ -29,6 +29,12 @@
 
   <build>
     <finalName>openrefine-commons</finalName>
+    <resources>
+      <resource>
+        <directory>src</directory>
+      </resource>
+    </resources>
+    <testSourceDirectory>tests/src</testSourceDirectory>
     <outputDirectory>module/MOD-INF/classes</outputDirectory>
     <plugins>
       <plugin>
