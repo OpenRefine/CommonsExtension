@@ -10,22 +10,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.refine.ProjectManager;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.RefineServlet;
 import com.google.refine.commands.HttpUtilities;
-/*import com.google.refine.extension.gdata.GDataImporter;
-import com.google.refine.extension.gdata.TokenCookie;
-import com.google.refine.importing.DefaultImportingController;
-import com.google.refine.extension.database.DatabaseServiceException;
-import com.google.refine.extension.gdata.GoogleAPIExtension;
-import com.google.refine.extension.gdata.TokenCookie;*/
 import com.google.refine.importing.ImportingController;
 import com.google.refine.importing.ImportingJob;
 import com.google.refine.importing.ImportingManager;
@@ -96,9 +90,15 @@ public class CommonsImportingController implements ImportingController {
             logger.debug("::doInitializeParserUI::");
         }
 
-        String type = parameters.getProperty("catType");
+        String type = parameters.getProperty("category");
+        ObjectNode optionObj = ParsingUtilities.evaluateJsonStringToObjectNode(
+                request.getParameter("options"));
+        String categoryType = JSONUtilities.getString(optionObj, "categoryType", null);
+        //String urlString = "https://en.wikipedia.org/w/api.php";
+        String urlString = parameters.getProperty("docUrl");
         ObjectNode result = ParsingUtilities.mapper.createObjectNode();
         ObjectNode options = ParsingUtilities.mapper.createObjectNode();
+
         JSONUtilities.safePut(result, "status", "ok");
         JSONUtilities.safePut(result, "options", options);
 
@@ -108,10 +108,17 @@ public class CommonsImportingController implements ImportingController {
         if(logger.isDebugEnabled()) {
             logger.debug("doInitializeParserUI:::{}", result.toString());
         }
-        /*if ("spreadsheet".equals(type)) {
-            
-        }*/
-       
+        if (categoryType.contains(type)) {
+            ArrayNode matchedFiles = ParsingUtilities.mapper.createArrayNode();
+            // extract files with category
+            String fileId;// = CommonsAPI.extractFileId(urlString);
+
+            JSONUtilities.safePut(options, "ignoreLines", -1); // number of blank lines at the beginning to ignore
+            JSONUtilities.safePut(options, "headerLines", 1); // number of header lines
+            JSONUtilities.safePut(options, "worksheets", matchedFiles);
+
+        }
+
         HttpUtilities.respond(response, result.toString());
 
     }
