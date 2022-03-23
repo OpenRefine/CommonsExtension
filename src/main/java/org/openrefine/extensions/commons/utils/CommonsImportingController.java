@@ -2,19 +2,23 @@ package org.openrefine.extensions.commons.utils;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.refine.ProjectManager;
 import com.google.refine.ProjectMetadata;
@@ -27,9 +31,14 @@ import com.google.refine.model.Project;
 import com.google.refine.util.JSONUtilities;
 import com.google.refine.util.ParsingUtilities;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class CommonsImportingController implements ImportingController {
     private static final Logger logger = LoggerFactory.getLogger("CommonsImportingController");
     protected RefineServlet servlet;
+    public static int DEFAULT_PREVIEW_LIMIT = 100;
 
     @Override
     public void init(RefineServlet servlet) {
@@ -90,15 +99,8 @@ public class CommonsImportingController implements ImportingController {
             logger.debug("::doInitializeParserUI::");
         }
 
-        String type = parameters.getProperty("category");
-        ObjectNode optionObj = ParsingUtilities.evaluateJsonStringToObjectNode(
-                request.getParameter("options"));
-        String categoryType = JSONUtilities.getString(optionObj, "categoryType", null);
-        //String urlString = "https://en.wikipedia.org/w/api.php";
-        String urlString = parameters.getProperty("docUrl");
         ObjectNode result = ParsingUtilities.mapper.createObjectNode();
         ObjectNode options = ParsingUtilities.mapper.createObjectNode();
-
         JSONUtilities.safePut(result, "status", "ok");
         JSONUtilities.safePut(result, "options", options);
 
@@ -107,16 +109,6 @@ public class CommonsImportingController implements ImportingController {
         JSONUtilities.safePut(options, "storeBlankCellsAsNulls", true);
         if(logger.isDebugEnabled()) {
             logger.debug("doInitializeParserUI:::{}", result.toString());
-        }
-        if (categoryType.contains(type)) {
-            ArrayNode matchedFiles = ParsingUtilities.mapper.createArrayNode();
-            // extract files with category
-            String fileId;// = CommonsAPI.extractFileId(urlString);
-
-            JSONUtilities.safePut(options, "ignoreLines", -1); // number of blank lines at the beginning to ignore
-            JSONUtilities.safePut(options, "headerLines", 1); // number of header lines
-            JSONUtilities.safePut(options, "worksheets", matchedFiles);
-
         }
 
         HttpUtilities.respond(response, result.toString());
@@ -142,24 +134,23 @@ public class CommonsImportingController implements ImportingController {
                 HttpUtilities.respond(response, "error", "No such import job");
                 return;
             }
-            
+
             job.updating = true;
             ObjectNode optionObj = ParsingUtilities.evaluateJsonStringToObjectNode(
                 request.getParameter("options"));
-            
+
             List<Exception> exceptions = new LinkedList<Exception>();
-            
+
             job.prepareNewProject();
 
-            /*parsePreview(
-                databaseQueryInfo,
+            parsePreview(
                 job.project,
                 job.metadata,
                 job,
                 DEFAULT_PREVIEW_LIMIT ,
                 optionObj,
                 exceptions
-            );*/
+            );
 
             Writer w = response.getWriter();
             JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
@@ -189,9 +180,28 @@ public class CommonsImportingController implements ImportingController {
             job.updating = false;
         }
 
-    /*private static void parsePreview( ) {
-        
-    }*/
+    private static Set<String> parsePreview(
+            Project project,
+            ProjectMetadata metadata,
+            final ImportingJob job,
+            int limit,
+            ObjectNode options,
+            List<Exception> exceptions) throws IOException {
+
+        String url = "https://commons.wikimedia.org.org/w/api.php"
+                + "api.php?action=query&list=categorymembers&cmtitle=Category:Physics";
+        OkHttpClient client = new OkHttpClient.Builder().build();
+        Request request = new Request.Builder().url(url).build();
+        Response response = client.newCall(request).execute();
+        JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+        JsonNode files = jsonNode.path("query").path("categorymembers");
+        Set<String> filesPerCategory = new HashSet<>();
+        for (JsonNode file : files) {
+            filesPerCategory.add(file.path("cmtitle").textValue());
+        }
+
+        return filesPerCategory;
+    }
 
     private void doCreateProject(HttpServletRequest request, HttpServletResponse response, Properties parameters)
             throws ServletException, IOException {
@@ -219,9 +229,8 @@ public class CommonsImportingController implements ImportingController {
                     pm.setName(JSONUtilities.getString(optionObj, "projectName", "Untitled"));
                     pm.setEncoding(JSONUtilities.getString(optionObj, "encoding", "UTF-8"));
 
-                    /*try {
-                        /*parsePreview(
-                            databaseQueryInfo,
+                    try {
+                        parsePreview(
                             job.project,
                             job.metadata,
                             job,
@@ -231,7 +240,7 @@ public class CommonsImportingController implements ImportingController {
                         );
                     } catch (IOException e) {
                         logger.error(ExceptionUtils.getStackTrace(e));
-                    }*/
+                    }
 
                     if (!job.canceled) {
                         if (exceptions.size() > 0) {
