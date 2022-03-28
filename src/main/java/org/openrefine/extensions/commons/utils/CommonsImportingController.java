@@ -51,6 +51,7 @@ public class CommonsImportingController implements ImportingController {
         HttpUtilities.respond(response, "error", "GET not implemented");
     }
 
+    /* Handling of http requests between frontend and OpenRefine servlet */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
@@ -188,8 +189,8 @@ public class CommonsImportingController implements ImportingController {
             ObjectNode options,
             List<Exception> exceptions) throws IOException {
 
-        String url = "https://commons.wikimedia.org.org/w/api.php"
-                + "api.php?action=query&list=categorymembers&cmtitle=Category:Physics";
+        String url = "https://commons.wikimedia.org./w/api.php"
+                + "?action=query&list=categorymembers&cmtitle=Category:art&cmtype=file&cmlimit=5&format=json";
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url(url).build();
         Response response = client.newCall(request).execute();
@@ -201,6 +202,7 @@ public class CommonsImportingController implements ImportingController {
         }
 
         return filesPerCategory;
+
     }
 
     private void doCreateProject(HttpServletRequest request, HttpServletResponse response, Properties parameters)
