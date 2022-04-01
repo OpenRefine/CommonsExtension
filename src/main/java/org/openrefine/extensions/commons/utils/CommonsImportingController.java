@@ -2,6 +2,9 @@ package org.openrefine.extensions.commons.utils;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,15 +22,20 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.refine.ProjectManager;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.RefineServlet;
 import com.google.refine.commands.HttpUtilities;
+import com.google.refine.importers.TabularImportingParserBase;
+import com.google.refine.importers.TabularImportingParserBase.TableDataReader;
 import com.google.refine.importing.ImportingController;
 import com.google.refine.importing.ImportingJob;
 import com.google.refine.importing.ImportingManager;
+import com.google.refine.model.Cell;
 import com.google.refine.model.Project;
+import com.google.refine.model.Row;
 import com.google.refine.util.JSONUtilities;
 import com.google.refine.util.ParsingUtilities;
 
@@ -181,7 +189,7 @@ public class CommonsImportingController implements ImportingController {
             job.updating = false;
         }
 
-    private static Set<String> parsePreview(
+    private static void parsePreview(
             Project project,
             ProjectMetadata metadata,
             final ImportingJob job,
@@ -191,19 +199,131 @@ public class CommonsImportingController implements ImportingController {
 
         String url = "https://commons.wikimedia.org./w/api.php"
                 + "?action=query&list=categorymembers&cmtitle=Category:art&cmtype=file&cmlimit=5&format=json";
+        int cmlimit = 5;
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url(url).build();
         Response response = client.newCall(request).execute();
         JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
         JsonNode files = jsonNode.path("query").path("categorymembers");
-        Set<String> filesPerCategory = new HashSet<>();
-        for (JsonNode file : files) {
-            filesPerCategory.add(file.path("cmtitle").textValue());
-        }
+        JsonNode entry = jsonNode.path("query").path("categorymembers").findParent("title");
+        JsonNode pageIDs = jsonNode.path("query").path("categorymembers").findValue("pageid");
 
-        return filesPerCategory;
+        parse(
+            response,
+            project,
+            metadata,
+            job,
+            files,
+            limit,
+            options,
+            exceptions
+        );
 
     }
+
+    static public void parse(
+            Response response,
+            Project project,
+            ProjectMetadata metadata,
+            final ImportingJob job,//importing job ID
+            JsonNode files,
+            int limit,
+            ObjectNode options,
+            List<Exception> exceptions) {
+
+            int pageIndex = 0; // FIXME: we only parse 1 page
+
+            parseOnePage(
+                response,
+                project,
+                metadata,
+                job,
+                pageIndex,
+                files,
+                limit,
+                options,
+                exceptions);
+        }
+
+    static public void parseOnePage(
+            Response response,
+            Project project,
+            ProjectMetadata metadata,
+            final ImportingJob job,
+            int pageIndex,
+            JsonNode files,
+            int limit,
+            ObjectNode options,
+            List<Exception> exceptions) {
+
+                String pageId = "Category:art";
+                String pageName = "art";
+                String fileSource = pageName + " # " +
+                        files.findValue("title");
+
+                setProgress(job, fileSource, 0);
+                TabularImportingParserBase.readTable(
+                    project,
+                    metadata,
+                    job,
+                    new FilesBatchRowReader(job, fileSource, response, pageId, files),
+                    fileSource,
+                    limit,
+                    options,
+                    exceptions
+                );
+                setProgress(job, fileSource, 100);
+        }
+
+        static private void setProgress(ImportingJob job, String fileSource, int percent) {
+            job.setProgress(percent, "Reading " + fileSource);
+        }
+
+        static private class FilesBatchRowReader implements TableDataReader {
+            final ImportingJob job;
+            final String fileSource;
+            final Response response;
+            final String pageId;
+            JsonNode files;
+            private int indexRow = 0;
+
+            public FilesBatchRowReader(ImportingJob job, String fileSource,
+                    Response response, String pageId, JsonNode files) {
+                this.job = job;
+                this.fileSource = fileSource;
+                this.response = response;
+                this.pageId = pageId;
+                this.files = files;
+            }
+
+            @Override
+            public List<Object> getNextRowOfCells() throws IOException {
+                List<Object> rowsOfCells;
+
+                // FIXME: else if block
+                if (files != null) {
+                    rowsOfCells = Collections.singletonList(files.get(indexRow).findValue("title").asText());
+                    indexRow++;
+                    return rowsOfCells;
+                }
+
+                if (files == null) {
+                    return null;
+                }
+
+                if (files.size() > 0) {
+                    setProgress(job, fileSource, 100 * indexRow / files.size());
+                } else {
+                    setProgress(job, fileSource, 100);
+                }
+
+                if (indexRow == files.size()) {
+                    return null;
+                }
+                return null;
+            }
+
+        }
 
     private void doCreateProject(HttpServletRequest request, HttpServletResponse response, Properties parameters)
             throws ServletException, IOException {
@@ -233,8 +353,8 @@ public class CommonsImportingController implements ImportingController {
 
                     try {
                         parsePreview(
-                            job.project,
-                            job.metadata,
+                            project,
+                            pm,
                             job,
                             DEFAULT_PREVIEW_LIMIT ,
                             optionObj,
