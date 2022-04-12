@@ -199,14 +199,11 @@ public class CommonsImportingController implements ImportingController {
 
         String url = "https://commons.wikimedia.org./w/api.php"
                 + "?action=query&list=categorymembers&cmtitle=Category:art&cmtype=file&cmlimit=5&format=json";
-        int cmlimit = 5;
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url(url).build();
         Response response = client.newCall(request).execute();
         JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
         JsonNode files = jsonNode.path("query").path("categorymembers");
-        JsonNode entry = jsonNode.path("query").path("categorymembers").findParent("title");
-        JsonNode pageIDs = jsonNode.path("query").path("categorymembers").findValue("pageid");
 
         parse(
             response,
@@ -256,23 +253,22 @@ public class CommonsImportingController implements ImportingController {
             ObjectNode options,
             List<Exception> exceptions) {
 
-                String pageId = "Category:art";
-                String pageName = "art";
-                String fileSource = pageName + " # " +
-                        files.findValue("title");
-
-                setProgress(job, fileSource, 0);
-                TabularImportingParserBase.readTable(
-                    project,
-                    metadata,
-                    job,
-                    new FilesBatchRowReader(job, fileSource, response, pageId, files),
-                    fileSource,
-                    limit,
-                    options,
-                    exceptions
-                );
-                setProgress(job, fileSource, 100);
+            String pageId = "Category:art";//pageid?
+            String pageName = "art";
+            String fileSource = pageName + " # " +
+                    files.findValue("title");
+            setProgress(job, fileSource, 0);
+            TabularImportingParserBase.readTable(
+                project,
+                metadata,
+                job,
+                new FilesBatchRowReader(job, fileSource, response, pageId, files/*, worksheetEntry*/),
+                fileSource,
+                limit,
+                options,
+                exceptions
+            );
+            setProgress(job, fileSource, 100);
         }
 
         static private void setProgress(ImportingJob job, String fileSource, int percent) {
@@ -300,27 +296,28 @@ public class CommonsImportingController implements ImportingController {
             public List<Object> getNextRowOfCells() throws IOException {
                 List<Object> rowsOfCells;
 
-                // FIXME: else if block
                 if (files != null) {
-                    rowsOfCells = Collections.singletonList(files.get(indexRow).findValue("title").asText());
+                    String row = files.get(indexRow).findValue("title").asText();
+                    rowsOfCells = Collections.singletonList(row);
+                    System.out.println("\n1: " + rowsOfCells + "\n");
                     indexRow++;
                     return rowsOfCells;
-                }
-
-                if (files == null) {
+                } else if (files == null) {
                     return null;
                 }
 
                 if (files.size() > 0) {
                     setProgress(job, fileSource, 100 * indexRow / files.size());
-                } else {
+                } else if (indexRow == files.size()) {
                     setProgress(job, fileSource, 100);
                 }
 
-                if (indexRow == files.size()) {
+                if (indexRow < files.size()) {
+                    return Collections.singletonList(files.get(indexRow++).findValue("title").asText());
+                } else {
                     return null;
                 }
-                return null;
+
             }
 
         }

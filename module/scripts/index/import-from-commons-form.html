@@ -2,16 +2,16 @@
     <div bind="categoriesPanel" class="commons-panel">
       <div class="grid-layout layout-tighter"><table>
         <tr>
-          <td colspan="3" id="commons-import"></td>
-          <td colspan="2" id="commons-import-nested"></td>
+          <td width="80%" id="commons-import"></td>
+          <td width="20%" id="commons-import-nested"></td>
         </tr>
         <tr bind="categoryRow">
           <td><input bind="categoryInput" size="72" name="download" class="default-importing-files" /></td>
-          <td><input bind="nestedBox" size="1" name="nested" class="input box" /></td>
+          <td style="text-align: right;"><input bind="nestedBox" size="1" name="nested" class="input box" /></td>
         </tr>
         <tr bind="addCategoryRow">
           <td><button bind="addCategoryButton" class="button button-primary" type="button" id="commons-add"></button></td>
-          <td><button bind="NextButton" class="button button-primary" type="button" id="commons-next"></button></td>
+          <td style="text-align: right;"><button bind="NextButton" class="button button-primary" type="button" id="commons-next"></button></td>
         </tr>
       </table></div>
       <div bind="progressPage" class="commons-page">
