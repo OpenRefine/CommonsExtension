@@ -2,14 +2,10 @@ package org.openrefine.extensions.commons.utils;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.refine.ProjectManager;
 import com.google.refine.ProjectMetadata;
@@ -33,9 +28,7 @@ import com.google.refine.importers.TabularImportingParserBase.TableDataReader;
 import com.google.refine.importing.ImportingController;
 import com.google.refine.importing.ImportingJob;
 import com.google.refine.importing.ImportingManager;
-import com.google.refine.model.Cell;
 import com.google.refine.model.Project;
-import com.google.refine.model.Row;
 import com.google.refine.util.JSONUtilities;
 import com.google.refine.util.ParsingUtilities;
 
@@ -197,13 +190,16 @@ public class CommonsImportingController implements ImportingController {
             ObjectNode options,
             List<Exception> exceptions) throws IOException {
 
+        String cmtitle = "Category:" + JSONUtilities.getString(options, "docUrl", null);
         String url = "https://commons.wikimedia.org./w/api.php"
-                + "?action=query&list=categorymembers&cmtitle=Category:art&cmtype=file&cmlimit=5&format=json";
+                + "?action=query&list=categorymembers&cmtitle="
+                + cmtitle + "&cmtype=subcat|file&cmprop=title|type|ids&cmlimit=5&format=json";
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url(url).build();
         Response response = client.newCall(request).execute();
         JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
         JsonNode files = jsonNode.path("query").path("categorymembers");
+        JSONUtilities.safePut(options, "headerLines", 0);
 
         parse(
             response,
@@ -253,21 +249,18 @@ public class CommonsImportingController implements ImportingController {
             ObjectNode options,
             List<Exception> exceptions) {
 
-            String pageId = "Category:art";//pageid?
-            String pageName = "art";
+            String pageName = JSONUtilities.getString(options, "docUrl", null);
             String fileSource = pageName + " # " +
                     files.findValue("title");
             setProgress(job, fileSource, 0);
+
             TabularImportingParserBase.readTable(
-                project,
-                metadata,
-                job,
-                new FilesBatchRowReader(job, fileSource, response, pageId, files/*, worksheetEntry*/),
-                fileSource,
-                limit,
-                options,
-                exceptions
-            );
+                    project,
+                    job,
+                    new FilesBatchRowReader(job, fileSource, files),
+                    limit,
+                    options,
+                    exceptions);
             setProgress(job, fileSource, 100);
         }
 
@@ -278,34 +271,18 @@ public class CommonsImportingController implements ImportingController {
         static private class FilesBatchRowReader implements TableDataReader {
             final ImportingJob job;
             final String fileSource;
-            final Response response;
-            final String pageId;
             JsonNode files;
             private int indexRow = 0;
+            List<Object> rowsOfCells;
 
-            public FilesBatchRowReader(ImportingJob job, String fileSource,
-                    Response response, String pageId, JsonNode files) {
+            public FilesBatchRowReader(ImportingJob job, String fileSource, JsonNode files) {
                 this.job = job;
                 this.fileSource = fileSource;
-                this.response = response;
-                this.pageId = pageId;
                 this.files = files;
             }
 
             @Override
             public List<Object> getNextRowOfCells() throws IOException {
-                List<Object> rowsOfCells;
-
-                if (files != null) {
-                    String row = files.get(indexRow).findValue("title").asText();
-                    rowsOfCells = Collections.singletonList(row);
-                    System.out.println("\n1: " + rowsOfCells + "\n");
-                    indexRow++;
-                    return rowsOfCells;
-                } else if (files == null) {
-                    return null;
-                }
-
                 if (files.size() > 0) {
                     setProgress(job, fileSource, 100 * indexRow / files.size());
                 } else if (indexRow == files.size()) {
@@ -313,7 +290,9 @@ public class CommonsImportingController implements ImportingController {
                 }
 
                 if (indexRow < files.size()) {
-                    return Collections.singletonList(files.get(indexRow++).findValue("title").asText());
+                    rowsOfCells = Collections.singletonList(files.get(indexRow++).findValue("title").asText());
+
+                    return rowsOfCells;
                 } else {
                     return null;
                 }
