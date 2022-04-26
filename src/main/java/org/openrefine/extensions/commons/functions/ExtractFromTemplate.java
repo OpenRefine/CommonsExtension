@@ -40,7 +40,7 @@ public class ExtractFromTemplate implements Function {
             iterate(node);
         }
         public void visit(WtTemplate template) {
-            if (templateName.equals(template.getName().getAsString())) {
+            if (templateName.trim().equals(template.getName().getAsString().trim())) {
                 WtTemplateArguments args = template.getArgs();
                 for (int i = 0; i != args.size(); i++) {
                     WtTemplateArgument arg = (WtTemplateArgument) args.get(i);
