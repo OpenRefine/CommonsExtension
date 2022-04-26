@@ -24,10 +24,18 @@ public class ExtractFromTemplateTest {
         String wikitext = "{{some template|bar=test}}\n"
                 + "{{foo|bar={{other template}}}}\n"
                 + "{{foo| foo = not important| bar = second value }}";
-        
+
         Object result = function.call(new Properties(), new Object[] {wikitext, "foo", "bar"});
 
         Assert.assertEquals(result, Arrays.asList("{{other template}}", "second value"));
     }
 
+    @Test
+    public void testTemplateNameNewLine() {
+        String wikitext = "{{foo\n|bar=hello}}";
+
+        Object result = function.call(new Properties(), new Object[] {wikitext, "foo\n", "bar"});
+
+        Assert.assertEquals(result, Arrays.asList("hello"));
+    }
 }
