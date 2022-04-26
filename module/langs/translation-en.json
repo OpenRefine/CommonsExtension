@@ -9,5 +9,6 @@
     "commons-parsing/start-over": "&laquo; Start Over",
     "commons-parsing/conf-pars": "Configure Parsing Options",
     "commons-parsing/proj-name": "Project&nbsp;name",
-    "commons-parsing/create-proj": "Create Project &raquo;"
+    "commons-parsing/create-proj": "Create Project &raquo;",
+    "commons-source/alert-retrieve": "No Category selected"
 }

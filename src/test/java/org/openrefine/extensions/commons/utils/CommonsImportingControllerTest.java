@@ -186,21 +186,21 @@ public class CommonsImportingControllerTest {
             HttpUrl url = server.url("/w/api.php");
 
             Row row = new Row(2);
-            row.setCell(0, new Cell("art", null));
+            row.setCell(0, new Cell("File:\"Amit Trainin drawing mural painting at Adam Zair magazine office - July 2021.jpg\".jpg", null));
             project2.rows.add(row);
             server.enqueue(new MockResponse().setBody(Integer.toString(100)));
+            String data = project2.rows.get(0).getCellValue(0).toString();
 
             EngineDependentOperation op = new ColumnAdditionByFetchingURLsOperation(engine_config,
                     "files",
                     url + "?action=query&list=categorymembers&cmtitle=Category:art&cmtype=file&cmlimit=5&format=json",
                     OnError.StoreError,
-                    "rand",
+                    "new",
                     1,
                     500,
                     true,
                     null);
 
-            // Inspect rows
             String ref_val = (String) project2.rows.get(0).getCellValue(0).toString();
             Assert.assertEquals(project2.rows.get(0).getCellValue(0).toString(), ref_val);
             server.shutdown();

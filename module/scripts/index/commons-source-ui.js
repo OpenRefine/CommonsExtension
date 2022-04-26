@@ -19,9 +19,15 @@ Refine.CommonsSourceUI = function(controller) {
     var self = this;
 
     this._elmts.NextButton.click(function(evt) {
+      var cmtitle = $.trim(self._elmts.categoryInput[0].value);
+      if (cmtitle.length === 0) {
+        window.alert($.i18n('commons-source/alert-retrieve'));
+      } else {
+        var doc = {};
+        doc.docSelfLink = cmtitle;
+        self._controller.startImportingDocument(doc);
+      }
 
-      var doc = {};
-      self._controller.startImportingDocument(doc);
     });
 
     this._body.find('.commons-page').hide();

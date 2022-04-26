@@ -106,7 +106,6 @@ Refine.CommonsImportingController.prototype._showParsingPanel = function() {
   this._parsingPanelElmts.projectNameInput[0].value = this._doc.title;
 
   this._createProjectUI.showCustomPanel(this._parsingPanel);
-  this._updatePreview();
 };
 
 Refine.CommonsImportingController.prototype._createProject = function() {

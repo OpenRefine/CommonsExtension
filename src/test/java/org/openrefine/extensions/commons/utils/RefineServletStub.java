@@ -44,7 +44,7 @@ public class RefineServletStub extends RefineServlet {
     // -------------------helper methods--------------
     /**
      * Helper method for inserting a mock object
-     * 
+     *
      * @param commandName
      * @param command
      */
@@ -54,7 +54,7 @@ public class RefineServletStub extends RefineServlet {
 
     /**
      * Helper method for clearing up after testing
-     * 
+     *
      * @param commandName
      */
     public void removeCommand(String commandName) {
