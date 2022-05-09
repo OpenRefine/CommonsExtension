@@ -39,7 +39,7 @@ import okhttp3.Response;
 public class CommonsImportingController implements ImportingController {
     private static final Logger logger = LoggerFactory.getLogger("CommonsImportingController");
     protected RefineServlet servlet;
-    public static int DEFAULT_PREVIEW_LIMIT = 100;
+    public static int DEFAULT_PREVIEW_LIMIT = 50;
     public static int DEFAULT_PROJECT_LIMIT = 0;
 
     @Override
@@ -131,57 +131,57 @@ public class CommonsImportingController implements ImportingController {
             HttpServletRequest request, HttpServletResponse response, Properties parameters)
                 throws ServletException, IOException {
 
-            long jobID = Long.parseLong(parameters.getProperty("jobID"));
-            ImportingJob job = ImportingManager.getJob(jobID);
-            if (job == null) {
-                HttpUtilities.respond(response, "error", "No such import job");
-                return;
-            }
+        long jobID = Long.parseLong(parameters.getProperty("jobID"));
+        ImportingJob job = ImportingManager.getJob(jobID);
+        if (job == null) {
+            HttpUtilities.respond(response, "error", "No such import job");
+            return;
+        }
 
-            job.updating = true;
-            ObjectNode optionObj = ParsingUtilities.evaluateJsonStringToObjectNode(
-                request.getParameter("options"));
+        job.updating = true;
+        ObjectNode optionObj = ParsingUtilities.evaluateJsonStringToObjectNode(
+            request.getParameter("options"));
 
-            List<Exception> exceptions = new LinkedList<Exception>();
+        List<Exception> exceptions = new LinkedList<Exception>();
 
-            job.prepareNewProject();
+        job.prepareNewProject();
 
-            parsePreview(
+        parsePreview(
                 job.project,
                 job.metadata,
                 job,
-                DEFAULT_PROJECT_LIMIT,
+                DEFAULT_PREVIEW_LIMIT,
                 optionObj,
                 exceptions
-            );
+        );
 
-            Writer w = response.getWriter();
-            JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
-            try {
-                writer.writeStartObject();
-                if (exceptions.size() == 0) {
-                    job.project.update(); // update all internal models, indexes, caches, etc.
+        Writer w = response.getWriter();
+        JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
+        try {
+            writer.writeStartObject();
+            if (exceptions.size() == 0) {
+                job.project.update(); // update all internal models, indexes, caches, etc.
 
-                    writer.writeStringField("status", "ok");
-                } else {
-                    writer.writeStringField("status", "error");
+                writer.writeStringField("status", "ok");
+            } else {
+                writer.writeStringField("status", "error");
 
-                    writer.writeArrayFieldStart("errors");
-                    writer.writeEndArray();
-                }
-                writer.writeEndObject();
-            } catch (IOException e) {
-                throw new ServletException(e);
-            } finally {
-                writer.flush();
-                writer.close();
-                w.flush();
-                w.close();
+                writer.writeArrayFieldStart("errors");
+                writer.writeEndArray();
             }
-
-            job.touch();
-            job.updating = false;
+            writer.writeEndObject();
+        } catch (IOException e) {
+            throw new ServletException(e);
+        } finally {
+            writer.flush();
+            writer.close();
+            w.flush();
+            w.close();
         }
+
+        job.touch();
+        job.updating = false;
+    }
 
     private static void parsePreview(
             Project project,
@@ -191,46 +191,38 @@ public class CommonsImportingController implements ImportingController {
             ObjectNode options,
             List<Exception> exceptions) throws IOException {
 
-        JSONUtilities.safePut(options, "headerLines", 0);
-        String cmtitle = JSONUtilities.getString(options, "docUrl", null);
-        if (!cmtitle.startsWith("Category:")) {
-            cmtitle = "Category:" + cmtitle;
-        }
+        /* Stub for upcoming parsing options preview */
 
-        parse(
-                project,
-                metadata,
-                job,
-                cmtitle,
-                limit,
-                options,
-                exceptions
-        );
     }
 
     static public void parse(
             Project project,
             ProjectMetadata metadata,
             final ImportingJob job,
-            String cmtitle,
             int limit,
             ObjectNode options,
             List<Exception> exceptions) throws IOException {
 
-            String pageName = cmtitle;
-            String fileSource = pageName;//FIXME: add filename
-
-            setProgress(job, fileSource, 0);
-
-            TabularImportingParserBase.readTable(
-                    project,
-                    job,
-                    new FilesBatchRowReader(job, fileSource, cmtitle),
-                    limit,
-                    options,
-                    exceptions);
-            setProgress(job, fileSource, 100);
+        JSONUtilities.safePut(options, "headerLines", 0);
+        /* get user-input from the Post request parameters */
+        String cmtitle = JSONUtilities.getString(options, "categoryInput", null);
+        if (!cmtitle.startsWith("Category:")) {
+            cmtitle = "Category:" + cmtitle;
         }
+        String pageName = cmtitle;
+        String fileSource = pageName;//FIXME: add filename
+        setProgress(job, fileSource, 0);
+
+        TabularImportingParserBase.readTable(
+                project,
+                job,
+                new FilesBatchRowReader(job, fileSource, cmtitle),
+                limit,
+                options,
+                exceptions
+        );
+        setProgress(job, fileSource, 100);
+    }
 
         static private void setProgress(ImportingJob job, String fileSource, int percent) {
             job.setProgress(percent, "Reading " + fileSource);
@@ -255,9 +247,11 @@ public class CommonsImportingController implements ImportingController {
                 getFiles(urlBase);
 
             }
+
+            // FIXME: pass GET parameters
             public void setURL() {
 
-                urlBase = "https://commons.wikimedia.org./w/api.php"
+                urlBase = "https://commons.wikimedia.org/w/api.php"
                     + "?action=query&list=categorymembers&cmtitle="
                     + cmtitle + "&cmtype=file&cmprop=title|type|ids&cmlimit=500&format=json";
 
@@ -305,60 +299,60 @@ public class CommonsImportingController implements ImportingController {
     private void doCreateProject(HttpServletRequest request, HttpServletResponse response, Properties parameters)
             throws ServletException, IOException {
 
-            long jobID = Long.parseLong(parameters.getProperty("jobID"));
-            final ImportingJob job = ImportingManager.getJob(jobID);
-            if (job == null) {
-                HttpUtilities.respond(response, "error", "No such import job");
-                return;
-            }
+        long jobID = Long.parseLong(parameters.getProperty("jobID"));
+        final ImportingJob job = ImportingManager.getJob(jobID);
+        if (job == null) {
+            HttpUtilities.respond(response, "error", "No such import job");
+            return;
+        }
 
-            job.updating = true;
-            final ObjectNode optionObj = ParsingUtilities.evaluateJsonStringToObjectNode(
-                request.getParameter("options"));
+        job.updating = true;
+        final ObjectNode optionObj = ParsingUtilities.evaluateJsonStringToObjectNode(
+            request.getParameter("options"));
 
-            final List<Exception> exceptions = new LinkedList<Exception>();
+        final List<Exception> exceptions = new LinkedList<Exception>();
 
-            job.setState("creating-project");
+        job.setState("creating-project");
 
-            final Project project = new Project();
-            new Thread() {
-                @Override
-                public void run() {
-                    ProjectMetadata pm = new ProjectMetadata();
-                    pm.setName(JSONUtilities.getString(optionObj, "projectName", "Untitled"));
-                    pm.setEncoding(JSONUtilities.getString(optionObj, "encoding", "UTF-8"));
+        final Project project = new Project();
+        new Thread() {
+            @Override
+            public void run() {
+                ProjectMetadata pm = new ProjectMetadata();
+                pm.setName(JSONUtilities.getString(optionObj, "projectName", "Untitled"));
+                pm.setEncoding(JSONUtilities.getString(optionObj, "encoding", "UTF-8"));
 
-                    try {
-                        parsePreview(
+                try {
+                    parse(
                             project,
                             pm,
                             job,
                             DEFAULT_PROJECT_LIMIT ,
                             optionObj,
                             exceptions
-                        );
-                    } catch (IOException e) {
-                        logger.error(ExceptionUtils.getStackTrace(e));
-                    }
-
-                    if (!job.canceled) {
-                        if (exceptions.size() > 0) {
-                            job.setError(exceptions);
-                        } else {
-                            project.update(); // update all internal models, indexes, caches, etc.
-
-                            ProjectManager.singleton.registerProject(project, pm);
-
-                            job.setState("created-project");
-                            job.setProjectID(project.id);
-                        }
-
-                        job.touch();
-                        job.updating = false;
-                    }
+                    );
+                } catch (IOException e) {
+                    logger.error(ExceptionUtils.getStackTrace(e));
                 }
-            }.start();
 
-            HttpUtilities.respond(response, "ok", "done");
-        }
+                if (!job.canceled) {
+                    if (exceptions.size() > 0) {
+                        job.setError(exceptions);
+                    } else {
+                        project.update(); // update all internal models, indexes, caches, etc.
+
+                        ProjectManager.singleton.registerProject(project, pm);
+
+                        job.setState("created-project");
+                        job.setProjectID(project.id);
+                    }
+
+                    job.touch();
+                    job.updating = false;
+                }
+            }
+        }.start();
+
+        HttpUtilities.respond(response, "ok", "done");
+    }
 }

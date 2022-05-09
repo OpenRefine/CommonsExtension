@@ -24,7 +24,7 @@ Refine.CommonsSourceUI = function(controller) {
         window.alert($.i18n('commons-source/alert-retrieve'));
       } else {
         var doc = {};
-        doc.docSelfLink = cmtitle;
+        doc.input = cmtitle;
         self._controller.startImportingDocument(doc);
       }
 
