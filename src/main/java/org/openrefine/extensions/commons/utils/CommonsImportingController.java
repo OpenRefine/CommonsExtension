@@ -32,6 +32,7 @@ import com.google.refine.model.Project;
 import com.google.refine.util.JSONUtilities;
 import com.google.refine.util.ParsingUtilities;
 
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -231,10 +232,12 @@ public class CommonsImportingController implements ImportingController {
         static private class FilesBatchRowReader implements TableDataReader {
             final ImportingJob job;
             final String fileSource;
+            String apiUrl = "https://commons.wikimedia.org/w/api.php";
+            HttpUrl urlBase;
+            HttpUrl urlContinue;
             JsonNode files;
             String cmtitle;
             String cmcontinue;
-            String urlBase;
             private int indexRow = 0;
             List<Object> rowsOfCells;
 
@@ -243,28 +246,37 @@ public class CommonsImportingController implements ImportingController {
                 this.job = job;
                 this.fileSource = fileSource;
                 this.cmtitle = cmtitle;
-                setURL();
-                getFiles(urlBase);
+                getFiles();
 
             }
 
-            // FIXME: pass GET parameters
-            public void setURL() {
+            public void getFiles() throws IOException {
 
-                urlBase = "https://commons.wikimedia.org/w/api.php"
-                    + "?action=query&list=categorymembers&cmtitle="
-                    + cmtitle + "&cmtype=file&cmprop=title|type|ids&cmlimit=500&format=json";
+                OkHttpClient client = new OkHttpClient.Builder().build();
+                urlBase = HttpUrl.parse(apiUrl).newBuilder()
+                        .addQueryParameter("action", "query")
+                        .addQueryParameter("list", "categorymembers")
+                        .addQueryParameter("cmtitle", cmtitle)
+                        .addQueryParameter("cmtype", "file")
+                        .addQueryParameter("cmprop", "title|type|ids")
+                        .addQueryParameter("cmlimit", "500")
+                        .addQueryParameter("format", "json").build();
+                Request request = new Request.Builder().url(urlBase).build();
+                Response response = client.newCall(request).execute();
+                JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+                files = jsonNode.path("query").path("categorymembers");
+                cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
 
             }
 
-            public void getFiles(String urlContinue) throws IOException {
+            public void getFiles(HttpUrl urlContinue) throws IOException {
 
                 OkHttpClient client = new OkHttpClient.Builder().build();
                 Request request = new Request.Builder().url(urlContinue).build();
                 Response response = client.newCall(request).execute();
                 JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
-                cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
                 files = jsonNode.path("query").path("categorymembers");
+                cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
 
             }
 
@@ -278,7 +290,8 @@ public class CommonsImportingController implements ImportingController {
                 }
 
                 if (indexRow == files.size() && !cmcontinue.isBlank()) {
-                    String urlContinue = urlBase + "&cmcontinue=" + cmcontinue;
+                    urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
+                            .addQueryParameter("cmcontinue", cmcontinue).build();
                     getFiles(urlContinue);
                     indexRow = 0;
                 }
