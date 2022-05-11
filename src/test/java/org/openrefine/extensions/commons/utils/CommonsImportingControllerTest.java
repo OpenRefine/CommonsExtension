@@ -2,11 +2,15 @@ package org.openrefine.extensions.commons.utils;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
@@ -67,7 +71,8 @@ public class CommonsImportingControllerTest {
     // dependencies
     private Project project;
     private Project project2;
-    private Properties options;
+    private Properties properties;
+    private ObjectNode options;
     private EngineConfig engine_config = EngineConfig.reconstruct(ENGINE_JSON_URLS);
     private ProjectMetadata metadata;
     private ImportingJob job;
@@ -148,6 +153,16 @@ public class CommonsImportingControllerTest {
         job = null;
     }
 
+    void parse(CommonsImportingController parser) throws IOException {
+        List<Exception> exceptions = new ArrayList<Exception>();
+        CommonsImportingController.parse(project, metadata, job, 0, options, exceptions);
+        assertEquals(exceptions.size(), 0);
+        project.update();
+    }
+    private void parse() throws IOException {
+        parse(SUT);
+    }
+
     @Test
     public void testDoGet() {
         StringWriter sw = new StringWriter();
@@ -173,6 +188,22 @@ public class CommonsImportingControllerTest {
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Test import controller
+     */
+    @Test
+    public void testImportController() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            HttpUrl url = server.url("/w/api.php");
+            String jsonResponse = "File:Amit";
+            // on first request, enqueue "x" response
+            server.enqueue(new MockResponse().setBody(jsonResponse));
+            parse();
+            Assert.assertEquals(project.rows.size(), 3);
         }
     }
 
