@@ -2,23 +2,22 @@ package org.openrefine.extensions.commons.utils;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
-import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.openrefine.extensions.commons.utils.CommonsImportingController.FilesBatchRowReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -31,21 +30,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.refine.ProjectManager;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.RefineServlet;
-import com.google.refine.browsing.EngineConfig;
 import com.google.refine.importing.ImportingJob;
 import com.google.refine.importing.ImportingManager;
 import com.google.refine.io.FileProjectManager;
-import com.google.refine.model.Cell;
 import com.google.refine.model.Column;
 import com.google.refine.model.ModelException;
 import com.google.refine.model.Project;
-import com.google.refine.model.Row;
-import com.google.refine.operations.EngineDependentOperation;
-import com.google.refine.operations.OnError;
 import com.google.refine.operations.OperationRegistry;
 import com.google.refine.operations.column.ColumnAdditionByFetchingURLsOperation;
-import com.google.refine.process.Process;
-import com.google.refine.process.ProcessManager;
 import com.google.refine.util.ParsingUtilities;
 
 import edu.mit.simile.butterfly.ButterflyModule;
@@ -56,7 +48,6 @@ import okhttp3.mockwebserver.MockWebServer;
 public class CommonsImportingControllerTest {
 
     static final String ENGINE_JSON_URLS = "{\"mode\":\"row-based\"}";
-    private String JSON_OPTION = "{\"mode\":\"row-based\"}}";
 
     @Mock
     private HttpServletRequest request;
@@ -70,14 +61,8 @@ public class CommonsImportingControllerTest {
 
     // dependencies
     private Project project;
-    private Project project2;
-    private Properties properties;
-    private ObjectNode options;
-    private EngineConfig engine_config = EngineConfig.reconstruct(ENGINE_JSON_URLS);
     private ProjectMetadata metadata;
     private ImportingJob job;
-
-    private String query;
 
     // System under test
     private CommonsImportingController SUT = null;
@@ -107,19 +92,19 @@ public class CommonsImportingControllerTest {
         servlet = new RefineServletStub();
         ProjectManager.singleton = new ProjectManagerStub();
         ImportingManager.initialize(servlet);
-        Project project2 = new Project();
+        Project project = new Project();
         ProjectMetadata pm = new ProjectMetadata();
         pm.setName(projectName);
-        ProjectManager.singleton.registerProject(project2, pm);
+        ProjectManager.singleton.registerProject(project, pm);
 
         if (columnNames != null) {
             for (String columnName : columnNames) {
-                int index = project2.columnModel.allocateNewCellIndex();
+                int index = project.columnModel.allocateNewCellIndex();
                 Column column = new Column(index, columnName);
-                project2.columnModel.addColumn(index, column, true);
+                project.columnModel.addColumn(index, column, true);
             }
         }
-        return project2;
+        return project;
     }
 
     @BeforeMethod
@@ -139,8 +124,6 @@ public class CommonsImportingControllerTest {
         ProjectManager.singleton.registerProject(project, metadata);
         SUT = new CommonsImportingController();
 
-        project2 = createProjectWithColumns("UrlFetchingTests", "files");
-
     }
 
     @AfterMethod
@@ -151,16 +134,6 @@ public class CommonsImportingControllerTest {
         project = null;
         metadata = null;
         job = null;
-    }
-
-    void parse(CommonsImportingController parser) throws IOException {
-        List<Exception> exceptions = new ArrayList<Exception>();
-        CommonsImportingController.parse(project, metadata, job, 0, options, exceptions);
-        assertEquals(exceptions.size(), 0);
-        project.update();
-    }
-    private void parse() throws IOException {
-        parse(SUT);
     }
 
     @Test
@@ -192,18 +165,65 @@ public class CommonsImportingControllerTest {
     }
 
     /**
-     * Test import controller
+     * Test row generation of mocked api calls
      */
     @Test
-    public void testImportController() throws Exception {
+    public void testgetNextRowOfCells() throws Exception {
+
         try (MockWebServer server = new MockWebServer()) {
             server.start();
             HttpUrl url = server.url("/w/api.php");
-            String jsonResponse = "File:Amit";
-            // on first request, enqueue "x" response
+            System.out.println(url.toString());
+            String jsonResponse = "{\"batchcomplete\":\"\",\"query\":{\"categorymembers\":[{\"pageid\":79787854,\"ns\":6,"
+                    + "\"title\":\"File:1542909883 657964 1542910423 noticia normal.jpg\",\"type\":\"file\"}]}}";
             server.enqueue(new MockResponse().setBody(jsonResponse));
-            parse();
-            Assert.assertEquals(project.rows.size(), 3);
+            /* create job.mock */
+            job = Mockito.mock(ImportingJob.class);
+            String cmtitle = "Category:space";
+            String fileSource = cmtitle;
+            FilesBatchRowReader reader = new FilesBatchRowReader(job, fileSource, cmtitle, url.toString());
+
+            List<Object> currentRow = null;
+            List<List<Object>> rows = new ArrayList<>();
+            while ((currentRow = reader.getNextRowOfCells()) != null) {
+                rows.add(currentRow);
+            }
+
+            Assert.assertEquals(rows.get(0), Arrays.asList("File:1542909883 657964 1542910423 noticia normal.jpg"));
+            Assert.assertEquals(rows.size(), 1);
+
+        }
+    }
+
+    /**
+     * Test row generation with a cmcontinue token
+     */
+    @Test
+    public void testgetNextRowOfCellsPaging() throws Exception {
+
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            HttpUrl url = server.url("/w/api.php");
+            System.out.println(url.toString());
+            String jsonResponse = "{\"batchcomplete\":\"\",\"continue\":{\"cmcontinue\":\"file|4152542047524146464954492e4a5047|111833935\",\"continue\":\"-||\"},"
+                    + "\"query\":{\"categorymembers\":[{\"pageid\":115927722,\"ns\":6,"
+                    + "\"title\":\"File:\\\"Amit Trainin drawing mural painting at Adam Zair magazine office - July 2021.jpg\\\".jpg\",\"type\":\"file\"}]}}";
+            server.enqueue(new MockResponse().setBody(jsonResponse));
+            /* create job.mock */
+            job = Mockito.mock(ImportingJob.class);
+            String cmtitle = "Category:art";
+            String fileSource = cmtitle;
+            FilesBatchRowReader reader = new FilesBatchRowReader(job, fileSource, cmtitle, url.toString());
+
+            List<Object> currentRow = null;
+            List<List<Object>> rows = new ArrayList<>();
+            while ((currentRow = reader.getNextRowOfCells()) != null) {
+                rows.add(currentRow);
+            }
+
+            Assert.assertEquals(rows.get(0), Arrays.asList("File:\\\"Amit Trainin drawing mural painting at Adam Zair magazine office - July 2021.jpg\\\".jpg"));
+            Assert.assertTrue(!reader.cmcontinue.isBlank());
+
         }
     }
 

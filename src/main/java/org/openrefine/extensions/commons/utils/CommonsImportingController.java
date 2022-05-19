@@ -212,12 +212,14 @@ public class CommonsImportingController implements ImportingController {
         }
         String pageName = cmtitle;
         String fileSource = pageName;//FIXME: add filename
+        String apiUrl = "https://commons.wikimedia.org/w/api.php";
+
         setProgress(job, fileSource, 0);
 
         TabularImportingParserBase.readTable(
                 project,
                 job,
-                new FilesBatchRowReader(job, fileSource, cmtitle),
+                new FilesBatchRowReader(job, fileSource, cmtitle, apiUrl),
                 limit,
                 options,
                 exceptions
@@ -229,10 +231,10 @@ public class CommonsImportingController implements ImportingController {
             job.setProgress(percent, "Reading " + fileSource);
         }
 
-        static private class FilesBatchRowReader implements TableDataReader {
+        static protected class FilesBatchRowReader implements TableDataReader {
             final ImportingJob job;
             final String fileSource;
-            String apiUrl = "https://commons.wikimedia.org/w/api.php";
+            String apiUrl;
             HttpUrl urlBase;
             HttpUrl urlContinue;
             JsonNode files;
@@ -241,11 +243,12 @@ public class CommonsImportingController implements ImportingController {
             private int indexRow = 0;
             List<Object> rowsOfCells;
 
-            public FilesBatchRowReader(ImportingJob job, String fileSource, String cmtitle) throws IOException {
+            public FilesBatchRowReader(ImportingJob job, String fileSource, String cmtitle, String apiUrl) throws IOException {
 
                 this.job = job;
                 this.fileSource = fileSource;
                 this.cmtitle = cmtitle;
+                this.apiUrl = apiUrl;
                 getFiles();
 
             }
