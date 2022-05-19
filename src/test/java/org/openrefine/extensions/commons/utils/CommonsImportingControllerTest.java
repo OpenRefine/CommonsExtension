@@ -165,7 +165,7 @@ public class CommonsImportingControllerTest {
     }
 
     /**
-     * Test row generation of mocked api calls
+     * Test row generation from mocked api calls and paging with a cmcontinue token
      */
     @Test
     public void testgetNextRowOfCells() throws Exception {
@@ -173,42 +173,13 @@ public class CommonsImportingControllerTest {
         try (MockWebServer server = new MockWebServer()) {
             server.start();
             HttpUrl url = server.url("/w/api.php");
-            System.out.println(url.toString());
-            String jsonResponse = "{\"batchcomplete\":\"\",\"query\":{\"categorymembers\":[{\"pageid\":79787854,\"ns\":6,"
-                    + "\"title\":\"File:1542909883 657964 1542910423 noticia normal.jpg\",\"type\":\"file\"}]}}";
+            String jsonResponse = "{\"batchcomplete\":\"\",\"continue\":{\"cmcontinue\":\"file|4492e4a5047|13935\",\"continue\":\"-||\"},"
+                    + "\"query\":{\"categorymembers\":[{\"pageid\":127722,\"ns\":6,"
+                    + "\"title\":\"File:Museo Nacional de Costa Rica Esfera.jpg\",\"type\":\"file\"}]}}";
             server.enqueue(new MockResponse().setBody(jsonResponse));
-            /* create job.mock */
-            job = Mockito.mock(ImportingJob.class);
-            String cmtitle = "Category:space";
-            String fileSource = cmtitle;
-            FilesBatchRowReader reader = new FilesBatchRowReader(job, fileSource, cmtitle, url.toString());
-
-            List<Object> currentRow = null;
-            List<List<Object>> rows = new ArrayList<>();
-            while ((currentRow = reader.getNextRowOfCells()) != null) {
-                rows.add(currentRow);
-            }
-
-            Assert.assertEquals(rows.get(0), Arrays.asList("File:1542909883 657964 1542910423 noticia normal.jpg"));
-            Assert.assertEquals(rows.size(), 1);
-
-        }
-    }
-
-    /**
-     * Test row generation with a cmcontinue token
-     */
-    @Test
-    public void testgetNextRowOfCellsPaging() throws Exception {
-
-        try (MockWebServer server = new MockWebServer()) {
-            server.start();
-            HttpUrl url = server.url("/w/api.php");
-            System.out.println(url.toString());
-            String jsonResponse = "{\"batchcomplete\":\"\",\"continue\":{\"cmcontinue\":\"file|4152542047524146464954492e4a5047|111833935\",\"continue\":\"-||\"},"
-                    + "\"query\":{\"categorymembers\":[{\"pageid\":115927722,\"ns\":6,"
-                    + "\"title\":\"File:\\\"Amit Trainin drawing mural painting at Adam Zair magazine office - July 2021.jpg\\\".jpg\",\"type\":\"file\"}]}}";
-            server.enqueue(new MockResponse().setBody(jsonResponse));
+            String jsonResponseContinue = "{\"batchcomplete\":\"\",\"query\":{\"categorymembers\":[{\"pageid\":112928,\"ns\":6,"
+                    + "\"title\":\"File:LasTres.jpg\",\"type\":\"file\"}]}}";
+            server.enqueue(new MockResponse().setBody(jsonResponseContinue));
             /* create job.mock */
             job = Mockito.mock(ImportingJob.class);
             String cmtitle = "Category:art";
@@ -221,8 +192,8 @@ public class CommonsImportingControllerTest {
                 rows.add(currentRow);
             }
 
-            Assert.assertEquals(rows.get(0), Arrays.asList("File:\\\"Amit Trainin drawing mural painting at Adam Zair magazine office - July 2021.jpg\\\".jpg"));
-            Assert.assertTrue(!reader.cmcontinue.isBlank());
+            Assert.assertEquals(rows.get(0), Arrays.asList("File:Museo Nacional de Costa Rica Esfera.jpg"));
+            Assert.assertEquals(rows.get(1), Arrays.asList("File:LasTres.jpg"));
 
         }
     }
