@@ -44,7 +44,7 @@ Refine.CommonsImportingController.prototype.startImportingDocument = function(do
             "command/core/importing-controller?" + $.param({
             "controller": "commons/commons-importing-controller",
             "subCommand": "initialize-parser-ui",
-            "docUrl": doc.docSelfLink,
+            "categoryInput": doc.input,
             "csrf_token": token
             }),
             null,
@@ -72,7 +72,7 @@ Refine.CommonsImportingController.prototype.startImportingDocument = function(do
 
 Refine.CommonsImportingController.prototype.getOptions = function() {
   var options = {
-    docUrl: this._doc.docSelfLink,
+    categoryInput: this._doc.input,
   };
 
   return options;
@@ -106,7 +106,6 @@ Refine.CommonsImportingController.prototype._showParsingPanel = function() {
   this._parsingPanelElmts.projectNameInput[0].value = this._doc.title;
 
   this._createProjectUI.showCustomPanel(this._parsingPanel);
-  this._updatePreview();
 };
 
 Refine.CommonsImportingController.prototype._createProject = function() {

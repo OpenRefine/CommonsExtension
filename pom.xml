@@ -29,12 +29,6 @@
 
   <build>
     <finalName>openrefine-commons</finalName>
-    <resources>
-      <resource>
-        <directory>src</directory>
-      </resource>
-    </resources>
-    <testSourceDirectory>tests/src</testSourceDirectory>
     <outputDirectory>module/MOD-INF/classes</outputDirectory>
     <plugins>
       <plugin>
@@ -160,6 +154,11 @@
       <version>${swc-parser-lazy.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>4.9.1</version>
+    </dependency>
 
     <!-- testing dependencies -->
 
@@ -173,6 +172,12 @@
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>mockwebserver</artifactId>
       <version>4.9.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>3.6.28</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
