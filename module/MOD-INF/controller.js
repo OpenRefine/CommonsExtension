@@ -38,7 +38,8 @@ function init() {
     module,
     [
       "scripts/index/commons-importing-controller.js",
-      "scripts/index/commons-source-ui.js"
+      "scripts/index/commons-source-ui.js",
+      "scripts/index/category-suggest.js"
     ]
   );
 
