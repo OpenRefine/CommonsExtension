@@ -39,6 +39,8 @@ function init() {
     [
       "scripts/index/commons-importing-controller.js",
       "scripts/index/commons-source-ui.js",
+      /* add suggest library from core */
+      "externals/suggest/suggest-4_3a.js",
       "scripts/index/category-suggest.js"
     ]
   );
