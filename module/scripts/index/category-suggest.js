@@ -1,8 +1,6 @@
-
 /**
  * Adaptation of the suggest widget to query the Commons autocomplete API directly
  */
-
 (function() {
 
   /**
@@ -49,16 +47,14 @@
 
           var query = val;
 
-          //var entity_type = o.entity_type || 'item';
-          var entity_type = o.entity_type || 'category';
-
           var data = {
-            //action: 'wbsearchentities',
             action: 'opensearch',
             language: o.language,
             search: query,
-            type: entity_type,
+            namespace: 14,
+            limit: 10,
             format: 'json',
+            formatversion: 2,
             origin: '*'
           };
 
@@ -66,7 +62,7 @@
             data['continue'] = cursor;
           }
 
-          var url = o.mediawiki_endpoint + "?" + $.param(data, true);
+          var url = "https://commons.wikimedia.org/w/api.php" + "?" + $.param(data, true);
           var cached = $.suggest.cache[url];
           if (cached) {
             this.response(cached, cursor ? cursor : -1, true);
@@ -75,8 +71,9 @@
 
           clearTimeout(this.request.timeout);
 
+          /* object passed to api for an http request */
           var ajax_options = {
-            url: o.mediawiki_endpoint,
+            url: "https://commons.wikimedia.org/w/api.php",
             data: data,
             traditional: true,
             beforeSend: function(xhr) {
@@ -93,10 +90,10 @@
               // translate the results of the Commons API to that of the reconciliation API
               var translated = {
                   prefix: val, // keep track of prefix to match up response with input value
-                  result: (data.search || []).map(result => { return {
-                      id: result.id,
-                      name: result.label,
-                      description: result.description};})
+                  result: (data[1] || []).map(result => { return {
+                      id: result,
+                      name: result
+                    };})
               };
               self.response(translated, cursor ? cursor : -1);
             },
@@ -122,8 +119,7 @@
             $.ajax(ajax_options);
           }, o.xhr_delay);
         }
-
-      }));
+    }));
 
   $.extend(
     $.suggest.suggestCategory,
@@ -132,10 +128,8 @@
         true,
         {},
         $.suggest.suggest.defaults, {
-            scoring: null/*,
-            css: {  }*/
-          /*scoring: "schema",
-        css: { pane: "fbs-pane fbs-pane-type" }*/
+          scoring: null,
+          css: { pane: "fbs-pane fbs-pane-type" }
         }
       )
     }
