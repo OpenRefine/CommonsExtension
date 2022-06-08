@@ -45,4 +45,13 @@ function init() {
     ]
   );
 
+  // Style files to inject into /index page
+  ClientSideResourceManager.addPaths(
+    "index/styles",
+    module,
+    [
+      "externals/suggest/css/suggest-4_3.css",
+      "externals/suggest/css/suggest-4_3.min.css"
+    ]
+  );
 }
