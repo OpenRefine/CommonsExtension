@@ -157,7 +157,7 @@ Refine.CommonsImportingController.prototype._createProject = function() {
             },
             1000
             );
-            self._createProjectUI.showImportProgressPanel($.i18n('gdata-import/creating'), function() {
+            self._createProjectUI.showImportProgressPanel($.i18n('commons-import/creating'), function() {
             // stop the timed polling
             window.clearInterval(timerID);
 
