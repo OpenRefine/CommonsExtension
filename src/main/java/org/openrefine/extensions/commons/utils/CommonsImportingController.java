@@ -2,6 +2,7 @@ package org.openrefine.extensions.commons.utils;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -206,51 +207,57 @@ public class CommonsImportingController implements ImportingController {
 
         JSONUtilities.safePut(options, "headerLines", 0);
         /* get user-input from the Post request parameters */
-        String cmtitle = JSONUtilities.getString(options, "categoryInput", null);
-        if (!cmtitle.startsWith("Category:")) {
-            cmtitle = "Category:" + cmtitle;
+        //String category = JSONUtilities.getString(options, "categoryInput", null);
+        JsonNode categoryInput = options.get("categoryJsonValue");
+        List<String> category = new ArrayList<>();
+        //String pageName = cmtitle;
+        for (JsonNode categoryI: categoryInput) {
+            category.add(categoryI.get("category").asText());
         }
-        String pageName = cmtitle;
-        String fileSource = pageName;//FIXME: add filename
+        System.out.println("\ncats:" + category);
+        //String fileSource = cmtitle;
         String apiUrl = "https://commons.wikimedia.org/w/api.php";
 
-        setProgress(job, fileSource, 0);
+        setProgress(job, category.get(0), 0);//will handle the first cat
 
         TabularImportingParserBase.readTable(
                 project,
                 job,
-                new FilesBatchRowReader(job, fileSource, cmtitle, apiUrl),
+                new FilesBatchRowReader(job, categoryInput, apiUrl),//will handle progress of other cats
                 limit,
                 options,
                 exceptions
         );
-        setProgress(job, fileSource, 100);
+        setProgress(job, category.get(category.size()-1), 100);
     }
 
-        static private void setProgress(ImportingJob job, String fileSource, int percent) {
-            job.setProgress(percent, "Reading " + fileSource);
+        static private void setProgress(ImportingJob job, String category, int percent) {
+            job.setProgress(percent, "Reading " + category);
         }
 
         static protected class FilesBatchRowReader implements TableDataReader {
             final ImportingJob job;
-            final String fileSource;
             String apiUrl;
             HttpUrl urlBase;
             HttpUrl urlContinue;
             JsonNode files;
-            String cmtitle;
+            JsonNode categoryInput;
+            String category;
             String cmcontinue;
             private int indexRow = 0;
             List<Object> rowsOfCells;
 
-            public FilesBatchRowReader(ImportingJob job, String fileSource, String cmtitle, String apiUrl) throws IOException {
+            public FilesBatchRowReader(ImportingJob job, JsonNode categoryInput, String apiUrl) throws IOException {
 
                 this.job = job;
-                this.fileSource = fileSource;
-                this.cmtitle = cmtitle;
+                this.categoryInput = categoryInput;
                 this.apiUrl = apiUrl;
-                getFiles();
+                getCategory(categoryInput);
 
+            }
+            public void getCategory(JsonNode categoryInput) throws IOException {
+                // FIXME
+                getFiles();
             }
 
             public void getFiles() throws IOException {
@@ -259,7 +266,7 @@ public class CommonsImportingController implements ImportingController {
                 urlBase = HttpUrl.parse(apiUrl).newBuilder()
                         .addQueryParameter("action", "query")
                         .addQueryParameter("list", "categorymembers")
-                        .addQueryParameter("cmtitle", cmtitle)
+                        .addQueryParameter("cmtitle", category)
                         .addQueryParameter("cmtype", "file")
                         .addQueryParameter("cmprop", "title|type|ids")
                         .addQueryParameter("cmlimit", "500")
@@ -287,9 +294,9 @@ public class CommonsImportingController implements ImportingController {
             public List<Object> getNextRowOfCells() throws IOException {
 
                 if (files.size() > 0) {
-                    setProgress(job, fileSource, 100 * indexRow / files.size());
+                    setProgress(job, category, 100 * indexRow / files.size());
                 } else if (indexRow == files.size()) {
-                    setProgress(job, fileSource, 100);
+                    setProgress(job, category, 100);
                 }
 
                 if (indexRow == files.size() && !cmcontinue.isBlank()) {
