@@ -18,16 +18,23 @@ Refine.CommonsSourceUI = function(controller) {
 
     var self = this;
 
-    this._elmts.NextButton.click(function(evt) {
-      var cmtitle = $.trim(self._elmts.categoryInput[0].value);
-      if (cmtitle.length === 0) {
-        window.alert($.i18n('commons-source/alert-retrieve'));
-      } else {
-        var doc = {};
-        doc.input = cmtitle;
-        self._controller.startImportingDocument(doc);
-      }
+    var endpoint = "https://commons.wikimedia.org/w/api.php"
+    // TO-DO: twik configuration to not use Freebase
+    var suggestConfig = {
+      commons_endpoint: endpoint,
+      language: $.i18n("core-recon/wd-recon-lang")
+    };
 
+    self._elmts.categoryInput.suggestCategory(suggestConfig).bind("fb-select", function(evt, data) {
+        self._elmts.categoryInput.data("jsonValue", {
+          id: data.id
+      });
+    });
+
+    this._elmts.NextButton.click(function(evt) {
+      var doc = {};
+      doc.input = self._elmts.categoryInput.data("jsonValue").id;
+      self._controller.startImportingDocument(doc);
     });
 
     this._body.find('.commons-page').hide();

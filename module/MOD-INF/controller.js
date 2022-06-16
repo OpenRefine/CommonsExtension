@@ -38,8 +38,19 @@ function init() {
     module,
     [
       "scripts/index/commons-importing-controller.js",
-      "scripts/index/commons-source-ui.js"
+      "scripts/index/commons-source-ui.js",
+      /* add suggest library from core */
+      "externals/suggest/suggest-4_3a.js",
+      "scripts/index/category-suggest.js"
     ]
   );
 
+  // Style files to inject into /index page
+  ClientSideResourceManager.addPaths(
+    "index/styles",
+    module,
+    [
+      "externals/suggest/css/suggest-4_3.min.css"
+    ]
+  );
 }
