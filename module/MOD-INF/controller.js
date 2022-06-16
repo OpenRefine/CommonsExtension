@@ -50,7 +50,6 @@ function init() {
     "index/styles",
     module,
     [
-      "externals/suggest/css/suggest-4_3.css",
       "externals/suggest/css/suggest-4_3.min.css"
     ]
   );

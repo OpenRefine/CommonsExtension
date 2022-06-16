@@ -5,7 +5,7 @@
 
   /**
    * Options:
-   * mediawiki_endpoint: url of the Commons API
+   * commons_endpoint: url of the Commons API
    * entity_type: type of entity to suggest (one of form, item, lexeme, property, sense, mediainfo…)
    * language: language code of the language to search in
    */
@@ -62,7 +62,7 @@
             data['continue'] = cursor;
           }
 
-          var url = "https://commons.wikimedia.org/w/api.php" + "?" + $.param(data, true);
+          var url = o.commons_endpoint + "?" + $.param(data, true);
           var cached = $.suggest.cache[url];
           if (cached) {
             this.response(cached, cursor ? cursor : -1, true);
@@ -73,7 +73,7 @@
 
           /* object passed to api for an http request */
           var ajax_options = {
-            url: "https://commons.wikimedia.org/w/api.php",
+            url: o.commons_endpoint,
             data: data,
             traditional: true,
             beforeSend: function(xhr) {
