@@ -207,28 +207,25 @@ public class CommonsImportingController implements ImportingController {
 
         JSONUtilities.safePut(options, "headerLines", 0);
         /* get user-input from the Post request parameters */
-        //String category = JSONUtilities.getString(options, "categoryInput", null);
         JsonNode categoryInput = options.get("categoryJsonValue");
-        List<String> category = new ArrayList<>();
-        //String pageName = cmtitle;
-        for (JsonNode categoryI: categoryInput) {
-            category.add(categoryI.get("category").asText());
+        List<String> categories = new ArrayList<>();
+        for (JsonNode category: categoryInput) {
+            categories.add(category.get("category").asText());
         }
-        System.out.println("\ncats:" + category);
-        //String fileSource = cmtitle;
         String apiUrl = "https://commons.wikimedia.org/w/api.php";
 
-        setProgress(job, category.get(0), 0);//will handle the first cat
+        setProgress(job, categories.get(0), 0);// handles the first category
 
         TabularImportingParserBase.readTable(
                 project,
                 job,
-                new FilesBatchRowReader(job, categoryInput, apiUrl),//will handle progress of other cats
+                // FIXME: FilesBatchRowReader will handle progress of the other categories
+                new FilesBatchRowReader(job, categories, apiUrl),
                 limit,
                 options,
                 exceptions
         );
-        setProgress(job, category.get(category.size()-1), 100);
+        setProgress(job, categories.get(categories.size()-1), 100);
     }
 
         static private void setProgress(ImportingJob job, String category, int percent) {
@@ -241,26 +238,30 @@ public class CommonsImportingController implements ImportingController {
             HttpUrl urlBase;
             HttpUrl urlContinue;
             JsonNode files;
-            JsonNode categoryInput;
+            List<String> categories;
             String category;
             String cmcontinue;
             private int indexRow = 0;
+            private int indexCategories = 0;
             List<Object> rowsOfCells;
 
-            public FilesBatchRowReader(ImportingJob job, JsonNode categoryInput, String apiUrl) throws IOException {
+            public FilesBatchRowReader(ImportingJob job, List<String> categories, String apiUrl) throws IOException {
 
                 this.job = job;
-                this.categoryInput = categoryInput;
+                this.categories = categories;
                 this.apiUrl = apiUrl;
-                getCategory(categoryInput);
+                getCategory();
 
             }
-            public void getCategory(JsonNode categoryInput) throws IOException {
+            public void getCategory() throws IOException {
                 // FIXME
-                getFiles();
+                for (int i=0; i < categories.size(); i++) {
+                    System.out.println(categories.get(i));
+                    getFiles(categories.get(i));
+                }
             }
 
-            public void getFiles() throws IOException {
+            public void getFiles(String category) throws IOException {
 
                 OkHttpClient client = new OkHttpClient.Builder().build();
                 urlBase = HttpUrl.parse(apiUrl).newBuilder()
@@ -276,6 +277,7 @@ public class CommonsImportingController implements ImportingController {
                 JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
                 files = jsonNode.path("query").path("categorymembers");
                 cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
+                indexCategories++;
 
             }
 
@@ -306,7 +308,7 @@ public class CommonsImportingController implements ImportingController {
                     indexRow = 0;
                 }
 
-                if (indexRow < files.size()) {
+                if ((indexRow < files.size()) && indexCategories <= categories.size()) {
                     rowsOfCells = Collections.singletonList(files.get(indexRow++).findValue("title").asText());
 
                     return rowsOfCells;
