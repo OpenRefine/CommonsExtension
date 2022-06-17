@@ -214,12 +214,13 @@ public class CommonsImportingController implements ImportingController {
         }
         String apiUrl = "https://commons.wikimedia.org/w/api.php";
 
-        setProgress(job, categories.get(0), 0);// handles the first category
+        // initializes progress reporting with the name of the first category
+        setProgress(job, categories.get(0), 0);
 
         TabularImportingParserBase.readTable(
                 project,
                 job,
-                // FIXME: FilesBatchRowReader will handle progress of the other categories
+                // FIXME: FilesBatchRowReader will show the progress of the other categories
                 new FilesBatchRowReader(job, categories, apiUrl),
                 limit,
                 options,
@@ -242,7 +243,6 @@ public class CommonsImportingController implements ImportingController {
             String category;
             String cmcontinue;
             private int indexRow = 0;
-            private int indexCategories = 0;
             List<Object> rowsOfCells;
 
             public FilesBatchRowReader(ImportingJob job, List<String> categories, String apiUrl) throws IOException {
@@ -250,34 +250,28 @@ public class CommonsImportingController implements ImportingController {
                 this.job = job;
                 this.categories = categories;
                 this.apiUrl = apiUrl;
-                getCategory();
+                getFiles();
 
             }
-            public void getCategory() throws IOException {
-                // FIXME
+            public void getFiles() throws IOException {
+
                 for (int i=0; i < categories.size(); i++) {
-                    System.out.println(categories.get(i));
-                    getFiles(categories.get(i));
+                    category = categories.get(i);
+                    OkHttpClient client = new OkHttpClient.Builder().build();
+                    urlBase = HttpUrl.parse(apiUrl).newBuilder()
+                            .addQueryParameter("action", "query")
+                            .addQueryParameter("list", "categorymembers")
+                            .addQueryParameter("cmtitle", category)
+                            .addQueryParameter("cmtype", "file")
+                            .addQueryParameter("cmprop", "title|type|ids")
+                            .addQueryParameter("cmlimit", "500")
+                            .addQueryParameter("format", "json").build();
+                    Request request = new Request.Builder().url(urlBase).build();
+                    Response response = client.newCall(request).execute();
+                    JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+                    files = jsonNode.path("query").path("categorymembers");
+                    cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
                 }
-            }
-
-            public void getFiles(String category) throws IOException {
-
-                OkHttpClient client = new OkHttpClient.Builder().build();
-                urlBase = HttpUrl.parse(apiUrl).newBuilder()
-                        .addQueryParameter("action", "query")
-                        .addQueryParameter("list", "categorymembers")
-                        .addQueryParameter("cmtitle", category)
-                        .addQueryParameter("cmtype", "file")
-                        .addQueryParameter("cmprop", "title|type|ids")
-                        .addQueryParameter("cmlimit", "500")
-                        .addQueryParameter("format", "json").build();
-                Request request = new Request.Builder().url(urlBase).build();
-                Response response = client.newCall(request).execute();
-                JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
-                files = jsonNode.path("query").path("categorymembers");
-                cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
-                indexCategories++;
 
             }
 
@@ -308,7 +302,7 @@ public class CommonsImportingController implements ImportingController {
                     indexRow = 0;
                 }
 
-                if ((indexRow < files.size()) && indexCategories <= categories.size()) {
+                if (indexRow < files.size()) {
                     rowsOfCells = Collections.singletonList(files.get(indexRow++).findValue("title").asText());
 
                     return rowsOfCells;
