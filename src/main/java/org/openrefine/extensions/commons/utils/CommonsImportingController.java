@@ -243,6 +243,7 @@ public class CommonsImportingController implements ImportingController {
             String category;
             String cmcontinue;
             private int indexRow = 0;
+            private int indexCategories = 1;
             List<Object> rowsOfCells;
 
             public FilesBatchRowReader(ImportingJob job, List<String> categories, String apiUrl) throws IOException {
@@ -250,28 +251,26 @@ public class CommonsImportingController implements ImportingController {
                 this.job = job;
                 this.categories = categories;
                 this.apiUrl = apiUrl;
-                getFiles();
+                getFiles(categories.get(0));
 
             }
-            public void getFiles() throws IOException {
 
-                for (int i=0; i < categories.size(); i++) {
-                    category = categories.get(i);
-                    OkHttpClient client = new OkHttpClient.Builder().build();
-                    urlBase = HttpUrl.parse(apiUrl).newBuilder()
-                            .addQueryParameter("action", "query")
-                            .addQueryParameter("list", "categorymembers")
-                            .addQueryParameter("cmtitle", category)
-                            .addQueryParameter("cmtype", "file")
-                            .addQueryParameter("cmprop", "title|type|ids")
-                            .addQueryParameter("cmlimit", "500")
-                            .addQueryParameter("format", "json").build();
-                    Request request = new Request.Builder().url(urlBase).build();
-                    Response response = client.newCall(request).execute();
-                    JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
-                    files = jsonNode.path("query").path("categorymembers");
-                    cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
-                }
+            public void getFiles(String category) throws IOException {
+
+                OkHttpClient client = new OkHttpClient.Builder().build();
+                urlBase = HttpUrl.parse(apiUrl).newBuilder()
+                        .addQueryParameter("action", "query")
+                        .addQueryParameter("list", "categorymembers")
+                        .addQueryParameter("cmtitle", category)
+                        .addQueryParameter("cmtype", "file")
+                        .addQueryParameter("cmprop", "title|type|ids")
+                        .addQueryParameter("cmlimit", "500")
+                        .addQueryParameter("format", "json").build();
+                Request request = new Request.Builder().url(urlBase).build();
+                Response response = client.newCall(request).execute();
+                JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+                files = jsonNode.path("query").path("categorymembers");
+                cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
 
             }
 
@@ -295,11 +294,25 @@ public class CommonsImportingController implements ImportingController {
                     setProgress(job, category, 100);
                 }
 
-                if (indexRow == files.size() && !cmcontinue.isBlank()) {
-                    urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
-                            .addQueryParameter("cmcontinue", cmcontinue).build();
-                    getFiles(urlContinue);
-                    indexRow = 0;
+                if ((indexRow == files.size()) && indexCategories < categories.size()) {
+                    if (cmcontinue.isBlank()) {
+                        getFiles(categories.get(indexCategories++));
+                        indexRow = 0;
+                    } else {
+                        urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
+                                .addQueryParameter("cmcontinue", cmcontinue).build();
+                        getFiles(urlContinue);
+                        indexRow = 0;
+                    }
+                }
+
+                if ((indexRow == files.size()) && indexCategories == categories.size()) {
+                    if (!cmcontinue.isBlank()) {
+                        urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
+                                .addQueryParameter("cmcontinue", cmcontinue).build();
+                        getFiles(urlContinue);
+                        indexRow = 0;
+                    }
                 }
 
                 if (indexRow < files.size()) {
