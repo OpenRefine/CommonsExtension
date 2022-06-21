@@ -220,7 +220,6 @@ public class CommonsImportingController implements ImportingController {
         TabularImportingParserBase.readTable(
                 project,
                 job,
-                // FIXME: FilesBatchRowReader will show the progress of the other categories
                 new FilesBatchRowReader(job, categories, apiUrl),
                 limit,
                 options,
@@ -288,10 +287,12 @@ public class CommonsImportingController implements ImportingController {
             @Override
             public List<Object> getNextRowOfCells() throws IOException {
 
-                if (files.size() > 0) {
-                    setProgress(job, category, 100 * indexRow / files.size());
-                } else if (indexRow == files.size()) {
-                    setProgress(job, category, 100);
+                for (int i = 1; i < categories.size(); i++) {
+                    if (files.size() > 0) {
+                        setProgress(job, categories.get(i), 100 * indexRow / files.size());
+                    } else if (indexRow == files.size()) {
+                        setProgress(job, categories.get(i), 100);
+                    }
                 }
 
                 if ((indexRow == files.size()) && indexCategories < categories.size()) {
