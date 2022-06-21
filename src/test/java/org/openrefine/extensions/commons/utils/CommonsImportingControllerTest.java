@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -182,9 +183,8 @@ public class CommonsImportingControllerTest {
             server.enqueue(new MockResponse().setBody(jsonResponseContinue));
             /* create job.mock */
             job = Mockito.mock(ImportingJob.class);
-            String cmtitle = "Category:art";
-            String fileSource = cmtitle;
-            FilesBatchRowReader reader = new FilesBatchRowReader(job, fileSource, cmtitle, url.toString());
+            List<String> category = Collections.singletonList("Category:art");
+            FilesBatchRowReader reader = new FilesBatchRowReader(job, category, url.toString());
 
             List<Object> currentRow = null;
             List<List<Object>> rows = new ArrayList<>();
