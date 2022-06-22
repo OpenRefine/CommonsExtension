@@ -47,9 +47,8 @@ Refine.CommonsSourceUI.prototype.attachUI = function(body) {
 
   this._elmts.NextButton.click(function(evt) {
     var doc = {};
-    // FIXME: check at least one of the text boxes is not empty, pass the non-empty field's data to backend
-    if (self._elmts.categoryInput.data("jsonValue").id.length === 0) {
-      window.alert($.i18n('commons-source/alert-retrieve'));
+    if (categoryJsonObj.length === 0) {
+        window.alert($.i18n('commons-source/alert-retrieve'));
     } else {
       doc.categoryJsonObj = categoryJsonObj;
       self._controller.startImportingDocument(doc);
