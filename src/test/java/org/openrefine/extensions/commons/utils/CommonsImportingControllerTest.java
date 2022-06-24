@@ -232,10 +232,19 @@ public class CommonsImportingControllerTest {
             }
 
             RecordedRequest recordedRequestCategory1 = server.takeRequest();
-            String queryParameters = "/w/api.php?action=query&list=categorymembers&"
+            RecordedRequest recordedRequestCategory2 = server.takeRequest();
+            RecordedRequest recordedRequestCategory2Continue = server.takeRequest();
+            String queryParametersCategory1 = "/w/api.php?action=query&list=categorymembers&"
                     + "cmtitle=Category%3AA&cmtype=file&cmprop=title%7Ctype%7Cids&cmlimit=500&format=json";
+            String queryParametersCategory2 = "/w/api.php?action=query&list=categorymembers&"
+                    + "cmtitle=Category%3AB&cmtype=file&cmprop=title%7Ctype%7Cids&cmlimit=500&format=json";
+            String queryParametersCategory2Continue = "/w/api.php?action=query&list=categorymembers&"
+                    + "cmtitle=Category%3AB&cmtype=file&cmprop=title%7Ctype%7Cids&cmlimit=500&format=json"
+                    + "&cmcontinue=file%7C4492e4a5047%7C13935";
 
-            Assert.assertEquals(queryParameters, recordedRequestCategory1.getPath());
+            Assert.assertEquals(queryParametersCategory1, recordedRequestCategory1.getPath());
+            Assert.assertEquals(queryParametersCategory2, recordedRequestCategory2.getPath());
+            Assert.assertEquals(queryParametersCategory2Continue, recordedRequestCategory2Continue.getPath());
             Assert.assertEquals(rows.get(0), Arrays.asList("File:The Letter A.jpg"));
             Assert.assertEquals(rows.get(1), Arrays.asList("File:The Letter B.jpg"));
             Assert.assertEquals(rows.get(2), Arrays.asList("File:La letra B.jpg"));
