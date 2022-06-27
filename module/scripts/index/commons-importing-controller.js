@@ -44,7 +44,8 @@ Refine.CommonsImportingController.prototype.startImportingDocument = function(do
             "command/core/importing-controller?" + $.param({
             "controller": "commons/commons-importing-controller",
             "subCommand": "initialize-parser-ui",
-            "categoryInput": doc.input,
+            /* all the selected categories */
+            "categoryJsonValue" : JSON.stringify(doc.categoryJsonObj),// this serializes the string
             "csrf_token": token
             }),
             null,
@@ -72,7 +73,7 @@ Refine.CommonsImportingController.prototype.startImportingDocument = function(do
 
 Refine.CommonsImportingController.prototype.getOptions = function() {
   var options = {
-    categoryInput: this._doc.input,
+    categoryJsonValue: this._doc.categoryJsonObj,
   };
 
   return options;

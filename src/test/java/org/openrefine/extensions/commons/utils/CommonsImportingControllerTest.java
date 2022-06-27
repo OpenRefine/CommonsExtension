@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +45,7 @@ import edu.mit.simile.butterfly.ButterflyModule;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 
 public class CommonsImportingControllerTest {
 
@@ -182,9 +184,8 @@ public class CommonsImportingControllerTest {
             server.enqueue(new MockResponse().setBody(jsonResponseContinue));
             /* create job.mock */
             job = Mockito.mock(ImportingJob.class);
-            String cmtitle = "Category:art";
-            String fileSource = cmtitle;
-            FilesBatchRowReader reader = new FilesBatchRowReader(job, fileSource, cmtitle, url.toString());
+            List<String> category = Collections.singletonList("Category:Costa Rica");
+            FilesBatchRowReader reader = new FilesBatchRowReader(job, category, url.toString());
 
             List<Object> currentRow = null;
             List<List<Object>> rows = new ArrayList<>();
@@ -194,6 +195,59 @@ public class CommonsImportingControllerTest {
 
             Assert.assertEquals(rows.get(0), Arrays.asList("File:Museo Nacional de Costa Rica Esfera.jpg"));
             Assert.assertEquals(rows.get(1), Arrays.asList("File:LasTres.jpg"));
+
+        }
+    }
+
+    /**
+     * Test row generation from multiple api calls and paging with a cmcontinue token
+     */
+    @Test
+    public void testgetNextRowOfCellsMultCategories() throws Exception {
+
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            HttpUrl url = server.url("/w/api.php");
+            String jsonResponseCategory1 = "{\"batchcomplete\":\"\",\"query\":{\"categorymembers\":[{\"pageid\":187322,\"ns\":3,"
+                    + "\"title\":\"File:The Letter A.jpg\",\"type\":\"file\"}]}}";
+            server.enqueue(new MockResponse().setBody(jsonResponseCategory1));
+            String jsonResponseCategory2 = "{\"batchcomplete\":\"\",\"continue\":{\"cmcontinue\":\"file|4492e4a5047|13935\",\"continue\":\"-||\"},"
+                    + "\"query\":{\"categorymembers\":[{\"pageid\":127722,\"ns\":6,"
+                    + "\"title\":\"File:The Letter B.jpg\",\"type\":\"file\"}]}}";
+            server.enqueue(new MockResponse().setBody(jsonResponseCategory2));
+            String jsonResponseCategory2Continue = "{\"batchcomplete\":\"\",\"query\":{\"categorymembers\":[{\"pageid\":112928,\"ns\":6,"
+                    + "\"title\":\"File:La letra B.jpg\",\"type\":\"file\"}]}}";
+            server.enqueue(new MockResponse().setBody(jsonResponseCategory2Continue));
+            /* create job.mock */
+            job = Mockito.mock(ImportingJob.class);
+            List<String> categories = new ArrayList<>();
+            categories.add("Category:A");
+            categories.add("Category:B");
+            FilesBatchRowReader reader = new FilesBatchRowReader(job, categories, url.toString());
+
+            List<Object> currentRow = null;
+            List<List<Object>> rows = new ArrayList<>();
+            while ((currentRow = reader.getNextRowOfCells()) != null) {
+                rows.add(currentRow);
+            }
+
+            RecordedRequest recordedRequestCategory1 = server.takeRequest();
+            RecordedRequest recordedRequestCategory2 = server.takeRequest();
+            RecordedRequest recordedRequestCategory2Continue = server.takeRequest();
+            String queryParametersCategory1 = "/w/api.php?action=query&list=categorymembers&"
+                    + "cmtitle=Category%3AA&cmtype=file&cmprop=title%7Ctype%7Cids&cmlimit=500&format=json";
+            String queryParametersCategory2 = "/w/api.php?action=query&list=categorymembers&"
+                    + "cmtitle=Category%3AB&cmtype=file&cmprop=title%7Ctype%7Cids&cmlimit=500&format=json";
+            String queryParametersCategory2Continue = "/w/api.php?action=query&list=categorymembers&"
+                    + "cmtitle=Category%3AB&cmtype=file&cmprop=title%7Ctype%7Cids&cmlimit=500&format=json"
+                    + "&cmcontinue=file%7C4492e4a5047%7C13935";
+
+            Assert.assertEquals(queryParametersCategory1, recordedRequestCategory1.getPath());
+            Assert.assertEquals(queryParametersCategory2, recordedRequestCategory2.getPath());
+            Assert.assertEquals(queryParametersCategory2Continue, recordedRequestCategory2Continue.getPath());
+            Assert.assertEquals(rows.get(0), Arrays.asList("File:The Letter A.jpg"));
+            Assert.assertEquals(rows.get(1), Arrays.asList("File:The Letter B.jpg"));
+            Assert.assertEquals(rows.get(2), Arrays.asList("File:La letra B.jpg"));
 
         }
     }

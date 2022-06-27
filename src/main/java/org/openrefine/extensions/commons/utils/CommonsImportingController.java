@@ -2,6 +2,7 @@ package org.openrefine.extensions.commons.utils;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -206,60 +207,60 @@ public class CommonsImportingController implements ImportingController {
 
         JSONUtilities.safePut(options, "headerLines", 0);
         /* get user-input from the Post request parameters */
-        String cmtitle = JSONUtilities.getString(options, "categoryInput", null);
-        if (!cmtitle.startsWith("Category:")) {
-            cmtitle = "Category:" + cmtitle;
+        JsonNode categoryInput = options.get("categoryJsonValue");
+        List<String> categories = new ArrayList<>();
+        for (JsonNode category: categoryInput) {
+            categories.add(category.get("category").asText());
         }
-        String pageName = cmtitle;
-        String fileSource = pageName;//FIXME: add filename
         String apiUrl = "https://commons.wikimedia.org/w/api.php";
 
-        setProgress(job, fileSource, 0);
+        // initializes progress reporting with the name of the first category
+        setProgress(job, categories.get(0), 0);
 
         TabularImportingParserBase.readTable(
                 project,
                 job,
-                new FilesBatchRowReader(job, fileSource, cmtitle, apiUrl),
+                new FilesBatchRowReader(job, categories, apiUrl),
                 limit,
                 options,
                 exceptions
         );
-        setProgress(job, fileSource, 100);
+        setProgress(job, categories.get(categories.size()-1), 100);
     }
 
-        static private void setProgress(ImportingJob job, String fileSource, int percent) {
-            job.setProgress(percent, "Reading " + fileSource);
+        static private void setProgress(ImportingJob job, String category, int percent) {
+            job.setProgress(percent, "Reading " + category);
         }
 
         static protected class FilesBatchRowReader implements TableDataReader {
             final ImportingJob job;
-            final String fileSource;
             String apiUrl;
             HttpUrl urlBase;
             HttpUrl urlContinue;
             JsonNode files;
-            String cmtitle;
+            List<String> categories;
+            String category;
             String cmcontinue;
             private int indexRow = 0;
+            private int indexCategories = 1;
             List<Object> rowsOfCells;
 
-            public FilesBatchRowReader(ImportingJob job, String fileSource, String cmtitle, String apiUrl) throws IOException {
+            public FilesBatchRowReader(ImportingJob job, List<String> categories, String apiUrl) throws IOException {
 
                 this.job = job;
-                this.fileSource = fileSource;
-                this.cmtitle = cmtitle;
+                this.categories = categories;
                 this.apiUrl = apiUrl;
-                getFiles();
+                getFiles(categories.get(0));
 
             }
 
-            public void getFiles() throws IOException {
+            public void getFiles(String category) throws IOException {
 
                 OkHttpClient client = new OkHttpClient.Builder().build();
                 urlBase = HttpUrl.parse(apiUrl).newBuilder()
                         .addQueryParameter("action", "query")
                         .addQueryParameter("list", "categorymembers")
-                        .addQueryParameter("cmtitle", cmtitle)
+                        .addQueryParameter("cmtitle", category)
                         .addQueryParameter("cmtype", "file")
                         .addQueryParameter("cmprop", "title|type|ids")
                         .addQueryParameter("cmlimit", "500")
@@ -286,17 +287,33 @@ public class CommonsImportingController implements ImportingController {
             @Override
             public List<Object> getNextRowOfCells() throws IOException {
 
-                if (files.size() > 0) {
-                    setProgress(job, fileSource, 100 * indexRow / files.size());
-                } else if (indexRow == files.size()) {
-                    setProgress(job, fileSource, 100);
+                for (int i = 1; i < categories.size(); i++) {
+                    if (files.size() > 0) {
+                        setProgress(job, categories.get(i), 100 * indexRow / files.size());
+                    } else if (indexRow == files.size()) {
+                        setProgress(job, categories.get(i), 100);
+                    }
                 }
 
-                if (indexRow == files.size() && !cmcontinue.isBlank()) {
-                    urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
-                            .addQueryParameter("cmcontinue", cmcontinue).build();
-                    getFiles(urlContinue);
-                    indexRow = 0;
+                if ((indexRow == files.size()) && indexCategories < categories.size()) {
+                    if (cmcontinue.isBlank()) {
+                        getFiles(categories.get(indexCategories++));
+                        indexRow = 0;
+                    } else {
+                        urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
+                                .addQueryParameter("cmcontinue", cmcontinue).build();
+                        getFiles(urlContinue);
+                        indexRow = 0;
+                    }
+                }
+
+                if ((indexRow == files.size()) && indexCategories == categories.size()) {
+                    if (!cmcontinue.isBlank()) {
+                        urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
+                                .addQueryParameter("cmcontinue", cmcontinue).build();
+                        getFiles(urlContinue);
+                        indexRow = 0;
+                    }
                 }
 
                 if (indexRow < files.size()) {
