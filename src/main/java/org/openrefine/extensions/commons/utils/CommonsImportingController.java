@@ -110,8 +110,6 @@ public class CommonsImportingController implements ImportingController {
         JSONUtilities.safePut(result, "options", options);
 
         JSONUtilities.safePut(options, "skipDataLines", 0); 
-        JSONUtilities.safePut(options, "storeBlankRows", true);
-        JSONUtilities.safePut(options, "storeBlankCellsAsNulls", true);
         if(logger.isDebugEnabled()) {
             logger.debug("doInitializeParserUI:::{}", result.toString());
         }
@@ -193,7 +191,14 @@ public class CommonsImportingController implements ImportingController {
             ObjectNode options,
             List<Exception> exceptions) throws IOException {
 
-        /* Stub for upcoming parsing options preview */
+        parse(
+                project,
+                metadata,
+                job,
+                DEFAULT_PREVIEW_LIMIT ,
+                options,
+                exceptions
+        );
 
     }
 

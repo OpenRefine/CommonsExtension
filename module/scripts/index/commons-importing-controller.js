@@ -49,7 +49,6 @@ Refine.CommonsImportingController.prototype.startImportingDocument = function(do
             "csrf_token": token
             }),
             null,
-
             function(data2) {
                 dismiss();
 
@@ -76,6 +75,34 @@ Refine.CommonsImportingController.prototype.getOptions = function() {
     categoryJsonValue: this._doc.categoryJsonObj,
   };
 
+  var parseIntDefault = function(s, def) {
+    try {
+      var n = parseInt(s);
+      if (!isNaN(n)) {
+        return n;
+      }
+    } catch (e) {
+      // Ignore
+    }
+    return def;
+  };
+
+  if (this._parsingPanelElmts.skipCheckbox[0].checked) {
+    options.skipDataLines = parseIntDefault(this._parsingPanelElmts.skipInput[0].value, 0);
+  } else {
+    options.skipDataLines = 0;
+  }
+  if (this._parsingPanelElmts.limitCheckbox[0].checked) {
+    options.limit = parseIntDefault(this._parsingPanelElmts.limitInput[0].value, -1);
+  } else {
+    options.limit = -1;
+  }
+  /*options.storeBlankRows = this._parsingPanelElmts.storeBlankRowsCheckbox[0].checked;
+  options.storeBlankCellsAsNulls = this._parsingPanelElmts.storeBlankCellsAsNullsCheckbox[0].checked;*/
+
+  options.disableAutoPreview = this._parsingPanelElmts.disableAutoPreviewCheckbox[0].checked;
+  console.log(options);
+
   return options;
 };
 
@@ -90,6 +117,46 @@ Refine.CommonsImportingController.prototype._showParsingPanel = function() {
   this._parsingPanelElmts.commons_conf_pars.html($.i18n('commons-parsing/conf-pars'));
   this._parsingPanelElmts.commons_proj_name.html($.i18n('commons-parsing/proj-name'));
   this._parsingPanelElmts.createProjectButton.html($.i18n('commons-parsing/create-proj'));
+  this._parsingPanelElmts.commons_options.html($.i18n('commons-parsing/option'));
+  this._parsingPanelElmts.commons_discard_next.html($.i18n('commons-parsing/discard-next'));
+  this._parsingPanelElmts.commons_discard.html($.i18n('commons-parsing/discard'));
+  this._parsingPanelElmts.commons_limit_next.html($.i18n('commons-parsing/limit-next'));
+  this._parsingPanelElmts.commons_limit.html($.i18n('commons-parsing/limit'));
+  this._parsingPanelElmts.previewButton.html($.i18n('commons-parsing/preview-button'));
+  this._parsingPanelElmts.commons_disable_auto_preview.text($.i18n('commons-parsing/disable-auto-preview'));
+  this._parsingPanelElmts.commons_updating.html($.i18n('commons-parsing/updating-preview'));
+
+  if (this._parsingPanelResizer) {
+    $(window).unbind('resize', this._parsingPanelResizer);
+  }
+
+  this._parsingPanelResizer = function() {
+    var elmts = self._parsingPanelElmts;
+    var width = self._parsingPanel.width();
+    var height = self._parsingPanel.height();
+    var headerHeight = elmts.wizardHeader.outerHeight(true);
+    var controlPanelHeight = 250;
+
+    elmts.dataPanel
+    .css("left", "0px")
+    .css("top", headerHeight + "px")
+    .css("width", (width - DOM.getHPaddings(elmts.dataPanel)) + "px")
+    .css("height", (height - headerHeight - controlPanelHeight - DOM.getVPaddings(elmts.dataPanel)) + "px");
+    elmts.progressPanel
+    .css("left", "0px")
+    .css("top", headerHeight + "px")
+    .css("width", (width - DOM.getHPaddings(elmts.progressPanel)) + "px")
+    .css("height", (height - headerHeight - controlPanelHeight - DOM.getVPaddings(elmts.progressPanel)) + "px");
+
+    elmts.controlPanel
+    .css("left", "0px")
+    .css("top", (height - controlPanelHeight) + "px")
+    .css("width", (width - DOM.getHPaddings(elmts.controlPanel)) + "px")
+    .css("height", (controlPanelHeight - DOM.getVPaddings(elmts.controlPanel)) + "px");
+  };
+
+  $(window).resize(this._parsingPanelResizer);
+  this._parsingPanelResizer();
 
   this._parsingPanelElmts.startOverButton.click(function() {
     // explicitly cancel the import job
@@ -104,9 +171,115 @@ Refine.CommonsImportingController.prototype._showParsingPanel = function() {
 
   this._parsingPanelElmts.createProjectButton.click(function() { self._createProject(); });
 
+  this._parsingPanelElmts.previewButton.click(function() { self._updatePreview(); });
+
   this._parsingPanelElmts.projectNameInput[0].value = this._doc.title;
 
+  if (this._options.limit > 0) {
+    this._parsingPanelElmts.limitCheckbox.prop("checked", true);
+    this._parsingPanelElmts.limitInput[0].value = this._options.limit.toString();
+  }
+  if (this._options.skipDataLines > 0) {
+    this._parsingPanelElmts.skipCheckbox.prop("checked", true);
+    this._parsingPanelElmts.skipInput.value[0].value = this._options.skipDataLines.toString();
+  }
+  if (this._options.disableAutoPreview) {
+    this._parsingPanelElmts.disableAutoPreviewCheckbox.prop('checked', true);
+  }
+
+  // If disableAutoPreviewCheckbox is not checked, we will schedule an automatic update
+  var onChange = function() {
+    if (!self._parsingPanelElmts.disableAutoPreviewCheckbox[0].checked)
+    {
+        self._scheduleUpdatePreview();
+    }
+  };
+  this._parsingPanel.find("input").bind("change", onChange);
+  this._parsingPanel.find("select").bind("change", onChange);
+
   this._createProjectUI.showCustomPanel(this._parsingPanel);
+  this._updatePreview();
+};
+
+Refine.CommonsImportingController.prototype._scheduleUpdatePreview = function() {
+  if (this._timerID != null) {
+    window.clearTimeout(this._timerID);
+    this._timerID = null;
+  }
+
+  var self = this;
+  this._timerID = window.setTimeout(function() {
+    self._timerID = null;
+    self._updatePreview();
+  }, 500); // 0.5 second
+};
+
+Refine.CommonsImportingController.prototype._updatePreview = function() {
+  var self = this;
+
+  this._parsingPanelElmts.dataPanel.hide();
+  this._parsingPanelElmts.progressPanel.show();
+
+  Refine.wrapCSRF(function(token) {
+    $.post(
+        "command/core/importing-controller?" + $.param({
+        "controller": "commons/commons-importing-controller",
+        "jobID": self._jobID,
+        "subCommand": "parse-preview",
+        "csrf_token": token
+        }),
+        {
+        "options" : JSON.stringify(self.getOptions())
+        },
+        function(result) {
+        if (result.status == "ok") {
+            self._getPreviewData(function(projectData) {
+            self._parsingPanelElmts.progressPanel.hide();
+            self._parsingPanelElmts.dataPanel.show();
+
+            new Refine.PreviewTable(projectData, self._parsingPanelElmts.dataPanel.unbind().empty());
+            });
+        } else {
+            self._parsingPanelElmts.progressPanel.hide();
+            alert('Errors :\n' +
+            (result.message) ? result.message : Refine.CreateProjectUI.composeErrorMessage(job));
+        }
+        },
+        "json"
+    );
+  });
+};
+
+Refine.CommonsImportingController.prototype._getPreviewData = function(callback, numRows) {
+  var self = this;
+  var result = {};
+
+  $.post(
+    "command/core/get-models?" + $.param({ "importingJobID" : this._jobID }),
+    null,
+    function(data) {
+      for (var n in data) {
+        if (data.hasOwnProperty(n)) {
+          result[n] = data[n];
+        }
+      }
+
+      $.post(
+        "command/core/get-rows?" + $.param({
+          "importingJobID" : self._jobID,
+          "start" : 0,
+          "limit" : numRows || 100 // More than we parse for preview anyway
+        }),
+        null,
+        function(data) {
+          result.rowModel = data;
+          callback(result);
+        },
+        "jsonp"
+      );
+    },
+    "json"
+  );
 };
 
 Refine.CommonsImportingController.prototype._createProject = function() {

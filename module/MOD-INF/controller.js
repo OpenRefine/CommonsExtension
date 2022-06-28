@@ -50,6 +50,7 @@ function init() {
     "index/styles",
     module,
     [
+      "styles/commons-importing-controller.less",
       "externals/suggest/css/suggest-4_3.min.css"
     ]
   );
