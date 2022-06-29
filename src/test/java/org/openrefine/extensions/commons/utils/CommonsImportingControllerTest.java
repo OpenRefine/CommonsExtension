@@ -185,7 +185,8 @@ public class CommonsImportingControllerTest {
             /* create job.mock */
             job = Mockito.mock(ImportingJob.class);
             List<String> category = Collections.singletonList("Category:Costa Rica");
-            FilesBatchRowReader reader = new FilesBatchRowReader(job, category, url.toString());
+            String mIdsColumn = "false";
+            FilesBatchRowReader reader = new FilesBatchRowReader(job, category, mIdsColumn, url.toString());
 
             List<Object> currentRow = null;
             List<List<Object>> rows = new ArrayList<>();
@@ -221,9 +222,10 @@ public class CommonsImportingControllerTest {
             /* create job.mock */
             job = Mockito.mock(ImportingJob.class);
             List<String> categories = new ArrayList<>();
+            String mIdsColumn = "false";
             categories.add("Category:A");
             categories.add("Category:B");
-            FilesBatchRowReader reader = new FilesBatchRowReader(job, categories, url.toString());
+            FilesBatchRowReader reader = new FilesBatchRowReader(job, categories, mIdsColumn, url.toString());
 
             List<Object> currentRow = null;
             List<List<Object>> rows = new ArrayList<>();

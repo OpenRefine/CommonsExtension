@@ -22,6 +22,7 @@
     <table>
       <tr>
         <td width="1%" bind="commons_options"></td>
+        <td bind="commons_wiki_options"></td>
         <td style="text-align: right;" rowspan="2"><button class="button" bind="previewButton"></button></td>
       </tr>
       <tr>
@@ -38,12 +39,16 @@
                 <td><label for="$skip" bind="commons_discard_next"></label></td>
                 <td><input bind="skipInput" type="text" class="lightweight" size="2" value="0" />
                   <label for="$skip" bind="commons_discard"></label></td>
+                <td width="1%"><input type="checkbox" bind="categoriesColumnCheckbox" id="$categoriesCol" /></td>
+                <td><label for="$categoriesCol" bind="commons_categories_column"></label></td>
               </tr>
               <tr>
                 <td width="1%"><input type="checkbox" bind="limitCheckbox" id="$limit" /></td>
                 <td><label for="$limit" bind="commons_limit_next"></label></td>
                 <td><input bind="limitInput" type="text" class="lightweight" size="2" value="0" />
                   <label for="$limit" bind="commons_limit"></label></td>
+                <td width="1%"><input type="checkbox" bind="mIdsCheckbox" id="$mIdsCol" /></td>
+                <td><label for="$mIdsCol" bind="commons_mids_column"></label></td>
               </tr>
             </table>
           </div>

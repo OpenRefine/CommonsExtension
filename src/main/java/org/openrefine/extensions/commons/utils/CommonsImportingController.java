@@ -213,6 +213,7 @@ public class CommonsImportingController implements ImportingController {
         JSONUtilities.safePut(options, "headerLines", 0);
         /* get user-input from the Post request parameters */
         JsonNode categoryInput = options.get("categoryJsonValue");
+        String mIdsColumn = options.get("mIdsColumn").asText();
         List<String> categories = new ArrayList<>();
         for (JsonNode category: categoryInput) {
             categories.add(category.get("category").asText());
@@ -225,7 +226,7 @@ public class CommonsImportingController implements ImportingController {
         TabularImportingParserBase.readTable(
                 project,
                 job,
-                new FilesBatchRowReader(job, categories, apiUrl),
+                new FilesBatchRowReader(job, categories, mIdsColumn, apiUrl),
                 limit,
                 options,
                 exceptions
@@ -244,16 +245,18 @@ public class CommonsImportingController implements ImportingController {
             HttpUrl urlContinue;
             JsonNode files;
             List<String> categories;
+            String mIdsColumn;
             String category;
             String cmcontinue;
             private int indexRow = 0;
             private int indexCategories = 1;
             List<Object> rowsOfCells;
 
-            public FilesBatchRowReader(ImportingJob job, List<String> categories, String apiUrl) throws IOException {
+            public FilesBatchRowReader(ImportingJob job, List<String> categories, String mIdsColumn, String apiUrl) throws IOException {
 
                 this.job = job;
                 this.categories = categories;
+                this.mIdsColumn = mIdsColumn;
                 this.apiUrl = apiUrl;
                 getFiles(categories.get(0));
 
@@ -322,9 +325,15 @@ public class CommonsImportingController implements ImportingController {
                 }
 
                 if (indexRow < files.size()) {
-                    rowsOfCells = Collections.singletonList(files.get(indexRow++).findValue("title").asText());
+                    if (mIdsColumn.contentEquals("true")) {
+                        rowsOfCells = Collections.singletonList(files.get(indexRow++).findValue("title").asText() + " M-ID: " + files.get(indexRow++).findValue("pageid").asText());
 
-                    return rowsOfCells;
+                        return rowsOfCells;
+                    } else {
+                        rowsOfCells = Collections.singletonList(files.get(indexRow++).findValue("title").asText());
+
+                        return rowsOfCells;
+                    }
 
                 } else {
                     return null;

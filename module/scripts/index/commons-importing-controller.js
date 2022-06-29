@@ -97,10 +97,10 @@ Refine.CommonsImportingController.prototype.getOptions = function() {
   } else {
     options.limit = -1;
   }
-  /*options.storeBlankRows = this._parsingPanelElmts.storeBlankRowsCheckbox[0].checked;
-  options.storeBlankCellsAsNulls = this._parsingPanelElmts.storeBlankCellsAsNullsCheckbox[0].checked;*/
 
   options.disableAutoPreview = this._parsingPanelElmts.disableAutoPreviewCheckbox[0].checked;
+  options.categoriesColumn = this._parsingPanelElmts.categoriesColumnCheckbox[0].checked;
+  options.mIdsColumn = this._parsingPanelElmts.mIdsCheckbox[0].checked;
   console.log(options);
 
   return options;
@@ -122,6 +122,11 @@ Refine.CommonsImportingController.prototype._showParsingPanel = function() {
   this._parsingPanelElmts.commons_discard.html($.i18n('commons-parsing/discard'));
   this._parsingPanelElmts.commons_limit_next.html($.i18n('commons-parsing/limit-next'));
   this._parsingPanelElmts.commons_limit.html($.i18n('commons-parsing/limit'));
+
+  this._parsingPanelElmts.commons_wiki_options.html($.i18n('commons-parsing/wiki-option'));
+  this._parsingPanelElmts.commons_categories_column.text($.i18n('commons-parsing/categories-column'));
+  this._parsingPanelElmts.commons_mids_column.text($.i18n('commons-parsing/mids-column'));
+
   this._parsingPanelElmts.previewButton.html($.i18n('commons-parsing/preview-button'));
   this._parsingPanelElmts.commons_disable_auto_preview.text($.i18n('commons-parsing/disable-auto-preview'));
   this._parsingPanelElmts.commons_updating.html($.i18n('commons-parsing/updating-preview'));
@@ -185,6 +190,12 @@ Refine.CommonsImportingController.prototype._showParsingPanel = function() {
   }
   if (this._options.disableAutoPreview) {
     this._parsingPanelElmts.disableAutoPreviewCheckbox.prop('checked', true);
+  }
+  if (this._options.categoriesColumn) {
+    this._parsingPanelElmts.categoriesColumnCheckbox.prop('checked', true);
+  }
+  if (this._options.mIdsColumn) {
+    this._parsingPanelElmts.mIdsCheckbox.prop('checked', true);
   }
 
   // If disableAutoPreviewCheckbox is not checked, we will schedule an automatic update
