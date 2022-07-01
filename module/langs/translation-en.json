@@ -18,7 +18,7 @@
     "commons-parsing/limit": "row(s) of data",
     "commons-parsing/wiki-option": "Wikimedia Commons specific options:",
     "commons-parsing/categories-column": "Include a column with categories",
-    "commons-parsing/mids-column": "Include a colummn with M-IDs",
+    "commons-parsing/mids-column": "Include a column with M-IDs",
     "commons-parsing/preview-button": "Update&nbsp;preview",
     "commons-parsing/disable-auto-preview": "Disable auto preview",
     "commons-parsing/updating-preview": "Updating preview…"

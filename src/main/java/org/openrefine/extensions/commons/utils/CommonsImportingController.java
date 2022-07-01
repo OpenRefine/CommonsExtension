@@ -250,9 +250,11 @@ public class CommonsImportingController implements ImportingController {
             String cmcontinue;
             private int indexRow = 0;
             private int indexCategories = 1;
+            private int mIdIndex = 0;
             List<Object> rowsOfCells;
 
-            public FilesBatchRowReader(ImportingJob job, List<String> categories, String mIdsColumn, String apiUrl) throws IOException {
+            public FilesBatchRowReader(ImportingJob job, List<String> categories,
+                    String mIdsColumn, String apiUrl) throws IOException {
 
                 this.job = job;
                 this.categories = categories;
@@ -307,11 +309,17 @@ public class CommonsImportingController implements ImportingController {
                     if (cmcontinue.isBlank()) {
                         getFiles(categories.get(indexCategories++));
                         indexRow = 0;
+                        if (mIdsColumn.contentEquals("true")) {
+                            mIdIndex = 0;
+                        }
                     } else {
                         urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
                                 .addQueryParameter("cmcontinue", cmcontinue).build();
                         getFiles(urlContinue);
                         indexRow = 0;
+                        if (mIdsColumn.contentEquals("true")) {
+                            mIdIndex = 0;
+                        }
                     }
                 }
 
@@ -321,12 +329,17 @@ public class CommonsImportingController implements ImportingController {
                                 .addQueryParameter("cmcontinue", cmcontinue).build();
                         getFiles(urlContinue);
                         indexRow = 0;
+                        if (mIdsColumn.contentEquals("true")) {
+                            mIdIndex = 0;
+                        }
                     }
                 }
 
                 if (indexRow < files.size()) {
                     if (mIdsColumn.contentEquals("true")) {
-                        rowsOfCells = Collections.singletonList(files.get(indexRow++).findValue("title").asText() + " M-ID: " + files.get(indexRow++).findValue("pageid").asText());
+                        rowsOfCells = new ArrayList<>();
+                        rowsOfCells.add(files.get(indexRow++).findValue("title").asText());
+                        rowsOfCells.add("M" + files.get(mIdIndex++).findValue("pageid").asText());
 
                         return rowsOfCells;
                     } else {
