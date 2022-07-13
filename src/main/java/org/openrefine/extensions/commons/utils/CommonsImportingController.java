@@ -213,7 +213,6 @@ public class CommonsImportingController implements ImportingController {
         JSONUtilities.safePut(options, "headerLines", 0);
         /* get user-input from the Post request parameters */
         JsonNode categoryInput = options.get("categoryJsonValue");
-        System.out.println("\n1: " + options);
         String mIdsColumn = options.get("mIdsColumn").asText();
         String categoriesColumn = options.get("categoriesColumn").asText();
         List<String> categories = new ArrayList<>();
@@ -246,17 +245,17 @@ public class CommonsImportingController implements ImportingController {
             HttpUrl urlBase;
             HttpUrl urlContinue;
             JsonNode files;
-            String file;
-            String toCategoriesColumn;
             List<String> categories;
             String categoriesColumn;
-            String mIdsColumn;
             String category;
             String cmcontinue;
+            String file;
+            String pageId;
+            JsonNode relatedCategories;
+            List<JsonNode> toCategoriesColumn;
+            String mIdsColumn;
             private int indexRow = 0;
             private int indexCategories = 1;
-            private int categoriesColumnIndex = 0;
-            private int mIdIndex = 0;
             List<Object> rowsOfCells;
 
             public FilesBatchRowReader(ImportingJob job, List<String> categories,
@@ -302,8 +301,6 @@ public class CommonsImportingController implements ImportingController {
             }
 
             public String getCategoriesColumn(String file) throws IOException {
-                //https://commons.wikimedia.org/w/api.php?action=query&format=json&titles=a|b|g|c&prop=categories
-                // comes out ordered  a  b  c  g
 
                 OkHttpClient client = new OkHttpClient.Builder().build();
                 urlBase = HttpUrl.parse(apiUrl).newBuilder()
@@ -314,9 +311,11 @@ public class CommonsImportingController implements ImportingController {
                 Request request = new Request.Builder().url(urlBase).build();
                 Response response = client.newCall(request).execute();
                 JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
-                toCategoriesColumn = jsonNode.path("query").path("categories").asText();
+                pageId = files.get(indexRow).findValue("pageid").asText();
+                relatedCategories = jsonNode.path("query").path("pages").path(pageId).path("categories");
+                toCategoriesColumn = relatedCategories.findValues("title");
 
-                return toCategoriesColumn;
+                return toCategoriesColumn.get(0).asText();
             }
             @Override
             public List<Object> getNextRowOfCells() throws IOException {
@@ -333,17 +332,11 @@ public class CommonsImportingController implements ImportingController {
                     if (cmcontinue.isBlank()) {
                         getFiles(categories.get(indexCategories++));
                         indexRow = 0;
-                        if (mIdsColumn.contentEquals("true")) {
-                            mIdIndex = 0;
-                        }
                     } else {
                         urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
                                 .addQueryParameter("cmcontinue", cmcontinue).build();
                         getFiles(urlContinue);
                         indexRow = 0;
-                        if (mIdsColumn.contentEquals("true")) {
-                            mIdIndex = 0;
-                        }
                     }
                 }
 
@@ -353,34 +346,35 @@ public class CommonsImportingController implements ImportingController {
                                 .addQueryParameter("cmcontinue", cmcontinue).build();
                         getFiles(urlContinue);
                         indexRow = 0;
-                        if (mIdsColumn.contentEquals("true")) {
-                            mIdIndex = 0;
-                        }
                     }
                 }
 
                 if (indexRow < files.size()) {
                     rowsOfCells = new ArrayList<>();
-                    rowsOfCells.add(files.get(indexRow++).findValue("title").asText());
+                    rowsOfCells.add(files.get(indexRow).findValue("title").asText());
 
                     if ((categoriesColumn.contentEquals("true")) && (mIdsColumn.contentEquals("true"))) {
-                        //rowsOfCells.add(getCategoriesColumn(files.get(categoriesColumnIndex++).findValue("title").asText()));
-                        rowsOfCells.add("M" + files.get(mIdIndex++).findValue("pageid").asText());
+                        rowsOfCells.add(getCategoriesColumn(files.get(indexRow).findValue("title").asText()));
+                        rowsOfCells.add("M" + files.get(indexRow).findValue("pageid").asText());
+                        indexRow++;
 
                         return rowsOfCells;
 
                     } else if (categoriesColumn.contentEquals("true")) {
                         //FIXME
-                        rowsOfCells.add(getCategoriesColumn(files.get(categoriesColumnIndex++).findValue("title").asText()));
+                        rowsOfCells.add(getCategoriesColumn(files.get(indexRow).findValue("title").asText()));
+                        indexRow++;
 
                         return rowsOfCells;
 
                     } else if (mIdsColumn.contentEquals("true")) {
-                        rowsOfCells.add("M" + files.get(mIdIndex++).findValue("pageid").asText());
+                        rowsOfCells.add("M" + files.get(indexRow).findValue("pageid").asText());
+                        indexRow++;
 
                         return rowsOfCells;
 
                     } else {
+                        indexRow++;
 
                         return rowsOfCells;
                     }
