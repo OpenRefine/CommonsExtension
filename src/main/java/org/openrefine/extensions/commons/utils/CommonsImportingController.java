@@ -331,13 +331,12 @@ public class CommonsImportingController implements ImportingController {
                 if ((indexRow == files.size()) && indexCategories < categories.size()) {
                     if (cmcontinue.isBlank()) {
                         getFiles(categories.get(indexCategories++));
-                        indexRow = 0;
                     } else {
                         urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
                                 .addQueryParameter("cmcontinue", cmcontinue).build();
                         getFiles(urlContinue);
-                        indexRow = 0;
                     }
+                    indexRow = 0;
                 }
 
                 if ((indexRow == files.size()) && indexCategories == categories.size()) {
@@ -356,28 +355,18 @@ public class CommonsImportingController implements ImportingController {
                     if ((categoriesColumn.contentEquals("true")) && (mIdsColumn.contentEquals("true"))) {
                         rowsOfCells.add(getCategoriesColumn(files.get(indexRow).findValue("title").asText()));
                         rowsOfCells.add("M" + files.get(indexRow).findValue("pageid").asText());
-                        indexRow++;
-
-                        return rowsOfCells;
 
                     } else if (categoriesColumn.contentEquals("true")) {
                         //FIXME
                         rowsOfCells.add(getCategoriesColumn(files.get(indexRow).findValue("title").asText()));
-                        indexRow++;
-
-                        return rowsOfCells;
 
                     } else if (mIdsColumn.contentEquals("true")) {
                         rowsOfCells.add("M" + files.get(indexRow).findValue("pageid").asText());
-                        indexRow++;
 
-                        return rowsOfCells;
-
-                    } else {
-                        indexRow++;
-
-                        return rowsOfCells;
                     }
+                    indexRow++;
+
+                    return rowsOfCells;
 
                 } else {
                     return null;
