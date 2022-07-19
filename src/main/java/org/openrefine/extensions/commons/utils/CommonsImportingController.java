@@ -244,6 +244,7 @@ public class CommonsImportingController implements ImportingController {
             String apiUrl;
             HttpUrl urlBase;
             HttpUrl urlContinue;
+            HttpUrl urlRelatedCategories;
             JsonNode files;
             List<String> categories;
             String categoriesColumn;
@@ -303,12 +304,12 @@ public class CommonsImportingController implements ImportingController {
             public String getCategoriesColumn(String file) throws IOException {
 
                 OkHttpClient client = new OkHttpClient.Builder().build();
-                urlBase = HttpUrl.parse(apiUrl).newBuilder()
+                urlRelatedCategories = HttpUrl.parse(apiUrl).newBuilder()
                         .addQueryParameter("action", "query")
                         .addQueryParameter("prop", "categories")
                         .addQueryParameter("titles", file)
                         .addQueryParameter("format", "json").build();
-                Request request = new Request.Builder().url(urlBase).build();
+                Request request = new Request.Builder().url(urlRelatedCategories).build();
                 Response response = client.newCall(request).execute();
                 JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
                 pageId = files.get(indexRow).findValue("pageid").asText();
