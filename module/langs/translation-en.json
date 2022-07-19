@@ -10,5 +10,16 @@
     "commons-parsing/conf-pars": "Configure Parsing Options",
     "commons-parsing/proj-name": "Project&nbsp;name",
     "commons-parsing/create-proj": "Create Project &raquo;",
-    "commons-source/alert-retrieve": "No Category selected"
+    "commons-source/alert-retrieve": "No Category selected",
+    "commons-parsing/option": "Options",
+    "commons-parsing/discard-next": "Discard initial",
+    "commons-parsing/discard": "row(s) of data",
+    "commons-parsing/limit-next": "Load at most",
+    "commons-parsing/limit": "row(s) of data",
+    "commons-parsing/wiki-option": "Wikimedia Commons specific options:",
+    "commons-parsing/categories-column": "Include a column with categories",
+    "commons-parsing/mids-column": "Include a column with M-IDs",
+    "commons-parsing/preview-button": "Update&nbsp;preview",
+    "commons-parsing/disable-auto-preview": "Disable auto preview",
+    "commons-parsing/updating-preview": "Updating preview…"
 }
