@@ -1,4 +1,4 @@
-package org.openrefine.extensions.commons.utils;
+package org.openrefine.extensions.commons.importer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -18,7 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.openrefine.extensions.commons.utils.CommonsImportingController.FilesBatchRowReader;
+import org.openrefine.extensions.commons.utils.ProjectManagerStub;
+import org.openrefine.extensions.commons.utils.RefineServletStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -187,7 +188,7 @@ public class CommonsImportingControllerTest {
             List<String> category = Collections.singletonList("Category:Costa Rica");
             String mIdsColumn = "false";
             String categoriesColumn = "false";
-            FilesBatchRowReader reader = new FilesBatchRowReader(job, category, categoriesColumn, mIdsColumn, url.toString());
+            CommonsImporter.FilesBatchRowReader reader = new CommonsImporter.FilesBatchRowReader(job, category, categoriesColumn, mIdsColumn, url.toString());
 
             List<Object> currentRow = null;
             List<List<Object>> rows = new ArrayList<>();
@@ -227,7 +228,7 @@ public class CommonsImportingControllerTest {
             String categoriesColumn = "false";
             categories.add("Category:A");
             categories.add("Category:B");
-            FilesBatchRowReader reader = new FilesBatchRowReader(job, categories, categoriesColumn, mIdsColumn, url.toString());
+            CommonsImporter.FilesBatchRowReader reader = new CommonsImporter.FilesBatchRowReader(job, categories, categoriesColumn, mIdsColumn, url.toString());
 
             List<Object> currentRow = null;
             List<List<Object>> rows = new ArrayList<>();
