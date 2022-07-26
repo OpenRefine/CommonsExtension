@@ -2,8 +2,6 @@ package org.openrefine.extensions.commons.importer;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,9 +11,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+/*
+ * This class iterates over the file names contained in a given category
+ */
 public class FileFetcher implements Iterator<FileRecord>{
     String category;
-    String apiUrl = "https://commons.wikimedia.org/w/api.php";//FIXME
+    String apiUrl;
     HttpUrl urlBase;
     HttpUrl urlContinue;
     JsonNode files;
@@ -23,11 +24,16 @@ public class FileFetcher implements Iterator<FileRecord>{
     String cmcontinue;
     Iterator<FileRecord> fileRecord;
 
-    public FileFetcher(String category) throws IOException {
+    public FileFetcher(String apiUrl, String category) throws IOException {
+        this.apiUrl = apiUrl;
         this.category = category;
         getFiles(category);
     }
 
+    /*
+     * API call for fetching files from a user-specified category
+     * @param category
+     */
     public void getFiles(String category) throws IOException {
 
         OkHttpClient client = new OkHttpClient.Builder().build();
@@ -47,21 +53,53 @@ public class FileFetcher implements Iterator<FileRecord>{
 
     }
 
+    /*
+     * API call when a cmcontinue token is part of the response
+     * @param urlContinue: URL containing the cmcontinue token
+     */
+    private void getFiles(HttpUrl urlContinue) throws IOException {
+
+        OkHttpClient client = new OkHttpClient.Builder().build();
+        Request request = new Request.Builder().url(urlContinue).build();
+        Response response = client.newCall(request).execute();
+        JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+        files = jsonNode.path("query").path("categorymembers");
+        cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
+
+    }
+
     @Override
     public boolean hasNext() {
         // TODO Auto-generated method stub
         return false;
     }
 
+    /*
+     * This method iterates over each of the fetched files and populates a FileRecord
+     * with a single entry's filename and MID
+     * @return an instance of the FileRecord
+     */
     @Override
     public FileRecord next() {
-        FileRecord fileRecord = new FileRecord();
-        fileRecord.fileName = files.get(indexRow).findValue("title").asText();
-        fileRecord.mId = "M" + files.get(indexRow).findValue("pageid").asText();
+
+        String fileName = files.get(indexRow).findValue("title").asText();
+        String mId = "M" + files.get(indexRow).findValue("pageid").asText();
+        FileRecord fileRecord = new FileRecord(fileName, mId, null);
         indexRow++;
 
-        //return new instance of FileRecord
+        if ((indexRow == files.size()) && !cmcontinue.isBlank()) {
+            urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
+                    .addQueryParameter("cmcontinue", cmcontinue).build();
+            try {
+                getFiles(urlContinue);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            indexRow = 0;
+        }
         return fileRecord;
+
     }
 
 }
