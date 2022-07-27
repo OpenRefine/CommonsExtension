@@ -52,4 +52,33 @@ public class FileFetcherTest {
         }
     }
 
+
+    /**
+     * Test hasNext() successfully checks that the iteration has more elements
+     */
+    @Test
+    public void testHasNext() throws Exception {
+
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            HttpUrl url = server.url("/w/api.php");
+            String jsonResponse = "{\"batchcomplete\":\"\",\"query\":{\"categorymembers\":"
+                    + "[{\"pageid\":117928,\"ns\":6,\"title\":\"File:Slipknot.jpg\",\"type\":\"file\"},"
+                    + "{\"pageid\":117933,\"ns\":6,\"title\":\"File:Rammstein.jpg\",\"type\":\"file\"}]}}";
+            server.enqueue(new MockResponse().setBody(jsonResponse));
+            List<String> category = Collections.singletonList("Category:Music Bands");
+            FileFetcher fileFetcher = new FileFetcher(url.toString(), category.get(0));
+
+            List<Object> rows = new ArrayList<>();
+            while (fileFetcher.hasNext() != false) {
+                rows.add(fileFetcher.next());
+            }
+            FileRecord file0 = new FileRecord("File:Slipknot.jpg", "M117928", null);
+            FileRecord file1 = new FileRecord("File:Rammstein.jpg", "M117933", null);
+
+            Assert.assertEquals(rows.get(0), file0);
+            Assert.assertEquals(rows.get(1), file1);
+
+        }
+    }
 }

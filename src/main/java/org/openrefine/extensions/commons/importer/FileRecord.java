@@ -8,13 +8,14 @@ import java.util.Objects;
  *
  */
 public class FileRecord {
-    String fileName;
-    String mId;
-    List<String> relatedCategories;
+    final String fileName;
+    final String mId;
+    final List<String> relatedCategories;
 
     public FileRecord(String fileName, String mId, List<String> relatedCategories) {
         this.fileName = fileName;
         this.mId = mId;
+        this.relatedCategories = relatedCategories;
     }
 
     @Override
