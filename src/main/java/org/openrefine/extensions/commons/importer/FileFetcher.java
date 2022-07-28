@@ -78,7 +78,7 @@ public class FileFetcher implements Iterator<FileRecord>{
     @Override
     public boolean hasNext() {
 
-        return (indexRow < files.size()) && true;
+        return (indexRow < files.size());
     }
 
     /*
