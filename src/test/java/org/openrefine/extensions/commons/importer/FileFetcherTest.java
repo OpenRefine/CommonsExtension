@@ -35,9 +35,15 @@ public class FileFetcherTest {
             FileFetcher fileFetcher = new FileFetcher(url.toString(), category.get(0));
 
             List<Object> rows = new ArrayList<>();
-            while (fileFetcher.hasNext() != false) {
-                rows.add(fileFetcher.next());
-            }
+            Assert.assertTrue(fileFetcher.hasNext());
+            rows.add(fileFetcher.next());
+            Assert.assertTrue(fileFetcher.hasNext());
+            rows.add(fileFetcher.next());
+            Assert.assertTrue(fileFetcher.hasNext());
+            rows.add(fileFetcher.next());
+            Assert.assertTrue(fileFetcher.hasNext());
+            rows.add(fileFetcher.next());
+            Assert.assertFalse(fileFetcher.hasNext());
             FileRecord file0 = new FileRecord("File:LasTres.jpg", "M127722", null);
             FileRecord file1 = new FileRecord("File:Pejiballes.jpg", "M127752", null);
             FileRecord file2 = new FileRecord("File:Esferas de CR.jpg", "M112928", null);
