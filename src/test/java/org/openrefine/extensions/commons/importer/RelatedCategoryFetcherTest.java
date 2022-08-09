@@ -1,8 +1,6 @@
 package org.openrefine.extensions.commons.importer;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.testng.Assert;
@@ -23,17 +21,27 @@ public class RelatedCategoryFetcherTest {
         try (MockWebServer server = new MockWebServer()) {
             server.start();
             HttpUrl url = server.url("/w/api.php");
-            String jsonResponseContinue = "{\"batchcomplete\":\"\",\"query\":{\"pages\":{\"120352461\":"
-                    + "{\"pageid\":120352461,\"ns\":6,\"title\":\"File:Esferas de CR.jpg\","
+            String jsonResponseContinue = "{\"batchcomplete\":\"\",\"query\":{\"pages\":{\"127722\":"
+                    + "{\"pageid\":127722,\"ns\":6,\"title\":\"File:LasTres.jpg\","
                     + "\"categories\":[{\"ns\":14,\"title\":\"Category:Costa Rica\"},"
-                    + "{\"ns\":14,\"title\":\"Category:Historical Site\"},{\"ns\":14,\"title\":\"Category:Misteries of Life\"}]}}}}";
+                    + "{\"ns\":14,\"title\":\"Category:Cute dogs\"},{\"ns\":14,\"title\":\"Category:Costa Rican dogs\"}]}}}}";
             server.enqueue(new MockResponse().setBody(jsonResponseContinue));
-            FileRecord fr = new FileRecord("File:Esferas de CR.jpg", "120352461", null);
-            Iterator<FileRecord> iteratorFileRecords = fr.iterator();
-            RelatedCategoryFetcher rcf = new RelatedCategoryFetcher(url.toString(), iteratorFileRecords);
+            List<FileRecord> originalRecords = new ArrayList<>();
+            FileRecord fr0 = new FileRecord("File:LasTres.jpg", "127722", null);
+            originalRecords.add(fr0);
+            RelatedCategoryFetcher rcf = new RelatedCategoryFetcher(url.toString(), originalRecords.iterator());
 
             List<Object> rows = new ArrayList<>();
-            rows.add(rcf);
+            Assert.assertTrue(rcf.hasNext());
+            rows.add(rcf.next());
+            Assert.assertFalse(rcf.hasNext());
+            List<String> categories = new ArrayList<>();
+            categories.add("Category:Costa Rica");
+            categories.add("Category:Cute dogs");
+            categories.add("Category:Costa Rican dogs");
+            FileRecord file0 = new FileRecord("File:LasTres.jpg", "127722", categories);
+
+            Assert.assertEquals(rows.get(0), file0);
 
         }
     }

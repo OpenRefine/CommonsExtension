@@ -13,6 +13,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+/*
+ * This class iterates over the categories related to a given file record
+ * @param apiUrl
+ * @param iteratorFileRecords
+ */
 public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     Iterator<FileRecord> iteratorFileRecords;
     String filename;
@@ -27,7 +32,13 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         this.iteratorFileRecords = iteratorFileRecords;
     }
 
-    public List<String> getRelatedCategories(String filename, String pageID) throws IOException {
+    /*
+     * API call for fetching the related categories
+     * @param filename
+     * @param pageId
+     * @return list of related categories
+     */
+    public List<String> getRelatedCategories(String filename, String pageId) throws IOException {
 
         OkHttpClient client = new OkHttpClient.Builder().build();
         urlRelatedCategories = HttpUrl.parse(apiUrl).newBuilder()
@@ -41,34 +52,56 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         relatedCategories = jsonNode.path("query").path("pages").path(pageId).path("categories");
         toCategoriesColumn = new ArrayList<>();
         for (JsonNode category: relatedCategories) {
-            toCategoriesColumn.add(category.findValue("title").toString());
+            toCategoriesColumn.add(category.findValue("title").asText());
         }
 
         return toCategoriesColumn;
     }
 
+    /*
+     * Returns {@code true} if the iteration has more elements for
+     * which to fetch related categories.
+     * (In other words, returns {@code true} if {@link #next} would
+     * return an element rather than throwing an exception.)
+     *
+     * @return {@code true} if the iteration has more elements
+     */
     @Override
     public boolean hasNext() {
-        // TODO Auto-generated method stub
-        return false;
+
+        return iteratorFileRecords.hasNext();
     }
 
+    /*
+     * This method iterates over each of the categories related to a file
+     * and stores them as a list in the relatedCategories parameter of
+     * each file record
+     *
+     * @return an instance of the FileRecord updated to include its related categories
+     */
     @Override
     public FileRecord next() {
 
-        FileRecord fileRecord;
+        FileRecord fileRecordOriginal;
+        FileRecord fileRecordNew = null;
         if (iteratorFileRecords.hasNext() != false) {
-            fileRecord = iteratorFileRecords.next();
+            fileRecordOriginal = iteratorFileRecords.next();
             try {
-                new FileRecord(fileRecord.fileName, fileRecord.pageId, getRelatedCategories(fileRecord.fileName, fileRecord.pageId));
+                fileRecordNew = new FileRecord(fileRecordOriginal.fileName, fileRecordOriginal.pageId,
+                        getRelatedCategories(fileRecordOriginal.fileName, fileRecordOriginal.pageId));
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            System.out.println("\n2: " + fileRecord);
         }
-
-        return null;
+        return fileRecordNew;
     }
+
+    @Override
+    public String toString() {
+        return "RelatedCategoryFetcher [filename=" + filename
+                + ", pageId=" + pageId + ", toCategoriesColumn=" + toCategoriesColumn + "]";
+    }
+
 
 }
