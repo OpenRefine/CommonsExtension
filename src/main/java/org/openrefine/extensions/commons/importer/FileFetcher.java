@@ -22,7 +22,6 @@ public class FileFetcher implements Iterator<FileRecord>{
     JsonNode files;
     private int indexRow = 0;
     String cmcontinue;
-    Iterator<FileRecord> fileRecord;
 
     public FileFetcher(String apiUrl, String category) throws IOException {
         this.apiUrl = apiUrl;
@@ -90,8 +89,8 @@ public class FileFetcher implements Iterator<FileRecord>{
     public FileRecord next() {
 
         String fileName = files.get(indexRow).findValue("title").asText();
-        String mId = "M" + files.get(indexRow).findValue("pageid").asText();
-        FileRecord fileRecord = new FileRecord(fileName, mId, null);
+        String pageId = files.get(indexRow).findValue("pageid").asText();
+        FileRecord fileRecord = new FileRecord(fileName, pageId, null);
         indexRow++;
 
         if ((indexRow == files.size()) && !cmcontinue.isBlank()) {
