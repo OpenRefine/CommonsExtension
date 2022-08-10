@@ -11,20 +11,22 @@ public class FileRecord {
     final String fileName;
     final String pageId;
     final List<String> relatedCategories;
+    final String error;
 
-    public FileRecord(String fileName, String pageId, List<String> relatedCategories) {
+    public FileRecord(String fileName, String pageId, List<String> relatedCategories, String error) {
         this.fileName = fileName;
         this.pageId = pageId;
         this.relatedCategories = relatedCategories;
+        this.error = error;
     }
 
     @Override
     public String toString() {
-        return "FileRecord [fileName=" + fileName + ", pageId=" + pageId + ", relatedCategories=" + relatedCategories + "]";
+        return "FileRecord [fileName=" + fileName + ", pageId=" + pageId + ", relatedCategories=" + relatedCategories + ", error=" + error + "]";
     }
     @Override
     public int hashCode() {
-        return Objects.hash(fileName, pageId, relatedCategories);
+        return Objects.hash(fileName, pageId, relatedCategories, error);
     }
     @Override
     public boolean equals(Object obj) {
@@ -36,7 +38,7 @@ public class FileRecord {
             return false;
         FileRecord other = (FileRecord) obj;
         return Objects.equals(fileName, other.fileName) && Objects.equals(pageId, other.pageId)
-                && Objects.equals(relatedCategories, other.relatedCategories);
+                && Objects.equals(relatedCategories, other.relatedCategories) && Objects.equals(error, other.error);
     }
 
 }

@@ -90,7 +90,7 @@ public class FileFetcher implements Iterator<FileRecord>{
 
         String fileName = files.get(indexRow).findValue("title").asText();
         String pageId = files.get(indexRow).findValue("pageid").asText();
-        FileRecord fileRecord = new FileRecord(fileName, pageId, null);
+        FileRecord fileRecord = new FileRecord(fileName, pageId, null, null);
         indexRow++;
 
         if ((indexRow == files.size()) && !cmcontinue.isBlank()) {

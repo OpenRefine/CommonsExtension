@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.refine.expr.EvalError;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -14,7 +15,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /*
- * This class iterates over the categories related to a given file record
+ * This class takes an existing iterator over file records, and enriches
+ * the file records with the list of categories they belong to
+ *
  * @param apiUrl
  * @param iteratorFileRecords
  */
@@ -88,10 +91,10 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
             fileRecordOriginal = iteratorFileRecords.next();
             try {
                 fileRecordNew = new FileRecord(fileRecordOriginal.fileName, fileRecordOriginal.pageId,
-                        getRelatedCategories(fileRecordOriginal.fileName, fileRecordOriginal.pageId));
+                        getRelatedCategories(fileRecordOriginal.fileName, fileRecordOriginal.pageId), null);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                fileRecordNew = new FileRecord(fileRecordOriginal.fileName, fileRecordOriginal.pageId, null,
+                        new EvalError("Could not fetch related categories: " + e.getMessage()).message);
             }
         }
         return fileRecordNew;

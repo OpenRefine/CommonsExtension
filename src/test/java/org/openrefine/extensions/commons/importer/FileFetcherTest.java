@@ -44,10 +44,10 @@ public class FileFetcherTest {
             Assert.assertTrue(fileFetcher.hasNext());
             rows.add(fileFetcher.next());
             Assert.assertFalse(fileFetcher.hasNext());
-            FileRecord file0 = new FileRecord("File:LasTres.jpg", "127722", null);
-            FileRecord file1 = new FileRecord("File:Pejiballes.jpg", "127752", null);
-            FileRecord file2 = new FileRecord("File:Esferas de CR.jpg", "112928", null);
-            FileRecord file3 = new FileRecord("File:Playa Gandoca.jpg", "112933", null);
+            FileRecord file0 = new FileRecord("File:LasTres.jpg", "127722", null, null);
+            FileRecord file1 = new FileRecord("File:Pejiballes.jpg", "127752", null, null);
+            FileRecord file2 = new FileRecord("File:Esferas de CR.jpg", "112928", null, null);
+            FileRecord file3 = new FileRecord("File:Playa Gandoca.jpg", "112933", null, null);
 
             Assert.assertEquals(rows.get(0), file0);
             Assert.assertEquals(rows.get(1), file1);
