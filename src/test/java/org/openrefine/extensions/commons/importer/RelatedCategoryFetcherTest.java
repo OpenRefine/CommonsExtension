@@ -68,7 +68,9 @@ public class RelatedCategoryFetcherTest {
             Assert.assertTrue(rcf.hasNext());
             rows.add(rcf.next());
             Assert.assertFalse(rcf.hasNext());
-            String error = "Could not fetch related categories: Unexpected character ('{' (code 123)): was expecting double-quote to start field name";
+            String error = "Could not fetch related categories: Unexpected character ('{' (code 123)): was expecting double-quote to start field name"
+                    + "\n at [Source: (String)\"{\"batchcomplete\":\"\",\"query\":{\"pages\":{\"127722\":{\"pageid\":127722,\"ns\":6,"
+                    + "\"title\":\"File:LasTres.jpg\",{\"ns\":14,\"title\":\"Category:Cute dogs\"},{\"ns\":14,\"title\":\"Category:Costa Rican dogs\"}]}}}}\"; line: 1, column: 100]";
             FileRecord file0 = new FileRecord("File:LasTres.jpg", "127722", null, error);
 
             Assert.assertEquals(rows.get(0), file0);
