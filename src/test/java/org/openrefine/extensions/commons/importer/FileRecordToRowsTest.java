@@ -24,7 +24,7 @@ public class FileRecordToRowsTest {
         List<FileRecord> fileRecords = new ArrayList<>();
         fileRecords.add(file0);
         fileRecords.add(file1);
-        FileRecordToRows frtr = new FileRecordToRows(fileRecords.iterator(), "true", "true");
+        FileRecordToRows frtr = new FileRecordToRows(fileRecords.iterator(), true, true);
 
         List<Object> rows = new ArrayList<>();
         rows.add(frtr.getNextRowOfCells());

@@ -13,14 +13,13 @@ import com.google.refine.importers.TabularImportingParserBase.TableDataReader;
  * @param iteratorFileRecords
  */
 public class FileRecordToRows implements TableDataReader {
-    Iterator<FileRecord> iteratorFileRecords;
+    final Iterator<FileRecord> iteratorFileRecords;
     FileRecord fileRecord;
-    String categoriesColumn;
-    String mIdsColumn;
-    List<Object> rowsOfCells;
+    final boolean categoriesColumn;
+    final boolean mIdsColumn;
     int relatedCategoriesIndex = 0;
 
-    public FileRecordToRows(Iterator<FileRecord> iteratorFileRecords, String categoriesColumn, String mIdsColumn) {
+    public FileRecordToRows(Iterator<FileRecord> iteratorFileRecords, boolean categoriesColumn, boolean mIdsColumn) {
 
         this.iteratorFileRecords = iteratorFileRecords;
         this.categoriesColumn = categoriesColumn;
@@ -36,22 +35,25 @@ public class FileRecordToRows implements TableDataReader {
     @Override
     public List<Object> getNextRowOfCells() throws IOException {
 
+        List<Object> rowsOfCells;
         rowsOfCells = new ArrayList<>();
         // check if there's rows remaining from a previous call
         if (fileRecord != null && fileRecord.relatedCategories != null
                 && relatedCategoriesIndex < fileRecord.relatedCategories.size()) {
             rowsOfCells.add(null);
-            rowsOfCells.add(null);
+            if (mIdsColumn) {
+                rowsOfCells.add(null);
+            }
             rowsOfCells.add(fileRecord.relatedCategories.get(relatedCategoriesIndex));
             relatedCategoriesIndex++;
             return rowsOfCells;
         } else if (iteratorFileRecords.hasNext()) {
             fileRecord = iteratorFileRecords.next();
             rowsOfCells.add(fileRecord.fileName);
-            if (mIdsColumn.contentEquals("true")) {
+            if (mIdsColumn) {
                 rowsOfCells.add("M" + fileRecord.pageId);
             }
-            if (categoriesColumn.contentEquals("true")) {
+            if (categoriesColumn) {
                 if (fileRecord.error != null) {
                     rowsOfCells.add(fileRecord.error);
                 } else if (fileRecord.relatedCategories != null) {
@@ -60,7 +62,7 @@ public class FileRecordToRows implements TableDataReader {
                 } else {
                     rowsOfCells.add(fileRecord.relatedCategories);
                 }
-            } else if ((mIdsColumn.contentEquals("true")) && (categoriesColumn.contentEquals("true"))) {
+            } else if (mIdsColumn && categoriesColumn) {
                 rowsOfCells.add("M" + fileRecord.pageId);
                 if (fileRecord.error != null) {
                     rowsOfCells.add(fileRecord.error);
@@ -75,13 +77,6 @@ public class FileRecordToRows implements TableDataReader {
         } else {
             return null;
         }
-
-    }
-
-    @Override
-    public String toString() {
-
-        return "FileRecordToRows [rowsOfCells=" + rowsOfCells + ", iteratorFileRecords=" + iteratorFileRecords + "]";
 
     }
 
