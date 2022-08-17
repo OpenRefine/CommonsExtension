@@ -87,7 +87,7 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
 
         FileRecord fileRecordOriginal;
         FileRecord fileRecordNew = null;
-        if (iteratorFileRecords.hasNext() != false) {
+        if (iteratorFileRecords.hasNext()) {
             fileRecordOriginal = iteratorFileRecords.next();
             try {
                 fileRecordNew = new FileRecord(fileRecordOriginal.fileName, fileRecordOriginal.pageId,
@@ -102,9 +102,10 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
 
     @Override
     public String toString() {
+
         return "RelatedCategoryFetcher [filename=" + filename
                 + ", pageId=" + pageId + ", toCategoriesColumn=" + toCategoriesColumn + "]";
-    }
 
+    }
 
 }
