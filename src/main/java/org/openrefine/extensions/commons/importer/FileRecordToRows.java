@@ -49,6 +49,7 @@ public class FileRecordToRows implements TableDataReader {
             return rowsOfCells;
         } else if (iteratorFileRecords.hasNext()) {
             fileRecord = iteratorFileRecords.next();
+            relatedCategoriesIndex = 0;
             rowsOfCells.add(fileRecord.fileName);
             if (mIdsColumn) {
                 rowsOfCells.add("M" + fileRecord.pageId);

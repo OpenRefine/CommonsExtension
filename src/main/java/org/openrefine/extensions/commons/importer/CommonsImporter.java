@@ -2,6 +2,7 @@ package org.openrefine.extensions.commons.importer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -42,7 +43,7 @@ public class CommonsImporter {
             List<Exception> exceptions) throws IOException {
 
         FileFetcher fileFetcher;
-        RelatedCategoryFetcher rcf;
+        Iterator<FileRecord> rcf;
         JSONUtilities.safePut(options, "headerLines", 0);
         /* get user-input from the Post request parameters */
         JsonNode categoryInput = options.get("categoryJsonValue");
@@ -58,20 +59,16 @@ public class CommonsImporter {
         setProgress(job, categories.get(0), 0);
 
         fileFetcher = new FileFetcher(apiUrl, categories.get(0));
-        List<FileRecord> fileRecords = new ArrayList<>();
-        if (fileFetcher.hasNext()) {
-            fileRecords.add(fileFetcher.next());
-        }
-        rcf = new RelatedCategoryFetcher(apiUrl, fileRecords.iterator());
-        List<FileRecord> filesWithCategories = new ArrayList<>();
-        if (rcf.hasNext()) {
-            filesWithCategories.add(rcf.next());
+        if (categoriesColumn) {
+            rcf = new RelatedCategoryFetcher(apiUrl, fileFetcher);
+        } else {
+            rcf = fileFetcher;
         }
 
         TabularImportingParserBase.readTable(
                 project,
                 job,
-                new FileRecordToRows(fileFetcher, categoriesColumn, mIdsColumn),
+                new FileRecordToRows(rcf, categoriesColumn, mIdsColumn),
                 limit,
                 options,
                 exceptions
