@@ -23,42 +23,53 @@ import okhttp3.Response;
  */
 public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     Iterator<FileRecord> iteratorFileRecords;
-    String filename;
+    FileRecord fileRecordNew;
+    int filesIndex;
+    List <FileRecord> fileRecordOriginal;
     String apiUrl;
     HttpUrl urlRelatedCategories;
-    String pageId;
-    JsonNode relatedCategories;
-    List<String> toCategoriesColumn;
 
     public RelatedCategoryFetcher(String apiUrl, Iterator<FileRecord> iteratorFileRecords) {
         this.apiUrl = apiUrl;
         this.iteratorFileRecords = iteratorFileRecords;
+        fileRecordOriginal = new ArrayList<>();
     }
 
     /*
      * API call for fetching the related categories
-     * @param filename
+     * @param filename -> change to list of files
      * @param pageId
      * @return list of related categories
      */
-    public List<String> getRelatedCategories(String filename, String pageId) throws IOException {
+    public List<List<String>> getRelatedCategories(List <FileRecord> fileRecordOriginal) throws IOException {
 
+        String titles = fileRecordOriginal.get(0).fileName;
+        int titlesIndex =1;
+        if (titlesIndex < fileRecordOriginal.size()) {
+            titles += "|" + fileRecordOriginal.get(titlesIndex++).fileName;
+        }
         OkHttpClient client = new OkHttpClient.Builder().build();
         urlRelatedCategories = HttpUrl.parse(apiUrl).newBuilder()
                 .addQueryParameter("action", "query")
                 .addQueryParameter("prop", "categories")
-                .addQueryParameter("titles", filename)
+                .addQueryParameter("titles", titles)
                 .addQueryParameter("format", "json").build();
         Request request = new Request.Builder().url(urlRelatedCategories).build();
         Response response = client.newCall(request).execute();
         JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
-        relatedCategories = jsonNode.path("query").path("pages").path(pageId).path("categories");
-        toCategoriesColumn = new ArrayList<>();
+        List<JsonNode> relatedCategories = new ArrayList<>();
+        List<String> toCategoriesColumn = new ArrayList<>();
+        List<List<String>> toCategoriesColumn2 = new ArrayList<>();
+        for (int i = 0; i < fileRecordOriginal.size(); i++) {
+            relatedCategories.add(jsonNode.path("query").path("pages").path(fileRecordOriginal.get(i).pageId).path("categories"));
+            //toCategoriesColumn.add(fileRecordOriginal.get(i).pageId);
+        }
         for (JsonNode category: relatedCategories) {
             toCategoriesColumn.add(category.findValue("title").asText());
         }
 
-        return toCategoriesColumn;
+        // to return list of lists
+        return toCategoriesColumn2;
     }
 
     /*
@@ -85,27 +96,31 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     @Override
     public FileRecord next() {
 
-        FileRecord fileRecordOriginal;
-        FileRecord fileRecordNew = null;
-        if (iteratorFileRecords.hasNext()) {
-            fileRecordOriginal = iteratorFileRecords.next();
-            try {
-                fileRecordNew = new FileRecord(fileRecordOriginal.fileName, fileRecordOriginal.pageId,
-                        getRelatedCategories(fileRecordOriginal.fileName, fileRecordOriginal.pageId), null);
-            } catch (IOException e) {
-                fileRecordNew = new FileRecord(fileRecordOriginal.fileName, fileRecordOriginal.pageId, null,
-                        new EvalError("Could not fetch related categories: " + e.getMessage()).message);
+        fileRecordNew = null;
+        filesIndex = 0;
+        // use for loop to create list of 20 .next()
+        if (filesIndex < 20) {
+            if (iteratorFileRecords.hasNext()) {
+                fileRecordOriginal.add(iteratorFileRecords.next());
+                /*try {
+                } catch (IOException e) {
+                    fileRecordNew = new FileRecord(fileRecordOriginal.fileName, fileRecordOriginal.pageId, null,
+                            new EvalError("Could not fetch related categories: " + e.getMessage()).message);
+                }*/
+                filesIndex++;
             }
         }
+        // send list with 20 files
+        try {
+            getRelatedCategories(fileRecordOriginal);
+        } catch (IOException e) {
+            // FIXME
+            e.printStackTrace();
+        }
+        if (iteratorFileRecords.hasNext()) {
+            filesIndex = 0;
+        }
         return fileRecordNew;
-    }
-
-    @Override
-    public String toString() {
-
-        return "RelatedCategoryFetcher [filename=" + filename
-                + ", pageId=" + pageId + ", toCategoriesColumn=" + toCategoriesColumn + "]";
-
     }
 
 }
