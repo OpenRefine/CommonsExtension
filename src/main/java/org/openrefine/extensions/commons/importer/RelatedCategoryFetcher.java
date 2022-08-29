@@ -22,12 +22,11 @@ import okhttp3.Response;
  * @param iteratorFileRecords
  */
 public class RelatedCategoryFetcher implements Iterator<FileRecord> {
+    public static int API_TITLES_LIMIT = 20;
     Iterator<FileRecord> iteratorFileRecords;
-    FileRecord fileRecordNew;
     int filesIndex;
     List <FileRecord> fileRecordOriginal;
     String apiUrl;
-    HttpUrl urlRelatedCategories;
 
     public RelatedCategoryFetcher(String apiUrl, Iterator<FileRecord> iteratorFileRecords) {
         this.apiUrl = apiUrl;
@@ -36,10 +35,9 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     }
 
     /*
-     * API call for fetching the related categories
-     * @param filename -> change to list of files
-     * @param pageId
-     * @return list of related categories
+     * API call for fetching the related categories in batches of up to 20 titles
+     * @param list of file records
+     * @return list of related categories listed per file
      */
     public List<List<String>> getRelatedCategories(List <FileRecord> fileRecordOriginal) throws IOException {
 
@@ -49,7 +47,7 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
             titles += "|" + fileRecordOriginal.get(titlesIndex++).fileName;
         }
         OkHttpClient client = new OkHttpClient.Builder().build();
-        urlRelatedCategories = HttpUrl.parse(apiUrl).newBuilder()
+        HttpUrl urlRelatedCategories = HttpUrl.parse(apiUrl).newBuilder()
                 .addQueryParameter("action", "query")
                 .addQueryParameter("prop", "categories")
                 .addQueryParameter("titles", titles)
@@ -58,18 +56,17 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         Response response = client.newCall(request).execute();
         JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
         List<JsonNode> relatedCategories = new ArrayList<>();
-        List<String> toCategoriesColumn = new ArrayList<>();
-        List<List<String>> toCategoriesColumn2 = new ArrayList<>();
+        List<List<String>> toCategoriesColumn = new ArrayList<>();
         for (int i = 0; i < fileRecordOriginal.size(); i++) {
             relatedCategories.add(jsonNode.path("query").path("pages").path(fileRecordOriginal.get(i).pageId).path("categories"));
-            //toCategoriesColumn.add(fileRecordOriginal.get(i).pageId);
-        }
-        for (JsonNode category: relatedCategories) {
-            toCategoriesColumn.add(category.findValue("title").asText());
+            List<String> categoriesPerFile = new ArrayList<>();
+            for (int j = 0; j < relatedCategories.get(i).size(); j++) {
+                categoriesPerFile.add(relatedCategories.get(i).get(j).findValue("title").asText());
+            }
+            toCategoriesColumn.add(categoriesPerFile);
         }
 
-        // to return list of lists
-        return toCategoriesColumn2;
+        return toCategoriesColumn;
     }
 
     /*
@@ -96,23 +93,20 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     @Override
     public FileRecord next() {
 
-        fileRecordNew = null;
+        FileRecord fileRecordNew = null;
         filesIndex = 0;
         // use for loop to create list of 20 .next()
-        if (filesIndex < 20) {
+        if (filesIndex < API_TITLES_LIMIT) {
             if (iteratorFileRecords.hasNext()) {
                 fileRecordOriginal.add(iteratorFileRecords.next());
-                /*try {
-                } catch (IOException e) {
-                    fileRecordNew = new FileRecord(fileRecordOriginal.fileName, fileRecordOriginal.pageId, null,
-                            new EvalError("Could not fetch related categories: " + e.getMessage()).message);
-                }*/
                 filesIndex++;
             }
         }
-        // send list with 20 files
         try {
-            getRelatedCategories(fileRecordOriginal);
+            for (int i = 0; i < fileRecordOriginal.size(); i++) {
+                fileRecordNew = new FileRecord(fileRecordOriginal.get(i).fileName, fileRecordOriginal.get(i).pageId,
+                        getRelatedCategories(fileRecordOriginal).get(i), null);
+            }
         } catch (IOException e) {
             // FIXME
             e.printStackTrace();
