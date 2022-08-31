@@ -2,6 +2,7 @@ package org.openrefine.extensions.commons.importer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,14 +25,15 @@ import okhttp3.Response;
 public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     public static int API_TITLES_LIMIT = 20;
     Iterator<FileRecord> iteratorFileRecords;
-    int filesIndex;
-    List <FileRecord> fileRecordOriginal;
+    List <FileRecord> fileRecordOriginal = new ArrayList<>();
+    List<FileRecord> fileRecordNew = new ArrayList<>();
+    List<List<String>> toCategoriesColumn;
     String apiUrl;
+    int fileRecordNewIndex = 0;
 
     public RelatedCategoryFetcher(String apiUrl, Iterator<FileRecord> iteratorFileRecords) {
         this.apiUrl = apiUrl;
         this.iteratorFileRecords = iteratorFileRecords;
-        fileRecordOriginal = new ArrayList<>();
     }
 
     /*
@@ -56,7 +58,7 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         Response response = client.newCall(request).execute();
         JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
         List<JsonNode> relatedCategories = new ArrayList<>();
-        List<List<String>> toCategoriesColumn = new ArrayList<>();
+        toCategoriesColumn = new ArrayList<>();
         for (int i = 0; i < fileRecordOriginal.size(); i++) {
             relatedCategories.add(jsonNode.path("query").path("pages").path(fileRecordOriginal.get(i).pageId).path("categories"));
             List<String> categoriesPerFile = new ArrayList<>();
@@ -79,7 +81,6 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
      */
     @Override
     public boolean hasNext() {
-
         return iteratorFileRecords.hasNext();
     }
 
@@ -93,28 +94,32 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     @Override
     public FileRecord next() {
 
-        FileRecord fileRecordNew = null;
-        filesIndex = 0;
-        // use for loop to create list of 20 .next()
-        if (filesIndex < API_TITLES_LIMIT) {
-            if (iteratorFileRecords.hasNext()) {
-                fileRecordOriginal.add(iteratorFileRecords.next());
-                filesIndex++;
+        if (fileRecordNewIndex <= 0) {
+            int filesIndex = 0;
+            if (filesIndex < API_TITLES_LIMIT) {
+                while (iteratorFileRecords.hasNext()) {
+                    fileRecordOriginal.add(iteratorFileRecords.next());
+                    filesIndex++;
+                }
             }
-        }
-        try {
+            try {
+                getRelatedCategories(fileRecordOriginal);
+            } catch (IOException e) {
+                // FIXME
+                e.printStackTrace();
+            }
             for (int i = 0; i < fileRecordOriginal.size(); i++) {
-                fileRecordNew = new FileRecord(fileRecordOriginal.get(i).fileName, fileRecordOriginal.get(i).pageId,
-                        getRelatedCategories(fileRecordOriginal).get(i), null);
+                fileRecordNew.add(new FileRecord(fileRecordOriginal.get(i).fileName, fileRecordOriginal.get(i).pageId,
+                        toCategoriesColumn.get(i), null));
+                fileRecordNewIndex++;
             }
-        } catch (IOException e) {
-            // FIXME
-            e.printStackTrace();
+            if (iteratorFileRecords.hasNext()) {
+                filesIndex = 0;
+            }
+            return fileRecordNew.get(--fileRecordNewIndex);
+        } else {
+            return fileRecordNew.get(--fileRecordNewIndex);
         }
-        if (iteratorFileRecords.hasNext()) {
-            filesIndex = 0;
-        }
-        return fileRecordNew;
     }
 
 }
