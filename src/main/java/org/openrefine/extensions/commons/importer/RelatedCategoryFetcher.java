@@ -23,7 +23,7 @@ import okhttp3.Response;
  * @param iteratorFileRecords
  */
 public class RelatedCategoryFetcher implements Iterator<FileRecord> {
-    public static int API_TITLES_LIMIT = 20;
+    public static int API_TITLES_LIMIT = 1;
     Iterator<FileRecord> iteratorFileRecords;
     List <FileRecord> fileRecordOriginal = new ArrayList<>();
     List<FileRecord> fileRecordNew = new ArrayList<>();
@@ -77,11 +77,12 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
      * (In other words, returns {@code true} if {@link #next} would
      * return an element rather than throwing an exception.)
      *
-     * @return {@code true} if the iteration has more elements
+     * @return {@code true} if the iteration has more elements or if there's
+     * new file records already fetched from a previous api call
      */
     @Override
     public boolean hasNext() {
-        return iteratorFileRecords.hasNext();
+        return fileRecordNewIndex > 0 || iteratorFileRecords.hasNext();
     }
 
     /*
@@ -95,11 +96,9 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     public FileRecord next() {
 
         if (fileRecordNewIndex <= 0) {
-            int filesIndex = 0;
-            if (filesIndex < API_TITLES_LIMIT) {
+            for (int i=0; i<API_TITLES_LIMIT; i++) {
                 while (iteratorFileRecords.hasNext()) {
                     fileRecordOriginal.add(iteratorFileRecords.next());
-                    filesIndex++;
                 }
             }
             try {
@@ -108,17 +107,18 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
                 // FIXME
                 e.printStackTrace();
             }
+            fileRecordNewIndex = fileRecordOriginal.size();
             for (int i = 0; i < fileRecordOriginal.size(); i++) {
                 fileRecordNew.add(new FileRecord(fileRecordOriginal.get(i).fileName, fileRecordOriginal.get(i).pageId,
                         toCategoriesColumn.get(i), null));
-                fileRecordNewIndex++;
+                fileRecordNewIndex--;
             }
-            if (iteratorFileRecords.hasNext()) {
-                filesIndex = 0;
-            }
-            return fileRecordNew.get(--fileRecordNewIndex);
+            return fileRecordNew.get(fileRecordNewIndex++);
+        } else if (fileRecordNewIndex < fileRecordNew.size()) {
+            return fileRecordNew.get(fileRecordNewIndex++);
         } else {
-            return fileRecordNew.get(--fileRecordNewIndex);
+            fileRecordNewIndex = 0;
+            return null;
         }
     }
 

@@ -68,7 +68,9 @@ public class RelatedCategoryFetcherTest {
             List<Object> rows = new ArrayList<>();
             Assert.assertTrue(rcf.hasNext());
             rows.add(rcf.next());
-            Assert.assertFalse(rcf.hasNext());
+            Assert.assertTrue(rcf.hasNext());
+            rows.add(rcf.next());
+            Assert.assertTrue(rcf.hasNext());
             rows.add(rcf.next());
             Assert.assertFalse(rcf.hasNext());
             List<String> categoriesFile0 = Arrays.asList("Category:Costa Rica", "Category:Cute dogs", "Category:Costa Rican dogs");
@@ -76,8 +78,9 @@ public class RelatedCategoryFetcherTest {
             FileRecord file0 = new FileRecord("File:LasTres.jpg", "127722", categoriesFile0, null);
             FileRecord file1 = new FileRecord("File:Pejiballes.jpg", "127752", categoriesFile1, null);
 
-            Assert.assertEquals(rows.get(0), file1);
-            Assert.assertEquals(rows.get(1), file0);
+            Assert.assertEquals(rows.get(0), file0);
+            Assert.assertEquals(rows.get(1), file1);
+            Assert.assertEquals(rows.get(2), null);
 
         }
     }
