@@ -26,7 +26,6 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     public static int API_TITLES_LIMIT = 1;
     Iterator<FileRecord> iteratorFileRecords;
     List<FileRecord> fileRecordNew = new ArrayList<>();
-    List<List<String>> toCategoriesColumn;
     String apiUrl;
     int fileRecordNewIndex = 0;
 
@@ -57,7 +56,7 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         Response response = client.newCall(request).execute();
         JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
         List<JsonNode> relatedCategories = new ArrayList<>();
-        toCategoriesColumn = new ArrayList<>();
+        List<List<String>> toCategoriesColumn = new ArrayList<>();
         for (int i = 0; i < fileRecordOriginal.size(); i++) {
             relatedCategories.add(jsonNode.path("query").path("pages").path(fileRecordOriginal.get(i).pageId).path("categories"));
             List<String> categoriesPerFile = new ArrayList<>();
@@ -94,28 +93,27 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     @Override
     public FileRecord next() {
 
-        if (fileRecordNewIndex <= 0) {
+        if (fileRecordNewIndex >= fileRecordNew.size() && iteratorFileRecords.hasNext()) {
             List <FileRecord> fileRecordOriginal = new ArrayList<>();
+            List<List<String>> toCategoriesColumn = new ArrayList<>();
             while (iteratorFileRecords.hasNext() && fileRecordOriginal.size() < API_TITLES_LIMIT) {
                 fileRecordOriginal.add(iteratorFileRecords.next());
             }
             try {
-                getRelatedCategories(fileRecordOriginal);
+                toCategoriesColumn = getRelatedCategories(fileRecordOriginal);
             } catch (IOException e) {
                 // FIXME
                 e.printStackTrace();
             }
-            fileRecordNewIndex = 0;
             for (int i = 0; i < fileRecordOriginal.size(); i++) {
                 fileRecordNew.add(new FileRecord(fileRecordOriginal.get(i).fileName, fileRecordOriginal.get(i).pageId,
                         toCategoriesColumn.get(i), null));
             }
-            return fileRecordNew.get(fileRecordNewIndex++);
-        } else if (fileRecordNewIndex < fileRecordNew.size()) {
+        }
+        if (fileRecordNewIndex < fileRecordNew.size()) {
             return fileRecordNew.get(fileRecordNewIndex++);
         } else {
             fileRecordNewIndex = 0;
-
             return null;
         }
     }

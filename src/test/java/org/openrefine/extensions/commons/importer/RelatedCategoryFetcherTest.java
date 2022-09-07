@@ -13,6 +13,9 @@ import okhttp3.mockwebserver.MockWebServer;
 
 public class RelatedCategoryFetcherTest {
 
+    /*
+     * Test list generation of categories related to a group of titles
+     */
     @Test
     public void testGetRelatedCategories() throws Exception {
 
@@ -38,14 +41,13 @@ public class RelatedCategoryFetcherTest {
                     Arrays.asList("Category:Costa Rica", "Category:Yummy food", "Category:Costa Rican dishes"));
 
             Assert.assertEquals(rows.get(0), categories);
-            server.close();
 
         }
 
     }
 
     /**
-     * Test list generation of categories related to a given file
+     * Test list generation of categories related to a given file through multiple api calls
      */
     @Test
     public void testNext() throws Exception {
@@ -53,14 +55,16 @@ public class RelatedCategoryFetcherTest {
         try (MockWebServer server = new MockWebServer()) {
             server.start();
             HttpUrl url = server.url("/w/api.php");
-            String jsonResponse = "{\"batchcomplete\":\"\",\"query\":{\"pages\":{\"127722\":"
+            String jsonResponse1 = "{\"batchcomplete\":\"\",\"query\":{\"pages\":{\"127722\":"
                     + "{\"pageid\":127722,\"ns\":6,\"title\":\"File:LasTres.jpg\","
                     + "\"categories\":[{\"ns\":14,\"title\":\"Category:Costa Rica\"},"
-                    + "{\"ns\":14,\"title\":\"Category:Cute dogs\"},{\"ns\":14,\"title\":\"Category:Costa Rican dogs\"}]},"
-                    + "\"127752\":{\"pageid\":127752,\"ns\":6,\"title\":\"File:Pejiballes.jpg\","
+                    + "{\"ns\":14,\"title\":\"Category:Cute dogs\"},{\"ns\":14,\"title\":\"Category:Costa Rican dogs\"}]}}}}";
+            server.enqueue(new MockResponse().setBody(jsonResponse1));
+            String jsonResponse2 = "{\"batchcomplete\":\"\",\"query\":{\"pages\":{\"127752\":"
+                    + "{\"pageid\":127752,\"ns\":6,\"title\":\"File:Pejiballes.jpg\","
                     + "\"categories\":[{\"ns\":14,\"title\":\"Category:Costa Rica\"},"
                     + "{\"ns\":14,\"title\":\"Category:Yummy food\"},{\"ns\":14,\"title\":\"Category:Costa Rican dishes\"}]}}}}";
-            server.enqueue(new MockResponse().setBody(jsonResponse));
+            server.enqueue(new MockResponse().setBody(jsonResponse2));
             FileRecord fr0 = new FileRecord("File:LasTres.jpg", "127722", null, null);
             FileRecord fr1 = new FileRecord("File:Pejiballes.jpg", "127752", null, null);
             List<FileRecord> originalRecords = Arrays.asList(fr0, fr1);
@@ -71,9 +75,7 @@ public class RelatedCategoryFetcherTest {
             rows.add(rcf.next());
             Assert.assertTrue(rcf.hasNext());
             rows.add(rcf.next());
-            Assert.assertTrue(rcf.hasNext());
-            rows.add(rcf.next());
-            //Assert.assertFalse(rcf.hasNext());
+            Assert.assertFalse(rcf.hasNext());
             List<String> categoriesFile0 = Arrays.asList("Category:Costa Rica", "Category:Cute dogs", "Category:Costa Rican dogs");
             List<String> categoriesFile1 = Arrays.asList("Category:Costa Rica", "Category:Yummy food", "Category:Costa Rican dishes");
             FileRecord file0 = new FileRecord("File:LasTres.jpg", "127722", categoriesFile0, null);
@@ -81,7 +83,6 @@ public class RelatedCategoryFetcherTest {
 
             Assert.assertEquals(rows.get(0), file0);
             Assert.assertEquals(rows.get(1), file1);
-            Assert.assertEquals(rows.get(2), null);
             server.close();
 
         }
