@@ -23,7 +23,7 @@ import okhttp3.Response;
  * @param iteratorFileRecords
  */
 public class RelatedCategoryFetcher implements Iterator<FileRecord> {
-    public static int API_TITLES_LIMIT = 1;
+    public static int API_TITLES_LIMIT = 20;
     Iterator<FileRecord> iteratorFileRecords;
     List<FileRecord> fileRecordNew = new ArrayList<>();
     String apiUrl;
@@ -35,7 +35,17 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
     }
 
     /*
+     * Utility method for testing api calls with variable number of titles
+     *
+     * @param limit
+     */
+    public void setApiLimit(int limit) {
+        API_TITLES_LIMIT = limit;
+    }
+
+    /*
      * API call for fetching the related categories in batches of up to 20 titles
+     *
      * @param list of file records
      * @return list of related categories listed per file
      */
@@ -96,24 +106,30 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         if (fileRecordNewIndex >= fileRecordNew.size() && iteratorFileRecords.hasNext()) {
             List <FileRecord> fileRecordOriginal = new ArrayList<>();
             List<List<String>> toCategoriesColumn = new ArrayList<>();
+            String fetchingErrors = new String();
             while (iteratorFileRecords.hasNext() && fileRecordOriginal.size() < API_TITLES_LIMIT) {
                 fileRecordOriginal.add(iteratorFileRecords.next());
             }
             try {
                 toCategoriesColumn = getRelatedCategories(fileRecordOriginal);
             } catch (IOException e) {
-                // FIXME
-                e.printStackTrace();
+                fetchingErrors =new EvalError("Could not fetch related categories: " + e.getMessage()).message;
             }
             for (int i = 0; i < fileRecordOriginal.size(); i++) {
-                fileRecordNew.add(new FileRecord(fileRecordOriginal.get(i).fileName, fileRecordOriginal.get(i).pageId,
-                        toCategoriesColumn.get(i), null));
+                if (fetchingErrors.isBlank()) {
+                    fileRecordNew.add(new FileRecord(fileRecordOriginal.get(i).fileName, fileRecordOriginal.get(i).pageId,
+                            toCategoriesColumn.get(i), null));
+                } else {
+                    fileRecordNew.add(new FileRecord(fileRecordOriginal.get(i).fileName, fileRecordOriginal.get(i).pageId,
+                            null, fetchingErrors));
+                }
             }
         }
         if (fileRecordNewIndex < fileRecordNew.size()) {
             return fileRecordNew.get(fileRecordNewIndex++);
         } else {
             fileRecordNewIndex = 0;
+
             return null;
         }
     }

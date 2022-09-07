@@ -47,7 +47,7 @@ public class RelatedCategoryFetcherTest {
     }
 
     /**
-     * Test list generation of categories related to a given file through multiple api calls
+     * Test list generation of categories related to given files over multiple api calls
      */
     @Test
     public void testNext() throws Exception {
@@ -69,6 +69,7 @@ public class RelatedCategoryFetcherTest {
             FileRecord fr1 = new FileRecord("File:Pejiballes.jpg", "127752", null, null);
             List<FileRecord> originalRecords = Arrays.asList(fr0, fr1);
             RelatedCategoryFetcher rcf = new RelatedCategoryFetcher(url.toString(), originalRecords.iterator());
+            rcf.setApiLimit(1);
 
             List<Object> rows = new ArrayList<>();
             Assert.assertTrue(rcf.hasNext());
@@ -80,6 +81,52 @@ public class RelatedCategoryFetcherTest {
             List<String> categoriesFile1 = Arrays.asList("Category:Costa Rica", "Category:Yummy food", "Category:Costa Rican dishes");
             FileRecord file0 = new FileRecord("File:LasTres.jpg", "127722", categoriesFile0, null);
             FileRecord file1 = new FileRecord("File:Pejiballes.jpg", "127752", categoriesFile1, null);
+
+            Assert.assertEquals(rows.get(0), file0);
+            Assert.assertEquals(rows.get(1), file1);
+            server.close();
+
+        }
+    }
+
+    /**
+     * Test error message generation when next() encounters an IO error during categories fetching
+     */
+    @Test
+    public void testNextError() throws Exception {
+
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            HttpUrl url = server.url("/w/api.php");
+            String jsonResponse = "{\"batchcomplete\":\"\",\"query\":{\"pages\":{\"127723\":"
+                    + "{\"pageid\":127723,\"ns\":6,\"title\":\"File:LasTres_2.jpg\","
+                    + "{\"ns\":14,\"title\":\"Category:Cute dogs\"},{\"ns\":14,\"title\":\"Category:Costa Rican dogs\"}]}}}}";
+            server.enqueue(new MockResponse().setBody(jsonResponse));
+            String jsonResponse2 = "{\"batchcomplete\":\"\",\"query\":{\"pages\":{\"127722\":"
+                    + "{\"pageid\":127722,\"ns\":6,\"title\":\"File:LasTres.jpg\","
+                    + "\"categories\":[{\"ns\":14,\"title\":\"Category:Costa Rica\"},"
+                    + "{\"ns\":14,\"title\":\"Category:Cute dogs\"},{\"ns\":14,\"title\":\"Category:Costa Rican dogs\"}]}}}}";
+            server.enqueue(new MockResponse().setBody(jsonResponse2));
+            List<FileRecord> originalRecords = new ArrayList<>();
+            FileRecord fr0 = new FileRecord("File:LasTres_2.jpg", "127723", null, null);
+            FileRecord fr1 = new FileRecord("File:LasTres.jpg", "127722", null, null);
+            originalRecords.add(fr0);
+            originalRecords.add(fr1);
+            RelatedCategoryFetcher rcf = new RelatedCategoryFetcher(url.toString(), originalRecords.iterator());
+            rcf.setApiLimit(1);
+
+            List<Object> rows = new ArrayList<>();
+            Assert.assertTrue(rcf.hasNext());
+            rows.add(rcf.next());
+            Assert.assertTrue(rcf.hasNext());
+            rows.add(rcf.next());
+            Assert.assertFalse(rcf.hasNext());
+            String error = "Could not fetch related categories: Unexpected character ('{' (code 123)): was expecting double-quote to start field name"
+                    + "\n at [Source: (String)\"{\"batchcomplete\":\"\",\"query\":{\"pages\":{\"127723\":{\"pageid\":127723,\"ns\":6,"
+                    + "\"title\":\"File:LasTres_2.jpg\",{\"ns\":14,\"title\":\"Category:Cute dogs\"},{\"ns\":14,\"title\":\"Category:Costa Rican dogs\"}]}}}}\"; line: 1, column: 102]";
+            List<String> categories = Arrays.asList("Category:Costa Rica", "Category:Cute dogs", "Category:Costa Rican dogs");
+            FileRecord file0 = new FileRecord("File:LasTres_2.jpg", "127723", null, error);
+            FileRecord file1 = new FileRecord("File:LasTres.jpg", "127722", categories, null);
 
             Assert.assertEquals(rows.get(0), file0);
             Assert.assertEquals(rows.get(1), file1);
