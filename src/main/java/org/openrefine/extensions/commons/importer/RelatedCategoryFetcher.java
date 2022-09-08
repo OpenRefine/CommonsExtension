@@ -23,7 +23,8 @@ import okhttp3.Response;
  * @param iteratorFileRecords
  */
 public class RelatedCategoryFetcher implements Iterator<FileRecord> {
-    public static int API_TITLES_LIMIT = 20;
+    public static int API_TITLES_LIMIT = 50;
+    public int apiLimit = API_TITLES_LIMIT;
     Iterator<FileRecord> iteratorFileRecords;
     List<FileRecord> fileRecordNew = new ArrayList<>();
     String apiUrl;
@@ -40,7 +41,7 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
      * @param limit
      */
     public void setApiLimit(int limit) {
-        API_TITLES_LIMIT = limit;
+        apiLimit = limit;
     }
 
     /*
@@ -53,16 +54,17 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
 
         String titles = fileRecordOriginal.get(0).fileName;
         int titlesIndex =1;
-        if (titlesIndex < fileRecordOriginal.size()) {
+        while (titlesIndex < fileRecordOriginal.size()) {
             titles += "|" + fileRecordOriginal.get(titlesIndex++).fileName;
         }
         OkHttpClient client = new OkHttpClient.Builder().build();
-        HttpUrl urlRelatedCategories = HttpUrl.parse(apiUrl).newBuilder()
+        HttpUrl urlRelatedCategoriesBase = HttpUrl.parse(apiUrl).newBuilder()
                 .addQueryParameter("action", "query")
                 .addQueryParameter("prop", "categories")
                 .addQueryParameter("titles", titles)
+                .addQueryParameter("cllimit", "500")
                 .addQueryParameter("format", "json").build();
-        Request request = new Request.Builder().url(urlRelatedCategories).build();
+        Request request = new Request.Builder().url(urlRelatedCategoriesBase).build();
         Response response = client.newCall(request).execute();
         JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
         List<JsonNode> relatedCategories = new ArrayList<>();
@@ -107,7 +109,7 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
             List <FileRecord> fileRecordOriginal = new ArrayList<>();
             List<List<String>> toCategoriesColumn = new ArrayList<>();
             String fetchingErrors = new String();
-            while (iteratorFileRecords.hasNext() && fileRecordOriginal.size() < API_TITLES_LIMIT) {
+            while (iteratorFileRecords.hasNext() && fileRecordOriginal.size() < apiLimit) {
                 fileRecordOriginal.add(iteratorFileRecords.next());
             }
             try {

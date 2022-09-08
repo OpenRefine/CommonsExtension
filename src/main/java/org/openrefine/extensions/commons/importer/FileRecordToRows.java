@@ -44,8 +44,7 @@ public class FileRecordToRows implements TableDataReader {
             if (mIdsColumn) {
                 rowsOfCells.add(null);
             }
-            rowsOfCells.add(fileRecord.relatedCategories.get(relatedCategoriesIndex));
-            relatedCategoriesIndex++;
+            rowsOfCells.add(fileRecord.relatedCategories.get(relatedCategoriesIndex++));
             return rowsOfCells;
         } else if (iteratorFileRecords.hasNext()) {
             fileRecord = iteratorFileRecords.next();
@@ -58,8 +57,7 @@ public class FileRecordToRows implements TableDataReader {
                 if (fileRecord.error != null) {
                     rowsOfCells.add(fileRecord.error);
                 } else if (fileRecord.relatedCategories != null) {
-                    rowsOfCells.add(fileRecord.relatedCategories.get(0));
-                    relatedCategoriesIndex++;
+                    rowsOfCells.add(fileRecord.relatedCategories.get(relatedCategoriesIndex++));
                 } else {
                     rowsOfCells.add(fileRecord.relatedCategories);
                 }
@@ -68,8 +66,7 @@ public class FileRecordToRows implements TableDataReader {
                 if (fileRecord.error != null) {
                     rowsOfCells.add(fileRecord.error);
                 } else if (fileRecord.relatedCategories != null) {
-                    rowsOfCells.add(fileRecord.relatedCategories.get(0));
-                    relatedCategoriesIndex++;
+                    rowsOfCells.add(fileRecord.relatedCategories.get(relatedCategoriesIndex++));
                 } else {
                     rowsOfCells.add(fileRecord.relatedCategories);
                 }
