@@ -42,6 +42,7 @@ public class RelatedCategoryFetcherTest {
 
             Assert.assertEquals(rows.get(0), categories);
 
+            server.close();
         }
 
     }
@@ -84,6 +85,7 @@ public class RelatedCategoryFetcherTest {
 
             Assert.assertEquals(rows.get(0), file0);
             Assert.assertEquals(rows.get(1), file1);
+
             server.close();
 
         }
@@ -107,11 +109,9 @@ public class RelatedCategoryFetcherTest {
                     + "\"categories\":[{\"ns\":14,\"title\":\"Category:Costa Rica\"},"
                     + "{\"ns\":14,\"title\":\"Category:Cute dogs\"},{\"ns\":14,\"title\":\"Category:Costa Rican dogs\"}]}}}}";
             server.enqueue(new MockResponse().setBody(jsonResponse2));
-            List<FileRecord> originalRecords = new ArrayList<>();
             FileRecord fr0 = new FileRecord("File:LasTres_2.jpg", "127723", null, null);
             FileRecord fr1 = new FileRecord("File:LasTres.jpg", "127722", null, null);
-            originalRecords.add(fr0);
-            originalRecords.add(fr1);
+            List<FileRecord> originalRecords = Arrays.asList(fr0, fr1);
             RelatedCategoryFetcher rcf = new RelatedCategoryFetcher(url.toString(), originalRecords.iterator());
             rcf.setApiLimit(1);
 
@@ -130,6 +130,7 @@ public class RelatedCategoryFetcherTest {
 
             Assert.assertEquals(rows.get(0), file0);
             Assert.assertEquals(rows.get(1), file1);
+
             server.close();
 
         }

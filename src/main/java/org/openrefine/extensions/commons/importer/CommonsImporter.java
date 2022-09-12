@@ -2,11 +2,13 @@ package org.openrefine.extensions.commons.importer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Iterators;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.importers.TabularImportingParserBase;
 import com.google.refine.importing.ImportingJob;
@@ -42,8 +44,8 @@ public class CommonsImporter {
             ObjectNode options,
             List<Exception> exceptions) throws IOException {
 
-        FileFetcher fileFetcher;
         Iterator<FileRecord> rcf;
+        Iterator<FileRecord> fetchedFiles = Collections.emptyIterator();
         JSONUtilities.safePut(options, "headerLines", 0);
         /* get user-input from the Post request parameters */
         JsonNode categoryInput = options.get("categoryJsonValue");
@@ -58,11 +60,13 @@ public class CommonsImporter {
         // initializes progress reporting with the name of the first category
         setProgress(job, categories.get(0), 0);
 
-        fileFetcher = new FileFetcher(apiUrl, categories.get(0));
+        for(int i=0; i< categories.size(); i++) {
+            fetchedFiles = Iterators.concat(fetchedFiles, new FileFetcher(apiUrl, categories.get(i)));
+        }
         if (categoriesColumn) {
-            rcf = new RelatedCategoryFetcher(apiUrl, fileFetcher);
+            rcf = new RelatedCategoryFetcher(apiUrl, fetchedFiles);
         } else {
-            rcf = fileFetcher;
+            rcf = fetchedFiles;
         }
 
         TabularImportingParserBase.readTable(

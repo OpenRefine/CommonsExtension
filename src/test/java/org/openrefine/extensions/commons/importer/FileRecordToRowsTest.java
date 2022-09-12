@@ -15,15 +15,10 @@ public class FileRecordToRowsTest {
     @Test
     public void testGetNextRowOfCells() throws Exception {
 
-        List<String> categories = new ArrayList<>();
-        categories.add("Category:Costa Rica");
-        categories.add("Category:Cute dogs");
-        categories.add("Category:Costa Rican dogs");
+        List<String> categories = Arrays.asList("Category:Costa Rica", "Category:Cute dogs", "Category:Costa Rican dogs");
         FileRecord file0 = new FileRecord("File:LasTres.jpg", "127722", categories, null);
         FileRecord file1 = new FileRecord("File:Playa Gandoca.jpg", "112933", null, null);
-        List<FileRecord> fileRecords = new ArrayList<>();
-        fileRecords.add(file0);
-        fileRecords.add(file1);
+        List<FileRecord> fileRecords = Arrays.asList(file0, file1);
         FileRecordToRows frtr = new FileRecordToRows(fileRecords.iterator(), true, true);
 
         List<Object> rows = new ArrayList<>();
