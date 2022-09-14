@@ -108,14 +108,14 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         if (fileRecordNewIndex >= fileRecordNew.size() && iteratorFileRecords.hasNext()) {
             List <FileRecord> fileRecordOriginal = new ArrayList<>();
             List<List<String>> toCategoriesColumn = new ArrayList<>();
-            String fetchingErrors = new String();
+            String fetchingErrors = "";
             while (iteratorFileRecords.hasNext() && fileRecordOriginal.size() < apiLimit) {
                 fileRecordOriginal.add(iteratorFileRecords.next());
             }
             try {
                 toCategoriesColumn = getRelatedCategories(fileRecordOriginal);
             } catch (IOException e) {
-                fetchingErrors =new EvalError("Could not fetch related categories: " + e.getMessage()).message;
+                fetchingErrors = "Could not fetch related categories: " + e.getMessage();
             }
             for (int i = 0; i < fileRecordOriginal.size(); i++) {
                 if (fetchingErrors.isBlank()) {

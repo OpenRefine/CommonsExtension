@@ -79,7 +79,7 @@ public class CommonsImportingController implements ImportingController {
                 doParsePreview(request, response, parameters);
 
             } catch (Exception e) {
-                logger.error("doPost::DatabaseServiceException::{}", e);
+                logger.error("doPost::CommonsServiceException::{}", e);
                 HttpUtilities.respond(response, "error", "Unable to parse preview");
             }
         } else if ("create-project".equals(subCommand)) {
