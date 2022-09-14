@@ -26,23 +26,50 @@ Refine.CommonsSourceUI.prototype.attachUI = function(body) {
     language: $.i18n("core-recon/wd-recon-lang")
   };
 
+  var categoryDepth = $.trim(self._elmts.nestedBox[0].value);
   self._elmts.categoryInput.suggestCategory(suggestConfig).bind("fb-select", function(evt, data) {
       self._elmts.categoryInput.data("jsonValue", {
-        id: data.id
+        id: data.id,
+        depth: categoryDepth
     });
-    categoryJsonObj.push({category : self._elmts.categoryInput.data("jsonValue").id});
+    categoryJsonObj.push({category : self._elmts.categoryInput.data("jsonValue").id,
+    depth : self._elmts.categoryInput.data("jsonValue").depth});
   });
+
+  var deleteLink = $('<a></a>')
+  .addClass("remove-category")
+  .attr("title",$.i18n('commons-import/remove-category'))
+  .attr("href","")
+  .html("<img src='images/close.png' />")
+  .click(function() {
+    categoryJsonObj.pop();
+    return false;
+  }).appendTo(
+    (self._elmts.categoryRow)
+  );
 
   // on addCategoryButton click
   this._elmts.addCategoryButton.click(function(evt) {
     // add text fields
-    var addCategory = $("<input size='72'>").insertBefore(self._elmts.addCategoryRow)
+    var addCategory = $("<input size='72'  width='70%'>").insertBefore(self._elmts.addCategoryRow);
+    var addDepth = $("<input size='1'  width='10%' style='text-align: center;'>").insertAfter(addCategory);
     addCategory.suggestCategory(suggestConfig).bind("fb-select", function(evt, data) {
       addCategory.data("jsonValue", {
         id: data.id
       });
       categoryJsonObj.push({category : addCategory.data("jsonValue").id});
     });
+    var deleteLink = $('<a></a>')
+    .addClass("remove-category")
+    .attr("title",$.i18n('commons-import/remove-category'))
+    .attr("href","")
+    .html("<img src='images/close.png' />")
+    .click(function() {
+      categoryJsonObj.pop();
+      return false;
+    }).insertAfter(
+      (addDepth)
+    );
   });
 
   this._elmts.NextButton.click(function(evt) {
