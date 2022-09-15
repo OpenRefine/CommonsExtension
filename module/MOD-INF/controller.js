@@ -29,7 +29,7 @@ function init() {
   IM.registerController(
     module,
     "commons-importing-controller",
-    new Packages.org.openrefine.extensions.commons.utils.CommonsImportingController()
+    new Packages.org.openrefine.extensions.commons.importer.CommonsImportingController()
   );
 
   // Script files to inject into /index page
