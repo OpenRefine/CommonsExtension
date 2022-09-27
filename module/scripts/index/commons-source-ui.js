@@ -2,7 +2,37 @@
 Refine.CommonsSourceUI = function(controller) {
     this._controller = controller;
 };
-var categoryJsonObj = [];
+
+Refine.CommonsSourceUI.prototype.addRow = function() {
+
+  var tr = $(`<tr id="catRow">
+  <td class="row-index text-center">
+  <input size="72"  width="70%" class="category-input-box"/></td>
+  <td style="text-align: center;"><input size="1" width="10%" class="depth-input-box" /></td>
+  <td><a class="x-button" title="Delete this category" href>
+    <img src='images/close.png' ></a>
+  </td></tr>`);
+  $("#categoriesTable").append(tr);
+
+  var endpoint = "https://commons.wikimedia.org/w/api.php"
+  // FIXME: twik configuration to not use Freebase
+  var suggestConfig = {
+    commons_endpoint: endpoint,
+    language: $.i18n("core-recon/wd-recon-lang")
+  };
+
+  tr.find('input.category-input-box').suggestCategory(suggestConfig).bind("fb-select", function(evt, data) {
+    tr.find('input.category-input-box').data("jsonValue", {
+        id: data.id
+    });
+  });
+
+  var xButton = tr.find('.x-button');
+  xButton.on( "click", function(event) {
+    tr.remove();
+    event.preventDefault();
+  });
+}
 
 Refine.CommonsSourceUI.prototype.attachUI = function(body) {
 
@@ -18,62 +48,22 @@ Refine.CommonsSourceUI.prototype.attachUI = function(body) {
   $('#commons-retrieving').text($.i18n('commons-import/retrieving'));
 
   var self = this;
+  self.addRow();
 
-  var endpoint = "https://commons.wikimedia.org/w/api.php"
-  // FIXME: twik configuration to not use Freebase
-  var suggestConfig = {
-    commons_endpoint: endpoint,
-    language: $.i18n("core-recon/wd-recon-lang")
-  };
-
-  var categoryDepth = $.trim(self._elmts.nestedBox[0].value);
-  self._elmts.categoryInput.suggestCategory(suggestConfig).bind("fb-select", function(evt, data) {
-      self._elmts.categoryInput.data("jsonValue", {
-        id: data.id,
-        depth: categoryDepth
-    });
-    categoryJsonObj.push({category : self._elmts.categoryInput.data("jsonValue").id,
-    depth : self._elmts.categoryInput.data("jsonValue").depth});
-  });
-
-  var deleteLink = $('<a></a>')
-  .addClass("remove-category")
-  .attr("title",$.i18n('commons-import/remove-category'))
-  .attr("href","")
-  .html("<img src='images/close.png' />")
-  .click(function() {
-    categoryJsonObj.pop();
-    return false;
-  }).appendTo(
-    (self._elmts.categoryRow)
-  );
-
-  // on addCategoryButton click
   this._elmts.addCategoryButton.click(function(evt) {
-    // add text fields
-    var addCategory = $("<input size='72'  width='70%'>").insertBefore(self._elmts.addCategoryRow);
-    var addDepth = $("<input size='1'  width='10%' style='text-align: center;'>").insertAfter(addCategory);
-    addCategory.suggestCategory(suggestConfig).bind("fb-select", function(evt, data) {
-      addCategory.data("jsonValue", {
-        id: data.id
-      });
-      categoryJsonObj.push({category : addCategory.data("jsonValue").id});
-    });
-    var deleteLink = $('<a></a>')
-    .addClass("remove-category")
-    .attr("title",$.i18n('commons-import/remove-category'))
-    .attr("href","")
-    .html("<img src='images/close.png' />")
-    .click(function() {
-      categoryJsonObj.pop();
-      return false;
-    }).insertAfter(
-      (addDepth)
-    );
+    self.addRow();
   });
 
   this._elmts.NextButton.click(function(evt) {
+    var categoryJsonObj = [];
     var doc = {};
+    var trs = $('#categoriesTable').find('tr');
+    trs.each(function( index, tr ) {
+      if (index > 0) {
+        categoryJsonObj.push({category : $(tr).find('input.category-input-box').val(),
+        depth: $(tr).find('input.depth-input-box').val()});
+      }
+    });
     if (categoryJsonObj.length === 0) {
         window.alert($.i18n('commons-source/alert-retrieve'));
     } else {
