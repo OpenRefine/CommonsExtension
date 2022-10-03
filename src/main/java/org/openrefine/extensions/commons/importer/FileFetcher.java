@@ -1,10 +1,12 @@
 package org.openrefine.extensions.commons.importer;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Iterators;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -12,25 +14,32 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /*
- * This class iterates over the file names contained in a given category
+ * This class iterates over the members contained in a given category
  */
-public class FileFetcher implements Iterator<FileRecord>{
-    String category;
+public class FileFetcher implements Iterator<JsonNode>{
     String apiUrl;
+    String categoryName;
+    boolean subcategories;
+    int depth;
     HttpUrl urlBase;
-    HttpUrl urlContinue;
     JsonNode files;
     private int indexRow = 0;
     String cmcontinue;
 
-    public FileFetcher(String apiUrl, String category) throws IOException {
+    public FileFetcher(String apiUrl, String categoryName, boolean subcategories, int depth) {
         this.apiUrl = apiUrl;
-        this.category = category;
-        getFiles(category);
+        this.categoryName = categoryName;
+        this.subcategories = subcategories;
+        this.depth = depth;
+        try {
+            getFiles(categoryName);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /*
-     * API call for fetching files from a user-specified category
+     * API call for fetching files from a given category
      * @param category
      */
     public void getFiles(String category) throws IOException {
@@ -40,7 +49,7 @@ public class FileFetcher implements Iterator<FileRecord>{
                 .addQueryParameter("action", "query")
                 .addQueryParameter("list", "categorymembers")
                 .addQueryParameter("cmtitle", category)
-                .addQueryParameter("cmtype", "file")
+                .addQueryParameter("cmtype", subcategories ? "subcat":"file")
                 .addQueryParameter("cmprop", "title|type|ids")
                 .addQueryParameter("cmlimit", "500")
                 .addQueryParameter("format", "json").build();
@@ -67,6 +76,34 @@ public class FileFetcher implements Iterator<FileRecord>{
 
     }
 
+    static Iterator<JsonNode> fetchCategoryMembers(String endpoint, String categoryName, boolean subcategories) {
+        return new FileFetcher(endpoint, categoryName, subcategories, 0);
+     }
+
+    static Iterator<FileRecord> fetchDirectFileMembers(String endpoint, String categoryName) {
+        Iterator<JsonNode> fetchedCategoryMembers = fetchCategoryMembers(endpoint, categoryName, false);
+        return Iterators.transform(fetchedCategoryMembers, jsonNode->
+            new FileRecord(jsonNode.findValue("title").asText(), jsonNode.findValue("pageid").asText(), null, null));
+     }
+
+    static Iterator<String> fetchSubcategories(String endpoint, String categoryName) {
+        Iterator<JsonNode> fetchedCategoryMembers = fetchCategoryMembers(endpoint, categoryName, true);
+        return Iterators.transform(fetchedCategoryMembers, jsonNode->
+            jsonNode.findValue("title").asText());
+    }
+
+    static Iterator<FileRecord> listCategoryMembers(String endpoint, String categoryName, int depth) {
+        Iterator<FileRecord> fetchedDirectFileMembers = fetchDirectFileMembers(endpoint, categoryName);// depth 0
+        Iterator<String> fetchedSubcategories = fetchSubcategories(endpoint, categoryName);
+        if (depth > 0) {
+            Iterator<Iterator<FileRecord>> listedCategoryMembers = Iterators.transform(fetchedSubcategories, cat->
+                listCategoryMembers(endpoint, cat, depth-1));
+            return Iterators.concat(fetchedDirectFileMembers, Iterators.concat(listedCategoryMembers));
+        } else {
+            return fetchedDirectFileMembers;
+        }
+    }
+
     /*
      * Returns {@code true} if the iteration has more elements.
      * (In other words, returns {@code true} if {@link #next} would
@@ -86,15 +123,12 @@ public class FileFetcher implements Iterator<FileRecord>{
      * @return an instance of the FileRecord
      */
     @Override
-    public FileRecord next() {
+    public JsonNode next() {
 
-        String fileName = files.get(indexRow).findValue("title").asText();
-        String pageId = files.get(indexRow).findValue("pageid").asText();
-        FileRecord fileRecord = new FileRecord(fileName, pageId, null, null);
         indexRow++;
 
         if ((indexRow == files.size()) && !cmcontinue.isBlank()) {
-            urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
+            HttpUrl urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
                     .addQueryParameter("cmcontinue", cmcontinue).build();
             try {
                 getFiles(urlContinue);
@@ -104,7 +138,7 @@ public class FileFetcher implements Iterator<FileRecord>{
             }
             indexRow = 0;
         }
-        return fileRecord;
+        return files.get(indexRow);
 
     }
 

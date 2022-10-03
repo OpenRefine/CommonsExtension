@@ -2,6 +2,7 @@ package org.openrefine.extensions.commons.importer;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.testng.Assert;
@@ -33,7 +34,7 @@ public class FileFetcherTest {
                     + "{\"pageid\":112933,\"ns\":6,\"title\":\"File:Playa Gandoca.jpg\",\"type\":\"file\"}]}}";
             server.enqueue(new MockResponse().setBody(jsonResponse));
             List<String> category = Collections.singletonList("Category:Costa Rica");
-            FileFetcher fileFetcher = new FileFetcher(url.toString(), category.get(0));
+            Iterator<FileRecord> fileFetcher = FileFetcher.listCategoryMembers(url.toString(), category.get(0), 0);
 
             List<Object> rows = new ArrayList<>();
             Assert.assertTrue(fileFetcher.hasNext());
