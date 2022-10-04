@@ -5,14 +5,13 @@ Refine.CommonsSourceUI = function(controller) {
 
 Refine.CommonsSourceUI.prototype.addRow = function() {
 
-  var tr = $(`<tr id="catRow">
-  <td class="row-index text-center">
-  <input size="72"  width="70%" class="category-input-box"/></td>
-  <td style="text-align: center;"><input size="1" width="10%" class="depth-input-box" /></td>
-  <td><a class="x-button" title="Delete this category" href>
-    <img src='images/close.png' ></a>
-  </td></tr>`);
+  var tr = $(`<tr id="categoryRow">
+  <td><input size="72" class="category-input-box"/></td>
+  <td><input size="1" class="depth-input-box"/></td>
+  <td><a class="x-button" href><img src='images/close.png'></a></td></tr>`);
   $("#categoriesTable").append(tr);
+
+  $('a.x-button').attr('title',$.i18n('commons-import/remove-category'));
 
   var endpoint = "https://commons.wikimedia.org/w/api.php"
   // FIXME: twik configuration to not use Freebase

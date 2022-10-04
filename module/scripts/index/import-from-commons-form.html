@@ -3,14 +3,14 @@
       <div class="grid-layout layout-tighter">
         <table id="categoriesTable">
           <tr>
-            <td width="70%" id="commons-import" class="fixed-text"></td>
-            <td style="text-align: center;" width="10%" id="commons-import-nested" class="fixed-text"></td>
+            <td id="commons-import" class="fixed-text"></td>
+            <td id="commons-import-nested" class="fixed-text-depth"></td>
           </tr>
         </table>
         <table id="buttonsTable">
           <tr bind="addCategoryRow">
             <td><button bind="addCategoryButton" class="button button-primary" type="button" id="commons-add"></button></td>
-            <td style="text-align: right;"><button bind="NextButton" class="button button-primary" type="button" id="commons-next"></button></td>
+            <td><button bind="NextButton" class="button-next button-primary" type="button" id="commons-next"></button></td>
           </tr>
         </table>
       </div>
