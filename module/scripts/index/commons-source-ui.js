@@ -11,7 +11,7 @@ Refine.CommonsSourceUI.prototype.addRow = function() {
   <td><a class="x-button" href><img src='images/close.png'></a></td></tr>`);
   $("#categoriesTable").append(tr);
 
-  $('a.x-button').attr('title',$.i18n('commons-import/remove-category'));
+  tr.find('a.x-button').attr('title',$.i18n('commons-import/remove-category'));
 
   var endpoint = "https://commons.wikimedia.org/w/api.php"
   // FIXME: twik configuration to not use Freebase
