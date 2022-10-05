@@ -3,6 +3,7 @@
     "commons-import/creating": "Creating project…",
     "commons-import/import-by-category": "Enter one or more Wikimedia Commons categories connected to the media files you wish to work with:",
     "commons-import/import-nested-category": "Include nested category levels:",
+    "commons-import/remove-category": "Remove this category",
     "commons-import/add": "Add another category",
     "commons-import/next->": "Next &raquo;",
     "commons-import/retrieving": "Retrieving files by category…",

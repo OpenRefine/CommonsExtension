@@ -2,7 +2,36 @@
 Refine.CommonsSourceUI = function(controller) {
     this._controller = controller;
 };
-var categoryJsonObj = [];
+
+Refine.CommonsSourceUI.prototype.addRow = function() {
+
+  var tr = $(`<tr id="categoryRow">
+  <td><input size="72" class="category-input-box"/></td>
+  <td><input size="1" class="depth-input-box"/></td>
+  <td><a class="x-button" href><img src='images/close.png'></a></td></tr>`);
+  $("#categoriesTable").append(tr);
+
+  tr.find('a.x-button').attr('title',$.i18n('commons-import/remove-category'));
+
+  var endpoint = "https://commons.wikimedia.org/w/api.php"
+  // FIXME: twik configuration to not use Freebase
+  var suggestConfig = {
+    commons_endpoint: endpoint,
+    language: $.i18n("core-recon/wd-recon-lang")
+  };
+
+  tr.find('input.category-input-box').suggestCategory(suggestConfig).bind("fb-select", function(evt, data) {
+    tr.find('input.category-input-box').data("jsonValue", {
+        id: data.id
+    });
+  });
+
+  var xButton = tr.find('.x-button');
+  xButton.on( "click", function(event) {
+    tr.remove();
+    event.preventDefault();
+  });
+}
 
 Refine.CommonsSourceUI.prototype.attachUI = function(body) {
 
@@ -18,35 +47,22 @@ Refine.CommonsSourceUI.prototype.attachUI = function(body) {
   $('#commons-retrieving').text($.i18n('commons-import/retrieving'));
 
   var self = this;
+  self.addRow();
 
-  var endpoint = "https://commons.wikimedia.org/w/api.php"
-  // FIXME: twik configuration to not use Freebase
-  var suggestConfig = {
-    commons_endpoint: endpoint,
-    language: $.i18n("core-recon/wd-recon-lang")
-  };
-
-  self._elmts.categoryInput.suggestCategory(suggestConfig).bind("fb-select", function(evt, data) {
-      self._elmts.categoryInput.data("jsonValue", {
-        id: data.id
-    });
-    categoryJsonObj.push({category : self._elmts.categoryInput.data("jsonValue").id});
-  });
-
-  // on addCategoryButton click
   this._elmts.addCategoryButton.click(function(evt) {
-    // add text fields
-    var addCategory = $("<input size='72'>").insertBefore(self._elmts.addCategoryRow)
-    addCategory.suggestCategory(suggestConfig).bind("fb-select", function(evt, data) {
-      addCategory.data("jsonValue", {
-        id: data.id
-      });
-      categoryJsonObj.push({category : addCategory.data("jsonValue").id});
-    });
+    self.addRow();
   });
 
   this._elmts.NextButton.click(function(evt) {
+    var categoryJsonObj = [];
     var doc = {};
+    var trs = $('#categoriesTable').find('tr');
+    trs.each(function( index, tr ) {
+      if (index > 0) {
+        categoryJsonObj.push({category : $(tr).find('input.category-input-box').val(),
+        depth: $(tr).find('input.depth-input-box').val()});
+      }
+    });
     if (categoryJsonObj.length === 0) {
         window.alert($.i18n('commons-source/alert-retrieve'));
     } else {
