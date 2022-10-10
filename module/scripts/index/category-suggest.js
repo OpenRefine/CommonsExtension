@@ -36,8 +36,6 @@
 
           li.append(name);
 
-          name.prepend($("<div>").addClass(css.item_type).text(data.id));
-
           return li;
         },
 
