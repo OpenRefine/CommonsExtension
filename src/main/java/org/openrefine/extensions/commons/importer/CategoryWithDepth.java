@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * This class stores the user-defined categories and
- * corresponding subcategories depth level
+ * requested depth level
  */
 public class CategoryWithDepth {
     String categoryName;
