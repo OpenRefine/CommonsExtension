@@ -1,7 +1,7 @@
 {
     "commons-import/preparing": "Preparing…",
     "commons-import/creating": "Creating project…",
-    "commons-import/import-by-category": "Enter one or more Wikimedia Commons categories from which you want to retrieve files (do not enter the Category: prefix):",
+    "commons-import/import-by-category": "Enter one or more Wikimedia Commons categories from which you want to retrieve files:",
     "commons-import/import-nested-category": "Sub-category depth:",
     "commons-import/remove-category": "Remove this category",
     "commons-import/add": "Add another category",

@@ -7,8 +7,8 @@ Refine.CommonsSourceUI.prototype.addRow = function() {
 
   var tr = $(`<tr id="categoryRow">
   <td><input size="72" class="category-input-box"/></td>
-  <td><input size="1" class="depth-input-box"/></td>
-  <td><a class="x-button" href><img src='images/close.png'></a></td></tr>`);
+  <td class="depth-input-td"><input size="1" class="depth-input-box"/></td>
+  <td class="x-button-td"><a class="x-button" href><img src='images/close.png'></a></td></tr>`);
   $("#categoriesTable").append(tr);
 
   tr.find('a.x-button').attr('title',$.i18n('commons-import/remove-category'));
