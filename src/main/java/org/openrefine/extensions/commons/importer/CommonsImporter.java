@@ -44,6 +44,7 @@ public class CommonsImporter {
             ObjectNode options,
             List<Exception> exceptions) throws IOException {
 
+        List<CategoryWithDepth> categoriesWithDepth = new ArrayList<>();
         Iterator<FileRecord> rcf;
         Iterator<FileRecord> fetchedFiles = Collections.emptyIterator();
         JSONUtilities.safePut(options, "headerLines", 0);
@@ -51,17 +52,18 @@ public class CommonsImporter {
         JsonNode categoryInput = options.get("categoryJsonValue");
         boolean mIdsColumn = options.get("mIdsColumn").asBoolean();
         boolean categoriesColumn = options.get("categoriesColumn").asBoolean();
-        List<String> categories = new ArrayList<>();
         for (JsonNode category: categoryInput) {
-            categories.add(category.get("category").asText());
+            categoriesWithDepth.add(new CategoryWithDepth(category.get("category").asText(),
+                    category.get("depth").asInt()));
         }
         String apiUrl = "https://commons.wikimedia.org/w/api.php";//FIXME
 
         // initializes progress reporting with the name of the first category
-        setProgress(job, categories.get(0), 0);
+        setProgress(job, categoriesWithDepth.get(0).categoryName, 0);
 
-        for(int i=0; i< categories.size(); i++) {
-            fetchedFiles = Iterators.concat(fetchedFiles, new FileFetcher(apiUrl, categories.get(i)));
+        for(CategoryWithDepth categoryWithDepth: categoriesWithDepth) {
+            fetchedFiles = Iterators.concat(fetchedFiles,
+                    FileFetcher.listCategoryMembers(apiUrl, categoryWithDepth.categoryName, categoryWithDepth.depth));
         }
         if (categoriesColumn) {
             rcf = new RelatedCategoryFetcher(apiUrl, fetchedFiles);
@@ -77,7 +79,7 @@ public class CommonsImporter {
                 options,
                 exceptions
         );
-        setProgress(job, categories.get(categories.size()-1), 100);
+        setProgress(job, categoriesWithDepth.get(categoriesWithDepth.size()-1).categoryName, 100);
     }
 
     static private void setProgress(ImportingJob job, String category, int percent) {
