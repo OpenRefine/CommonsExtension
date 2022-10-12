@@ -1,21 +1,19 @@
 <div>
-    <div bind="categoriesPanel" class="commons-panel">
-      <div class="grid-layout layout-tighter">
-        <table id="categoriesTable">
-          <tr>
-            <td id="commons-import" class="fixed-text"></td>
-            <td id="commons-import-nested" class="fixed-text-depth"></td>
-          </tr>
-        </table>
-        <table id="buttonsTable">
-          <tr bind="addCategoryRow">
-            <td><button bind="addCategoryButton" class="button button-primary" type="button" id="commons-add"></button></td>
-            <td><button bind="NextButton" class="button-next button-primary" type="button" id="commons-next"></button></td>
-          </tr>
-        </table>
-      </div>
-      <div bind="progressPage" class="commons-page">
-        <p><img src="images/large-spinner.gif" /> <span id="commons-retrieving"></span></p>
+  <div bind="categoriesPanel" class="commons-panel">
+    <div class="grid-layout layout-tighter">
+      <table id="categoriesTable" class="categoriesTable">
+        <tr>
+          <td id="commons-import" class="fixed-text"></td>
+          <td id="commons-import-nested" class="fixed-text-depth"></td>
+        </tr>
+      </table>
+      <div class="buttons-div">
+        <button bind="addCategoryButton" class="button" type="button" id="commons-add"></button>
+        <button bind="NextButton" class="button button-primary" type="button" id="commons-next"></button>
       </div>
     </div>
+    <div bind="progressPage" class="commons-page">
+      <p><img src="images/large-spinner.gif" /> <span id="commons-retrieving"></span></p>
+    </div>
   </div>
+</div>
