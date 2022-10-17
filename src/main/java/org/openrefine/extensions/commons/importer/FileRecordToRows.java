@@ -56,7 +56,7 @@ public class FileRecordToRows implements TableDataReader {
             if (categoriesColumn) {
                 if (fileRecord.error != null) {
                     rowsOfCells.add(fileRecord.error);
-                } else if (fileRecord.relatedCategories.isEmpty()) {
+                } else if (fileRecord.relatedCategories == null || fileRecord.relatedCategories.isEmpty()) {
                     rowsOfCells.add(null);
                 } else if (fileRecord.relatedCategories != null) {
                     rowsOfCells.add(fileRecord.relatedCategories.get(relatedCategoriesIndex++));
