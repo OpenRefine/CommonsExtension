@@ -56,15 +56,8 @@ public class FileRecordToRows implements TableDataReader {
             if (categoriesColumn) {
                 if (fileRecord.error != null) {
                     rowsOfCells.add(fileRecord.error);
-                } else if (fileRecord.relatedCategories != null) {
-                    rowsOfCells.add(fileRecord.relatedCategories.get(relatedCategoriesIndex++));
-                } else {
-                    rowsOfCells.add(fileRecord.relatedCategories);
-                }
-            } else if (mIdsColumn && categoriesColumn) {
-                rowsOfCells.add("M" + fileRecord.pageId);
-                if (fileRecord.error != null) {
-                    rowsOfCells.add(fileRecord.error);
+                } else if (fileRecord.relatedCategories == null || fileRecord.relatedCategories.isEmpty()) {
+                    rowsOfCells.add(null);
                 } else if (fileRecord.relatedCategories != null) {
                     rowsOfCells.add(fileRecord.relatedCategories.get(relatedCategoriesIndex++));
                 } else {
