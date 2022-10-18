@@ -2,20 +2,18 @@ package org.openrefine.extensions.commons.importer;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.refine.expr.EvalError;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-/*
+/**
  * This class takes an existing iterator over file records, and enriches
  * the file records with the list of categories they belong to
  *
@@ -23,7 +21,11 @@ import okhttp3.Response;
  * @param iteratorFileRecords
  */
 public class RelatedCategoryFetcher implements Iterator<FileRecord> {
-    public static int API_TITLES_LIMIT = 50;
+    /* FIXME: Increase API_TITLES_LIMIT to the maximum of 50 once
+     * clcontinue has been implemented
+     * https://github.com/OpenRefine/CommonsExtension/issues/53
+     * */
+    public static int API_TITLES_LIMIT = 10;
     public int apiLimit = API_TITLES_LIMIT;
     Iterator<FileRecord> iteratorFileRecords;
     List<FileRecord> fileRecordNew = new ArrayList<>();
@@ -35,7 +37,7 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         this.iteratorFileRecords = iteratorFileRecords;
     }
 
-    /*
+    /**
      * Utility method for testing api calls with variable number of titles
      *
      * @param limit
@@ -44,8 +46,8 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         apiLimit = limit;
     }
 
-    /*
-     * API call for fetching the related categories in batches of up to 20 titles
+    /**
+     * API call for fetching the related categories in batches of up to the number set by apiLimit
      *
      * @param list of file records
      * @return list of related categories listed per file
@@ -81,7 +83,7 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         return toCategoriesColumn;
     }
 
-    /*
+    /**
      * Returns {@code true} if the iteration has more elements for
      * which to fetch related categories.
      * (In other words, returns {@code true} if {@link #next} would
@@ -95,7 +97,7 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         return fileRecordNewIndex < fileRecordNew.size() || iteratorFileRecords.hasNext();
     }
 
-    /*
+    /**
      * This method iterates over each of the categories related to a file
      * and stores them as a list in the relatedCategories parameter of
      * each file record
