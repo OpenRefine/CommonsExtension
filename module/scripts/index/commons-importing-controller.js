@@ -24,7 +24,7 @@ Refine.CommonsImportingController = function(createProjectUI) {
   this._parsingPanel = createProjectUI.addCustomPanel();
 
   createProjectUI.addSourceSelectionUI({
-    label: "Commons Extension",
+    label: "Wikimedia Commons",
     id: "commons-source",
     ui: new Refine.CommonsSourceUI(this)
   });
