@@ -97,6 +97,15 @@ public class CommonsImporter {
                 1);
         col.setReconStats(ReconStats.create(project, 0));
         col.setReconConfig(cfg);
+        col.setName("File");
+        if (mIdsColumn) {
+            project.columnModel.columns.get(1).setName("M-ids");
+            if (categoriesColumn) {
+                project.columnModel.columns.get(2).setName("Categories");
+            }
+        } else if (categoriesColumn) {
+            project.columnModel.columns.get(1).setName("Categories");
+        }
 
         setProgress(job, categoriesWithDepth.get(categoriesWithDepth.size()-1).categoryName, 100);
     }
