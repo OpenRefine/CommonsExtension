@@ -28,7 +28,7 @@ public class FileRecordToRowsTest {
         rows.add(frtr.getNextRowOfCells());
         rows.add(frtr.getNextRowOfCells());
 
-        Assert.assertEquals(rows.get(0).toString(), Arrays.asList("File:LasTres.jpg, M127722, Category:Costa Rica").toString());
+        Assert.assertEquals(rows.get(0).toString(), Arrays.asList("File:LasTres.jpg", "M127722", "Category:Costa Rica").toString());
         Assert.assertEquals(rows.get(1), Arrays.asList(null, null, "Category:Cute dogs"));
         Assert.assertEquals(rows.get(2), Arrays.asList(null, null, "Category:Costa Rican dogs"));
         Assert.assertEquals(rows.get(3).toString(), Arrays.asList("File:Playa Gandoca.jpg", "M112933", null).toString());

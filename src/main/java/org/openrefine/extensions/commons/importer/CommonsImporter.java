@@ -12,7 +12,11 @@ import com.google.common.collect.Iterators;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.importers.TabularImportingParserBase;
 import com.google.refine.importing.ImportingJob;
+import com.google.refine.model.Column;
 import com.google.refine.model.Project;
+import com.google.refine.model.ReconStats;
+import com.google.refine.model.recon.StandardReconConfig;
+import com.google.refine.model.recon.StandardReconConfig.ColumnDetail;
 import com.google.refine.util.JSONUtilities;
 
 public class CommonsImporter {
@@ -57,6 +61,7 @@ public class CommonsImporter {
                     category.get("depth").asInt()));
         }
         String apiUrl = "https://commons.wikimedia.org/w/api.php";//FIXME
+        String service = "https://commonsreconcile.toolforge.org/en/api";
 
         // initializes progress reporting with the name of the first category
         setProgress(job, categoriesWithDepth.get(0).categoryName, 0);
@@ -79,6 +84,20 @@ public class CommonsImporter {
                 options,
                 exceptions
         );
+
+        Column col = project.columnModel.columns.get(0);
+        StandardReconConfig cfg = new StandardReconConfig(
+                service,
+                "https://commons.wikimedia.org/entity/",
+                "http://www.wikidata.org/prop/direct/",
+                "",
+                "entity",
+                true,
+                new ArrayList<ColumnDetail>(),
+                1);
+        col.setReconStats(ReconStats.create(project, 0));
+        col.setReconConfig(cfg);
+
         setProgress(job, categoriesWithDepth.get(categoriesWithDepth.size()-1).categoryName, 100);
     }
 
