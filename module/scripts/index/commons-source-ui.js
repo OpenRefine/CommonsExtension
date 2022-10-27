@@ -7,11 +7,12 @@ Refine.CommonsSourceUI.prototype.addRow = function() {
 
   var tr = $(`<tr id="categoryRow">
   <td><input size="72" class="category-input-box"/></td>
-  <td class="depth-input-td"><input type="number" min="0" max="6" class="depth-input-box"/></td>
+  <td class="depth-input-td"><input type="number" value="0" min="0" max="6" class="depth-input-box"/></td>
   <td class="x-button-td"><a class="x-button" href><img src='images/close.png'></a></td></tr>`);
   $("#categoriesTable").append(tr);
 
   tr.find('a.x-button').attr('title',$.i18n('commons-import/remove-category'));
+  tr.find('input.depth-input-box').prop('disabled', true);
 
   var endpoint = "https://commons.wikimedia.org/w/api.php"
   // FIXME: twik configuration to not use Freebase
@@ -20,10 +21,12 @@ Refine.CommonsSourceUI.prototype.addRow = function() {
     language: $.i18n("core-recon/wd-recon-lang")
   };
 
+  var depthBox = tr.find('input.depth-input-box');
   tr.find('input.category-input-box').suggestCategory(suggestConfig).bind("fb-select", function(evt, data) {
     tr.find('input.category-input-box').data("jsonValue", {
         id: data.id
     });
+    depthBox.removeAttr('disabled');
   });
 
   var xButton = tr.find('.x-button');
