@@ -21,6 +21,18 @@ import com.google.refine.util.JSONUtilities;
 
 public class CommonsImporter {
 
+    static String apiUrl = "https://commons.wikimedia.org/w/api.php";
+
+
+    /**
+     * Utility method for testing with mock api calls
+     *
+     * @param limit
+     */
+    public void setApiUrl(String apiUrlTest) {
+        apiUrl = apiUrlTest;
+    }
+
     static public void parsePreview(
             Project project,
             ProjectMetadata metadata,
@@ -60,7 +72,6 @@ public class CommonsImporter {
             categoriesWithDepth.add(new CategoryWithDepth(category.get("category").asText(),
                     category.get("depth").asInt()));
         }
-        String apiUrl = "https://commons.wikimedia.org/w/api.php";//FIXME
         String service = "https://commonsreconcile.toolforge.org/en/api";
 
         // initializes progress reporting with the name of the first category

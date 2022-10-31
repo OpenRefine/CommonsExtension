@@ -16,6 +16,10 @@ import com.google.refine.model.Cell;
 import com.google.refine.model.Project;
 import com.google.refine.util.ParsingUtilities;
 
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+
 public class CommonsImporterTest {
 
     protected RefineServlet servlet;
@@ -31,26 +35,37 @@ public class CommonsImporterTest {
     @Test
     public void testParse() throws Exception {
 
-        servlet = new RefineServlet();
-        ImportingManager.initialize(servlet);
-        project = new Project();
-        metadata = new ProjectMetadata();
-        metadata.setName("Commons Import Test Project");
-        job = Mockito.mock(ImportingJob.class);
-        ObjectNode options = ParsingUtilities.evaluateJsonStringToObjectNode(
-                "{\"categoryJsonValue\":[{\"category\":\"Category:Costa Rica\",\"depth\":\"0\"}],\"skipDataLines\":0,"
-                + "\"limit\":-1,\"disableAutoPreview\":false,\"categoriesColumn\":true,\"mIdsColumn\":true}");
-        List<Exception> exceptions = new ArrayList<Exception>();
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            HttpUrl url = server.url("/w/api.php");
+            String jsonResponse = "{\"batchcomplete\":\"\",\"query\":{\"categorymembers\":"
+                    + "[{\"pageid\":127722,\"ns\":6,\"title\":\"File:3 Puppies.jpg\",\"type\":\"file\"}]}}";
+            server.enqueue(new MockResponse().setBody(jsonResponse));
+            servlet = new RefineServlet();
+            ImportingManager.initialize(servlet);
+            project = new Project();
+            metadata = new ProjectMetadata();
+            metadata.setName("Commons Import Test Project");
+            job = Mockito.mock(ImportingJob.class);
+            ObjectNode options = ParsingUtilities.evaluateJsonStringToObjectNode(
+                    "{\"categoryJsonValue\":[{\"category\":\"Category:Costa Rica\",\"depth\":\"0\"}],\"skipDataLines\":0,"
+                    + "\"limit\":-1,\"disableAutoPreview\":false,\"categoriesColumn\":true,\"mIdsColumn\":true}");
+            List<Exception> exceptions = new ArrayList<Exception>();
+            CommonsImporter importer = new CommonsImporter();
 
-        CommonsImporter.parse(project, metadata, job, 0, options, exceptions);
-        project.update();
-        Cell cell = project.rows.get(0).cells.get(0);
+            importer.setApiUrl(url.toString());
+            CommonsImporter.parse(project, metadata, job, 0, options, exceptions);
+            project.update();
+            Cell cell = project.rows.get(0).cells.get(0);
 
-        Assert.assertEquals(project.columnModel.columns.get(0).getName(), "File");
-        Assert.assertEquals(project.columnModel.columns.get(1).getName(), "M-ids");
-        Assert.assertEquals(project.columnModel.columns.get(2).getName(), "Categories");
-        Assert.assertEquals(cell.recon.match.id, "M114916202");
-        Assert.assertEquals(cell.recon.match.name, "File:2006-08-08 Vista Parque Nacional Volcan Arenal, Costa Rica.jpg");
+            Assert.assertEquals(project.columnModel.columns.get(0).getName(), "File");
+            Assert.assertEquals(project.columnModel.columns.get(1).getName(), "M-ids");
+            Assert.assertEquals(project.columnModel.columns.get(2).getName(), "Categories");
+            Assert.assertEquals(cell.recon.match.id, "M127722");
+            Assert.assertEquals(cell.recon.match.name, "File:3 Puppies.jpg");
 
+            server.close();
+
+        }
     }
 }
