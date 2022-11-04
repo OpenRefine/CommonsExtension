@@ -1,3 +1,6 @@
+# MacOS ignored files
+.DS_Store
+
 # eclipse-related files
 .classpath
 .project

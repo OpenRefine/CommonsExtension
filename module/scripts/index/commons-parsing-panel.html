@@ -1,0 +1,52 @@
+<div bind="wizardHeader" class="commons-importing-wizard-header">
+  <div class="grid-layout layout-tightest layout-full">
+    <table>
+      <tr>
+        <td width="1%"><button bind="startOverButton" class="button"></button></td>
+        <td width="98%" bind="commons_conf_pars"></td>
+        <td style="text-align: right;" bind="commons_proj_name"></td>
+        <td width="1%"><input class="inline" type="text" size="30" bind="projectNameInput" /></td>
+        <td width="1%"><button bind="createProjectButton" class="button button-primary"></button></td>
+      </tr>
+    </table>
+  </div>
+</div>
+<div bind="dataPanel" class="commons-importing-parsing-data-panel"></div>
+<div bind="progressPanel" class="commons-importing-progress-data-panel">
+    <img src="images/large-spinner.gif" />
+    <span bind="commons_updating"></span>
+</div>
+
+<div bind="controlPanel" class="commons-importing-parsing-control-panel">
+  <div class="grid-layout layout-normal">
+    <table class="parsing-options-table">
+      <tr>
+        <td class="commons-options" bind="commons_options"></td>
+        <td bind="commons_wiki_options"></td>
+        <td class="preview-button"><button class="button" bind="previewButton"></button></td>
+      </tr>
+      <tr class="disable-auto-preview">
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td><input type="checkbox" bind="disableAutoPreviewCheckbox" id="$disable" />
+          <label for="$disable" bind="commons_disable_auto_preview"></label></td>
+      </tr>
+      <tr class="checkboxes">
+        <td><input type="checkbox" bind="skipCheckbox" id="$skip" />
+        <label for="$skip" bind="commons_discard_next"></label>
+        <input bind="skipInput" type="text" class="lightweight" size="2" value="0" />
+          <label for="$skip" bind="commons_discard"></label></td>
+        <td><input type="checkbox" bind="categoriesColumnCheckbox" id="$categoriesCol" />
+        <label for="$categoriesCol" bind="commons_categories_column"></label></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" bind="limitCheckbox" id="$limit" />
+        <label for="$limit" bind="commons_limit_next"></label>
+        <input bind="limitInput" type="text" class="lightweight" size="2" value="0" />
+          <label for="$limit" bind="commons_limit"></label></td>
+        <td><input type="checkbox" bind="mIdsCheckbox" id="$mIdsCol" />
+        <label for="$mIdsCol" bind="commons_mids_column"></label></td>
+      </tr>
+    </table>
+  </div>
+</div>

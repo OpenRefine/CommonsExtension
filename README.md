@@ -1,5 +1,5 @@
-Commons extension (name not final)
-==================================
+Commons extension
+=================
 
 This is an OpenRefine extension for Wikimedia Commons.
 It works with OpenRefine 3.6+.
@@ -18,12 +18,12 @@ This creates a zip file in the `target` folder, which can then be [installed in 
 Developing it
 -------------
 
-To avoid having to unzip the extension in the corresponding directory every time you want to test it, you can also use another set up: simply create a symbolic link from your extensions folder in OpenRefine to the local copy of this repository.
-You will still need to restart OpenRefine every time you make changes.
+To avoid having to unzip the extension in the corresponding directory every time you want to test it, you can also use another set up: simply create a symbolic link from your extensions folder in OpenRefine to the local copy of this repository. With this setup, you do not need to run `mvn package` when making changes to the extension, but you will still to compile it with `mvn compile` if you are making changes to Java files, and restart OpenRefine if you make changes to any files.
 
 Releasing it
 ------------
 
+- Make sure you are on the `master` branch and it is up to date (`git pull`)
 - Open `pom.xml` and set the version to the desired version number, such as `<version>0.1.0</version>`
 - Commit and push those changes
 - Add a corresponding git tag, with `git tag -a v0.1.0 -m "Version 0.1.0"`
