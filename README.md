@@ -1,5 +1,6 @@
 # Wikimedia Commons Extension for OpenRefine
 <img align="right" width="160" src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Commons-logo.svg">
+
 This extension provides several helpful functionalities for OpenRefine users who want to edit (structured data of) **media files** (images, videos, PDFs...) on **[Wikimedia Commons](https://commons.wikimedia.org)**. For more info, documentation and how-tos about OpenRefine for Wikimedia Commons, see **https://commons.wikimedia.org/wiki/Commons:OpenRefine**.
 
 Features included in this extension:
