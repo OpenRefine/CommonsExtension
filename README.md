@@ -31,13 +31,13 @@ After installing this extension, click the 'Wikimedia Commons' option to start a
 
 There's no need to type the Category: prefix. 
 
-You can specify category depth by typing or selecting a number in the input field after each category. Depth 0 means only files in the current category level; depth 1 will retrieve files from one sub-category level down, etc.
+You can specify category depth by typing or selecting a number in the input field after each category. Depth `0` means only files from the current category level; depth `1` will retrieve files from one sub-category level down, etc.
 
 Next, in the project preview screen (`Configure parsing options`), you can choose to also include a column with each file's M-id (unique [MediaInfo identifier](https://www.mediawiki.org/wiki/Extension:WikibaseMediaInfo#MediaInfo_Entity)) and/or Commons categories.
 
 File names will already be reconciled when your project starts.
 
-When you load larger categories (thousands of files) in a new project, OpenRefine will start slowly and will give you a memory warning. This is a known issue. Wait for a bit; the project will eventually start. The Commons Extension has been tested with a project of more than 450,000 files.
+When you load larger categories (thousands of files) in a new project, OpenRefine will start slowly and will give you a memory warning. [This is a known issue](https://github.com/OpenRefine/CommonsExtension/issues/72). Wait for a bit; the project will eventually start. The Commons Extension has been tested with a project of more than 450,000 files.
 
 ### GREL commands to extract data from Wikitext
 
