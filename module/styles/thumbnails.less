@@ -1,0 +1,36 @@
+.media-file-full-screen-preview {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.4);
+        z-index: 1;
+        display: flex;
+}
+
+.media-file-full-screen-preview img {
+        max-width: 95%;
+        max-height: 95%;
+        margin: auto;
+        z-index: 100;
+        cursor: zoom-out;
+}
+
+.media-file-thumbnail-in-cell {
+        background: white;
+        margin-top: 3px;
+        display: table; // to make it fit the image it contains
+        width: auto;
+}
+
+.media-file-thumbnail-in-cell img {
+        max-width: 240px;
+}
+
+.media-file-thumbnail-in-cell img:hover {
+        opacity: .7;
+        cursor: zoom-in;
+}
+
+

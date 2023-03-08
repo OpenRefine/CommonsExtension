@@ -45,6 +45,16 @@ function init() {
     ]
   );
 
+  // Script files to inject into /project page
+  ClientSideResourceManager.addPaths(
+    "project/scripts",
+    module,
+    [
+      "scripts/project/thumbnail-renderer.js"
+    ]
+  );
+
+
   // Style files to inject into /index page
   ClientSideResourceManager.addPaths(
     "index/styles",
@@ -54,4 +64,14 @@ function init() {
       "externals/suggest/css/suggest-4_3.min.css"
     ]
   );
+
+  // Style files to inject into /project page
+  ClientSideResourceManager.addPaths(
+    "project/styles",
+    module,
+    [
+      "styles/thumbnails.less"
+    ]
+  );
+
 }
