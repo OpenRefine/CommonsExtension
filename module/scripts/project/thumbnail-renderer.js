@@ -63,7 +63,7 @@ class ThumbnailReconRenderer extends ReconCellRenderer {
 
       var bareFileName = match.name.substr('File:'.length).replaceAll(' ', '_');
       var fileNameParts = bareFileName.split('.');
-      var extension = fileNameParts[fileNameParts.length - 1];
+      var extension = fileNameParts[fileNameParts.length - 1].toLowerCase();
       if (!self.supportedExtensions.includes(extension)) {
         // defer to the standard recon renderer
         return undefined;
