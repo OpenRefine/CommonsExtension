@@ -8,7 +8,7 @@ Features included in this extension:
 * Add **columns** with Commons categories and/or M-ids of each file name
 * File names will already be **reconciled** when starting the project
 * A few dedicated **GREL commands** allow basic processing and extraction of Wikitext: `extractFromTemplate` and `value.extractCategories`
-* (In this extension's 0.1.1 release and later) Basic support for file thumbnail previews. Thumbnails are displayed for some (but not all) file types/extensions. There is currently thumbnail support for jpeg, gif, png, djvu, pdf, svg, webm and ogv files.
+* (In this extension's 0.1.1 release and later) Basic support for **file thumbnail previews** of existing Wikimedia Commons files. Thumbnails are displayed for some (but not all) file types/extensions. There is currently thumbnail support for jpeg, gif, png, djvu, pdf, svg, webm and ogv files.
 
 It works with **OpenRefine 3.6.x and later versions of OpenRefine**. It is not compatible with OpenRefine 3.5.x or earlier. *(OpenRefine supports editing Wikimedia Commons from version 3.6; this is not possible in earlier versions.)*
 
