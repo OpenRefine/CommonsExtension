@@ -41,7 +41,7 @@ public class FileRecordToRows implements TableDataReader {
         this.identifierSpace = "https://commons.wikimedia.org/entity/";
         this.schemaSpace = "http://www.wikidata.org/prop/direct/";
         this.service = "https://commonsreconcile.toolforge.org/en/api";
-        this.reconConfig = new StandardReconConfig(service, identifierSpace, schemaSpace, null, null, true, Collections.emptyList());
+        this.reconConfig = new StandardReconConfig(service, identifierSpace, schemaSpace, null, null, true, relatedCategoriesIndex, Collections.emptyList(), relatedCategoriesIndex);
 
     }
 

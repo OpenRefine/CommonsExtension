@@ -104,8 +104,8 @@ public class CommonsImporter {
                 "",
                 "entity",
                 true,
-                new ArrayList<ColumnDetail>(),
-                1);
+                1,
+                new ArrayList<ColumnDetail>());
         col.setReconStats(ReconStats.create(project, 0));
         col.setReconConfig(cfg);
         col.setName("File");
