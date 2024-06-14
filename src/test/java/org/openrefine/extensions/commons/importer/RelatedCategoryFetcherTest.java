@@ -123,7 +123,7 @@ public class RelatedCategoryFetcherTest {
             Assert.assertFalse(rcf.hasNext());
             String error = "Could not fetch related categories: Unexpected character ('{' (code 123)): was expecting double-quote to start field name"
                     + "\n at [Source: (String)\"{\"batchcomplete\":\"\",\"query\":{\"pages\":{\"127723\":{\"pageid\":127723,\"ns\":6,"
-                    + "\"title\":\"File:LasTres_2.jpg\",{\"ns\":14,\"title\":\"Category:Cute dogs\"},{\"ns\":14,\"title\":\"Category:Costa Rican dogs\"}]}}}}\"; line: 1, column: 102]";
+                    + "\"title\":\"File:LasTres_2.jpg\",{\"ns\":14,\"title\":\"Category:Cute dogs\"},{\"ns\":14,\"title\":\"Category:Costa Rican dogs\"}]}}}}\"; line: 1, column: 101]";
             List<String> categories = Arrays.asList("Category:Costa Rica", "Category:Cute dogs", "Category:Costa Rican dogs");
             FileRecord file0 = new FileRecord("File:LasTres_2.jpg", "127723", null, error);
             FileRecord file1 = new FileRecord("File:LasTres.jpg", "127722", categories, null);

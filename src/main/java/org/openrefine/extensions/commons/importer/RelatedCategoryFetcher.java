@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -68,7 +69,9 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
                 .addQueryParameter("format", "json").build();
         Request request = new Request.Builder().url(urlRelatedCategoriesBase).build();
         Response response = client.newCall(request).execute();
-        JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+        JsonNode jsonNode = new ObjectMapper().enable(
+                Feature.INCLUDE_SOURCE_IN_LOCATION)
+                .readTree(response.body().string());
         List<JsonNode> relatedCategories = new ArrayList<>();
         List<List<String>> toCategoriesColumn = new ArrayList<>();
         for (int i = 0; i < fileRecordOriginal.size(); i++) {
