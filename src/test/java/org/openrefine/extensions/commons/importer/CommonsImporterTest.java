@@ -8,6 +8,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.refine.ProjectManager;
 import com.google.refine.ProjectMetadata;
 import com.google.refine.RefineServlet;
 import com.google.refine.importing.ImportingJob;
@@ -43,6 +44,7 @@ public class CommonsImporterTest {
             server.enqueue(new MockResponse().setBody(jsonResponse));
             servlet = new RefineServlet();
             ImportingManager.initialize(servlet);
+            ProjectManager.singleton = Mockito.mock(ProjectManager.class);
             project = new Project();
             metadata = new ProjectMetadata();
             metadata.setName("Commons Import Test Project");
