@@ -21,10 +21,10 @@
 
   <properties>
     <openrefine.version>3.8.1</openrefine.version>
-    <jackson.version>2.12.3</jackson.version>
+    <jackson.version>2.17.1</jackson.version>
     <wdtk.version>0.12.1-SNAPSHOT</wdtk.version>
     <swc-parser-lazy.version>3.1.9</swc-parser-lazy.version>
-    <surefire.version>2.22.2</surefire.version>
+    <surefire.version>3.2.5</surefire.version>
   </properties>
 
   <build>
@@ -34,7 +34,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>3.13.0</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
@@ -45,7 +45,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.1</version>
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
@@ -63,7 +63,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.2</version>
+        <version>3.6.1</version>
         <executions>
             <execution>
             <phase>compile</phase>
@@ -80,7 +80,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.3.2</version>
         <configuration>
           <filesets>
             <fileset>
@@ -91,7 +91,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.7.1</version>
         <configuration>
           <appendAssemblyId>false</appendAssemblyId>	
           <descriptors>
@@ -145,7 +145,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.30</version>
+      <version>2.0.13</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -157,7 +157,7 @@
     <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
-        <version>4.9.1</version>
+        <version>4.12.0</version>
     </dependency>
 
     <!-- testing dependencies -->
@@ -165,19 +165,19 @@
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
-      <version>7.4.0</version>
+      <version>7.10.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>mockwebserver</artifactId>
-      <version>4.9.1</version>
+      <version>4.12.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>3.6.28</version>
+      <version>5.12.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
