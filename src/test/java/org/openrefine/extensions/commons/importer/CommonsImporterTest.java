@@ -70,4 +70,41 @@ public class CommonsImporterTest {
 
         }
     }
+    
+    /**
+     * Test column names upon project creation as well as reconciled cells
+     */
+    @Test
+    public void testParseEmptyCategory() throws Exception {
+
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            HttpUrl url = server.url("/w/api.php");
+            String jsonResponse = "{\"batchcomplete\":\"\",\"query\":{\"categorymembers\":[]}}";
+            server.enqueue(new MockResponse().setBody(jsonResponse));
+            servlet = new RefineServlet();
+            ImportingManager.initialize(servlet);
+            ProjectManager.singleton = Mockito.mock(ProjectManager.class);
+            project = new Project();
+            metadata = new ProjectMetadata();
+            metadata.setName("Commons Import Test Project");
+            job = Mockito.mock(ImportingJob.class);
+            ObjectNode options = ParsingUtilities.evaluateJsonStringToObjectNode(
+                    "{\"categoryJsonValue\":[{\"category\":\"Category:Costa Rica\",\"depth\":\"0\"}],\"skipDataLines\":0,"
+                    + "\"limit\":-1,\"disableAutoPreview\":false,\"categoriesColumn\":true,\"mIdsColumn\":true}");
+            List<Exception> exceptions = new ArrayList<Exception>();
+            CommonsImporter importer = new CommonsImporter();
+
+            importer.setApiUrl(url.toString());
+            CommonsImporter.parse(project, metadata, job, 0, options, exceptions);
+            project.update();
+
+            Assert.assertEquals(project.rows.size(), 0);
+            Assert.assertEquals(project.columnModel.columns.get(0).getName(), "File");
+            Assert.assertEquals(project.columnModel.columns.get(1).getName(), "M-ids");
+            Assert.assertEquals(project.columnModel.columns.get(2).getName(), "Categories");
+            server.close();
+
+        }
+    }
 }
