@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterators;
 import com.google.refine.ProjectMetadata;
+import com.google.refine.importers.ImporterUtilities;
 import com.google.refine.importers.TabularImportingParserBase;
 import com.google.refine.importing.ImportingJob;
 import com.google.refine.model.Column;
@@ -76,6 +77,30 @@ public class CommonsImporter {
 
         // initializes progress reporting with the name of the first category
         setProgress(job, categoriesWithDepth.get(0).categoryName, 0);
+        
+        // pre-allocate columns
+        List<String> columnNames = new ArrayList<>();
+        Column col = ImporterUtilities.getOrAllocateColumn(project, columnNames, 0, false);
+        StandardReconConfig cfg = new StandardReconConfig(
+                service,
+                "https://commons.wikimedia.org/entity/",
+                "http://www.wikidata.org/prop/direct/",
+                "",
+                "entity",
+                true,
+                1,
+                new ArrayList<ColumnDetail>());
+        col.setReconStats(ReconStats.create(project, 0));
+        col.setReconConfig(cfg);
+        col.setName("File");
+        if (mIdsColumn) {
+            ImporterUtilities.getOrAllocateColumn(project, columnNames, 1, false).setName("M-ids");
+            if (categoriesColumn) {
+                ImporterUtilities.getOrAllocateColumn(project, columnNames, 2, false).setName("Categories");
+            }
+        } else if (categoriesColumn) {
+            ImporterUtilities.getOrAllocateColumn(project, columnNames, 1, false).setName("Categories");
+        }
 
         for(CategoryWithDepth categoryWithDepth: categoriesWithDepth) {
             fetchedFiles = Iterators.concat(fetchedFiles,
@@ -95,28 +120,6 @@ public class CommonsImporter {
                 options,
                 exceptions
         );
-
-        Column col = project.columnModel.columns.get(0);
-        StandardReconConfig cfg = new StandardReconConfig(
-                service,
-                "https://commons.wikimedia.org/entity/",
-                "http://www.wikidata.org/prop/direct/",
-                "",
-                "entity",
-                true,
-                1,
-                new ArrayList<ColumnDetail>());
-        col.setReconStats(ReconStats.create(project, 0));
-        col.setReconConfig(cfg);
-        col.setName("File");
-        if (mIdsColumn) {
-            project.columnModel.columns.get(1).setName("M-ids");
-            if (categoriesColumn) {
-                project.columnModel.columns.get(2).setName("Categories");
-            }
-        } else if (categoriesColumn) {
-            project.columnModel.columns.get(1).setName("Categories");
-        }
 
         setProgress(job, categoriesWithDepth.get(categoriesWithDepth.size()-1).categoryName, 100);
     }
