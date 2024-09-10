@@ -46,7 +46,6 @@ jobs:
       with:
         upload_url: ${{ steps.get_release_upload_url.outputs.upload_url }}
         asset_path: ./target/openrefine-commons.zip
-        asset_name: openrefine-commons-$VERSION_STRING.zip
+        asset_name: openrefine-commons-${{ env.VERSION_STRING }}.zip
         asset_content_type: application/zip
-
-
+  
