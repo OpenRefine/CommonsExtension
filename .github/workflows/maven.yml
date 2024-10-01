@@ -8,6 +8,8 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -22,5 +24,28 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+
     - name: Build with Maven
       run: mvn -B package
+
+    - name: Get release upload URL
+      id: get_release_upload_url
+      if: github.event_name == 'release'
+      uses: bruceadams/get-release@v1.3.2
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Extract version string
+      id: version_string_variable
+      run: echo "VERSION_STRING=$(mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+    - name: Upload release asset
+      id: upload-release-asset
+      if: github.event_name == 'release'
+      uses: shogo82148/actions-upload-release-asset@v1.7.5
+      with:
+        upload_url: ${{ steps.get_release_upload_url.outputs.upload_url }}
+        asset_path: ./target/openrefine-commons.zip
+        asset_name: openrefine-commons-${{ env.VERSION_STRING }}.zip
+        asset_content_type: application/zip
+  
