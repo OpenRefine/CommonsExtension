@@ -286,7 +286,7 @@ Refine.CommonsImportingController.prototype._getPreviewData = function(callback,
           result.rowModel = data;
           callback(result);
         },
-        "jsonp"
+        "json"
       );
     },
     "json"
