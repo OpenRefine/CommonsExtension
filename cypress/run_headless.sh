@@ -15,7 +15,9 @@ OPENREFINE_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evalua
 echo "Setting up OpenRefine $OPENREFINE_VERSION"
 cd "$(dirname "$0")"
 rm -rf openrefine
-wget -N https://github.com/OpenRefine/OpenRefine/releases/download/$OPENREFINE_VERSION/openrefine-linux-$OPENREFINE_VERSION.tar.gz
+echo "Downloading OpenRefine"
+wget -N --quiet https://github.com/OpenRefine/OpenRefine/releases/download/$OPENREFINE_VERSION/openrefine-linux-$OPENREFINE_VERSION.tar.gz
+echo "Decompressing archive"
 tar -zxf openrefine-linux-$OPENREFINE_VERSION.tar.gz
 mv openrefine-$OPENREFINE_VERSION openrefine
 mkdir -p openrefine/webapp/extensions
@@ -24,6 +26,7 @@ ln -s ../../../.. $EXTENSION_NAME
 cd ../..
 
 # Start OpenRefine
+echo "Starting OpenRefine"
 ./refine -x refine.headless=true -x refine.autoreload=false -x butterfly.autoreload=false -d /tmp/openrefine_commons_cypress > /dev/null &
 REFINE_PID="$!"
 
