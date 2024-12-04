@@ -25,8 +25,16 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
     - name: Build with Maven
       run: mvn -B package
+
+    - name: Run Cypress tests
+      run: ./cypress/run_headless.sh
 
     - name: Get release upload URL
       id: get_release_upload_url
@@ -34,10 +42,6 @@ jobs:
       uses: bruceadams/get-release@v1.3.2
       env:
         GITHUB_TOKEN: ${{ github.token }}
-
-    - name: Extract version string
-      id: version_string_variable
-      run: echo "VERSION_STRING=$(mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
     - name: Upload release asset
       id: upload-release-asset
