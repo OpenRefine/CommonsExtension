@@ -30,6 +30,14 @@ jobs:
       with:
         node-version: '20'
 
+    - name: Restore dependency cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          cypress/openrefine-*.tar.gz
+          **/node_modules
+        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
     - name: Build with Maven
       run: mvn -B package
 
