@@ -61,7 +61,7 @@ class ThumbnailReconRenderer extends ReconCellRenderer {
         .attr("target", "_blank")
         .appendTo(divContentRecon);
 
-      var bareFileName = match.name.includes('File:') ? match.name.substr('File:'.length).replaceAll(' ', '_') : match.name.replaceAll(' ', '_');
+      var bareFileName = (match.name.startsWith('File:') ? match.name.substr('File:'.length) : match.name).replaceAll(' ', '_');
       var fileNameParts = bareFileName.split('.');
       var extension = fileNameParts[fileNameParts.length - 1].toLowerCase();
       if (!self.supportedExtensions.includes(extension)) {
