@@ -4,7 +4,7 @@
 
   <groupId>org.openrefine.extensions</groupId>
   <artifactId>refine-commons-extension</artifactId>
-  <version>0.1.3</version>
+  <version>0.1.4-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>OpenRefine - Commons extension</name>
