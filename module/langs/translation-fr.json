@@ -1,1 +1,26 @@
-{}
+{
+    "commons-import/import-by-category": "Saisissez une ou plusieurs catégories Wikimédia Commons à partir desquelles récupérer des fichiers :",
+    "commons-parsing/conf-pars": "Configuration des options d'analyse",
+    "commons-parsing/proj-name": "Nom&nbsp;du&nbsp;projet",
+    "commons-source/alert-retrieve": "Aucune catégorie sélectionnée",
+    "commons-parsing/start-over": "&laquo; Recommencer",
+    "commons-parsing/create-proj": "Créer un projet &raquo;",
+    "commons-parsing/option": "Options :",
+    "commons-parsing/wiki-option": "Options spécifiques à Wikimédia Commons :",
+    "commons-parsing/discard-next": "Ignorer la ou les",
+    "commons-parsing/limit-next": "Charger au plus",
+    "commons-parsing/disable-auto-preview": "Désactiver l'aperçu automatique",
+    "commons-parsing/updating-preview": "Mise à jour de l'aperçu…",
+    "commons-parsing/preview-button": "Mettre à jour&nbsp;de&nbsp;l'aperçu",
+    "commons-parsing/limit": "première(s) ligne(s) de données",
+    "commons-import/preparing": "Préparation…",
+    "commons-import/add": "Ajouter une autre catégorie",
+    "commons-import/next->": "Suivant &raquo;",
+    "commons-parsing/categories-column": "Inclure une colonne avec des catégories",
+    "commons-import/retrieving": "Récupération de fichiers par catégorie…",
+    "commons-parsing/discard": "première(s) ligne(s) du début du fichier",
+    "commons-import/creating": "Création du projet…",
+    "commons-import/import-nested-category": "Profondeur de la sous-catégorie :",
+    "commons-import/remove-category": "Retirer la catégorie",
+    "commons-parsing/mids-column": "Inclure une colonne avec les identifiants Mid de Wikimédia Commons"
+}
