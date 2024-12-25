@@ -1,1 +1,26 @@
-{}
+{
+    "commons-import/remove-category": "Odebrat tuto kategorii",
+    "commons-import/add": "Přidat další kategorii",
+    "commons-import/next->": "Další &raquo;",
+    "commons-import/retrieving": "Načítání souborů podle kategorií…",
+    "commons-parsing/start-over": "&laquo; Začít znovu",
+    "commons-parsing/create-proj": "Vytvořit Projekt &raquo;",
+    "commons-parsing/conf-pars": "Nastavit možnosti parsování",
+    "commons-parsing/proj-name": "Názevt&nbsp;projektu",
+    "commons-parsing/discard": "řádek/řádky/řádků dat",
+    "commons-parsing/limit": "řádek/řádky/řádků dat",
+    "commons-parsing/mids-column": "Zahrnout sloupec s M-ID",
+    "commons-parsing/discard-next": "Vynechat počáteční(ch)",
+    "commons-parsing/updating-preview": "Aktualizace náhledu…",
+    "commons-parsing/option": "Možnosti:",
+    "commons-import/creating": "Vytváření projektu…",
+    "commons-parsing/limit-next": "Nahrát nejvýše",
+    "commons-parsing/disable-auto-preview": "Vypnout automatický náhled",
+    "commons-import/preparing": "Připravuje se…",
+    "commons-import/import-by-category": "Zadejte jednu nebo více kategorií Wikimedia Commons, ze kterých chcete získat soubory:",
+    "commons-source/alert-retrieve": "Nevybrána žádná kategorie",
+    "commons-import/import-nested-category": "Hloubka podkategorií:",
+    "commons-parsing/wiki-option": "Specifické možnosti Wikimedia Commons:",
+    "commons-parsing/categories-column": "Zahrnout sloupec s kategoriemi",
+    "commons-parsing/preview-button": "Aktualizovat&nbsp;náhled"
+}
