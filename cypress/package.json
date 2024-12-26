@@ -1,0 +1,29 @@
+{
+    "name": "commons-extension-cypress-test-suite",
+    "version": "1.0.0",
+    "description": "Cypress tests for OpenRefine's Commons extension",
+    "license": "BSD-3-Clause",
+    "author": "OpenRefine",
+    "private": true,
+    "engines": {
+        "node": ">=16.0.0",
+        "npm": ">=8.11.0",
+        "yarn": ">=1.22.15"
+    },
+    "scripts": {
+        "test": "cypress run --browser electron --headless --quiet",
+        "fix-lint": "prettier --write . && eslint --fix .",
+        "lint": "prettier --check . && eslint ."
+    },
+    "dependencies": {
+        "cypress": "13.6.4",
+        "cypress-file-upload": "^5.0.8"
+    },
+    "devDependencies": {
+        "eslint": "^8.56.0",
+        "eslint-config-google": "^0.14.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-cypress": "^2.15.1",
+        "prettier": "3.2.5"
+    }
+}
