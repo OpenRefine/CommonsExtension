@@ -1,1 +1,26 @@
-{}
+{
+    "commons-import/preparing": "In preparazione…",
+    "commons-import/creating": "Creando progetto…",
+    "commons-import/import-by-category": "Inserire una o più categorie di Wikimedia Commons da cui si desidera recuperare i file:",
+    "commons-import/import-nested-category": "Livelli di sotto-categorie:",
+    "commons-import/remove-category": "Rimuovi questa categoria",
+    "commons-import/add": "Aggiungi un'altra categoria",
+    "commons-import/next->": "Prossimo &raquo;",
+    "commons-import/retrieving": "Recupero dei file per categoria…",
+    "commons-parsing/proj-name": "Nome&nbsp;del&nbsp;progetto",
+    "commons-parsing/start-over": "&laquo; Ricomincia",
+    "commons-parsing/conf-pars": "Configura opzioni di analisi",
+    "commons-parsing/option": "Opzioni:",
+    "commons-source/alert-retrieve": "Nessuna categoria selezionata",
+    "commons-parsing/create-proj": "Crea progetto &raquo;",
+    "commons-parsing/discard": "riga/righe di dati",
+    "commons-parsing/limit-next": "Carica al massimo",
+    "commons-parsing/limit": "riga/righe di dati",
+    "commons-parsing/wiki-option": "Opzioni specifiche per Wikimedia Commons:",
+    "commons-parsing/discard-next": "Scarta la prima/le prime",
+    "commons-parsing/categories-column": "Includi una colonna con categorie",
+    "commons-parsing/mids-column": "Includi una colonna con M-ID",
+    "commons-parsing/preview-button": "Aggiorna&nbsp;anteprima",
+    "commons-parsing/disable-auto-preview": "Disabilita anteprima automatica",
+    "commons-parsing/updating-preview": "Aggiorna anteprima…"
+}
