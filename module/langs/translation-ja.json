@@ -1,1 +1,26 @@
-{}
+{
+    "commons-import/preparing": "準備中…",
+    "commons-import/creating": "プロジェクトを作成中…",
+    "commons-import/import-by-category": "ファイルを取得したいWikimedia Commonsのカテゴリーを入力してください:",
+    "commons-import/import-nested-category": "サブカテゴリーの深さ:",
+    "commons-import/remove-category": "このカテゴリーを削除",
+    "commons-import/add": "別のカテゴリーを追加",
+    "commons-import/next->": "次 &raquo;",
+    "commons-parsing/start-over": "&laquo; やり直し",
+    "commons-parsing/conf-pars": "パースオプションを設定",
+    "commons-parsing/proj-name": "プロジェクト名",
+    "commons-import/retrieving": "カテゴリーのファイルを取得…",
+    "commons-parsing/create-proj": "プロジェクトを作成 &raquo;",
+    "commons-source/alert-retrieve": "カテゴリーが選択されていません",
+    "commons-parsing/option": "オプション:",
+    "commons-parsing/discard-next": "接頭辞を削除",
+    "commons-parsing/discard": "データの行数",
+    "commons-parsing/limit-next": "読み込みの最大限度",
+    "commons-parsing/limit": "データの行数",
+    "commons-parsing/wiki-option": "Wikimedia Commons固有のオプション:",
+    "commons-parsing/categories-column": "カテゴリーのカラムを含める",
+    "commons-parsing/mids-column": "M-IDsのカラムを含める",
+    "commons-parsing/preview-button": "プレビューを更新",
+    "commons-parsing/disable-auto-preview": "プレビューの自動更新をしない",
+    "commons-parsing/updating-preview": "プレビューを更新中…"
+}
