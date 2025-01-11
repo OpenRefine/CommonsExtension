@@ -1,1 +1,25 @@
-{}
+{
+    "commons-import/creating": "נוצר מיזם…",
+    "commons-parsing/discard": "שורות נתונים",
+    "commons-import/preparing": "בהכנות…",
+    "commons-import/import-by-category": "נא למלא קטגוריה אחת או יותר של ויקישיתוף ממנה ברצונך למשוך קבצים:",
+    "commons-import/import-nested-category": "עומק תת־קטגוריות:",
+    "commons-import/remove-category": "הסרת הקטגוריה הזאת",
+    "commons-import/add": "הוספת קטגוריה נוספת",
+    "commons-import/next->": "הבא &raquo;",
+    "commons-import/retrieving": "מתקבלים קבצים לפי קטגוריה…",
+    "commons-parsing/start-over": "&laquo; התחלה מחדש",
+    "commons-parsing/conf-pars": "הגדרת אפשרויות פענוח",
+    "commons-parsing/proj-name": "שם המיזם",
+    "commons-source/alert-retrieve": "לא נבחרה קטגוריה",
+    "commons-parsing/create-proj": "יצירת מיזם &raquo;",
+    "commons-parsing/option": "אפשרויות:",
+    "commons-parsing/discard-next": "איפוס הראשוני",
+    "commons-parsing/limit-next": "לטעון הכי הרבה",
+    "commons-parsing/limit": "שורות נתונים",
+    "commons-parsing/wiki-option": "אפשרויות נקודתיות לוויקישיתוף:",
+    "commons-parsing/categories-column": "לרבות עמודה עם קטגוריות",
+    "commons-parsing/preview-button": "עדכון תצוגה מקדימה",
+    "commons-parsing/disable-auto-preview": "השבתת תצוגה מקדימה אוטומטית",
+    "commons-parsing/updating-preview": "התצוגה המקדימה מתעדכנת…"
+}
