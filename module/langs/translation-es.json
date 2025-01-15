@@ -1,1 +1,24 @@
-{}
+{
+    "commons-import/import-by-category": "Ingrese una o más categorías de Wikimedia Commons de las que desee recuperar archivos:",
+    "commons-import/creating": "Creando proyecto…",
+    "commons-import/remove-category": "Eliminar esta categoría",
+    "commons-import/add": "Añadir otra categoría",
+    "commons-import/import-nested-category": "Profundidad de subcategoría:",
+    "commons-parsing/start-over": "&laquo; Empezar de nuevo",
+    "commons-import/next->": "Siguiente →",
+    "commons-parsing/create-proj": "Crear proyecto&raquo;",
+    "commons-source/alert-retrieve": "Ninguna categoría seleccionada",
+    "commons-parsing/option": "Opciones:",
+    "commons-parsing/discard-next": "Descartar inicial",
+    "commons-parsing/discard": "fila(s) de datos",
+    "commons-parsing/limit": "fila(s) de datos",
+    "commons-parsing/conf-pars": "Configurar opciones del análisis sintáctico",
+    "commons-parsing/proj-name": "Nombre del&nbsp;proyecto",
+    "commons-parsing/wiki-option": "Opciones específicas de Wikimedia Commons:",
+    "commons-parsing/categories-column": "Incluir una columna con categorías",
+    "commons-parsing/disable-auto-preview": "Desactivar previsualización automática",
+    "commons-parsing/updating-preview": "Actualizando previsualización…",
+    "commons-parsing/preview-button": "Actualizar&nbsp;previsualizar",
+    "commons-import/retrieving": "Recuperar archivos por categoría…",
+    "commons-import/preparing": "Preparando…"
+}
