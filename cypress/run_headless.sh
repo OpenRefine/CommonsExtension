@@ -7,23 +7,25 @@ set -e
 EXTENSION_NAME="commons"
 CYPRESS_BROWSER="chrome"
 CYPRESS_SPECS="cypress/e2e/**/*.cy.js"
+OPENREFINE_DIR="/tmp/openrefine_CommonsExtension"
 
 # Detect target OpenRefine version
 cd "$(dirname "$0")/.."
+EXTENSION_DIR=`pwd`
 OPENREFINE_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=openrefine.version -q -DforceStdout)
 
 echo "Setting up OpenRefine $OPENREFINE_VERSION"
 cd "$(dirname "$0")"
-rm -rf openrefine
+rm -rf $OPENREFINE_DIR
 echo "Downloading OpenRefine"
 wget -N --quiet https://github.com/OpenRefine/OpenRefine/releases/download/$OPENREFINE_VERSION/openrefine-linux-$OPENREFINE_VERSION.tar.gz
 echo "Decompressing archive"
 tar -zxf openrefine-linux-$OPENREFINE_VERSION.tar.gz
-mv openrefine-$OPENREFINE_VERSION openrefine
-mkdir -p openrefine/webapp/extensions
-cd openrefine/webapp/extensions
-ln -s ../../../.. $EXTENSION_NAME
-cd ../..
+mv openrefine-$OPENREFINE_VERSION $OPENREFINE_DIR
+mkdir -p $OPENREFINE_DIR/webapp/extensions
+cd $OPENREFINE_DIR/webapp/extensions
+ln -s $EXTENSION_DIR $EXTENSION_NAME
+cd $OPENREFINE_DIR
 
 # Start OpenRefine
 echo "Starting OpenRefine"
@@ -40,7 +42,7 @@ else
 fi
 
 # Launch Cypress
-cd ..
+cd $EXTENSION_DIR/cypress
 if yarn run cypress run --browser $CYPRESS_BROWSER --spec "$CYPRESS_SPECS" --headless --quiet; then
    echo "All Cypress tests passed"
    RETURN_VALUE=0
