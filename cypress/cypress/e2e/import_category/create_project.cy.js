@@ -26,11 +26,11 @@ describe(__filename, function () {
       .click();
 
     // then ensure we are on the preview page
-    cy.get('.create-project-ui-panel').contains('Configure Parsing Options');
+    cy.get('.create-project-ui-panel').contains('Configure parsing options');
 
     // preview and click next
     cy.get('button[bind="createProjectButton"]')
-      .contains('Create Project »')
+      .contains('Create project »')
       .click();
     cy.waitForProjectTable();
   });
