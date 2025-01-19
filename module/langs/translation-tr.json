@@ -1,1 +1,26 @@
-{}
+{
+    "commons-import/preparing": "Hazırlanıyor…",
+    "commons-import/creating": "Proje oluşturuluyor…",
+    "commons-import/import-by-category": "Dosya almak istediğiniz bir veya daha fazla Wikimedia Commons kategorisini girin:",
+    "commons-import/import-nested-category": "Alt kategori derinliği:",
+    "commons-import/remove-category": "Bu kategoriyi kaldır",
+    "commons-import/add": "Başka bir kategori ekle",
+    "commons-import/next->": "İleri &raquo;",
+    "commons-import/retrieving": "Kategorilere göre dosyalar getiriliyor…",
+    "commons-parsing/start-over": "&laquo; Yeniden başla",
+    "commons-parsing/conf-pars": "Ayrıştırma seçeneklerini yapılandır",
+    "commons-parsing/proj-name": "Proje&nbsp;adı",
+    "commons-parsing/create-proj": "Proje oluştur &raquo;",
+    "commons-source/alert-retrieve": "Hiçbir kategori seçilmedi",
+    "commons-parsing/option": "Seçenekler:",
+    "commons-parsing/discard-next": "Başlangıcı çıkar",
+    "commons-parsing/discard": "veri satırı/satırları",
+    "commons-parsing/limit": "veri satırı/satırları",
+    "commons-parsing/wiki-option": "Wikimedia Commons'a özel seçenekler:",
+    "commons-parsing/categories-column": "Kategorileri içeren bir sütun ekle",
+    "commons-parsing/mids-column": "M-ID'leri içeren bir sütun ekle",
+    "commons-parsing/disable-auto-preview": "Otomatik önizlemeyi devre dışı bırak",
+    "commons-parsing/preview-button": "Önizlemeyi&nbsp;güncelle",
+    "commons-parsing/updating-preview": "Önizleme güncelleniyor…",
+    "commons-parsing/limit-next": "En fazla şu kadar yükle"
+}
