@@ -1,1 +1,26 @@
-{}
+{
+    "commons-import/preparing": "جاري التحضير…",
+    "commons-import/creating": "إنشاء المشروع…",
+    "commons-import/import-by-category": "أدخل فئة واحدة أو أكثر من فئات ويكيميديا كومنز التي تريد استرداد الملفات منها:",
+    "commons-import/import-nested-category": "‎عمق الفئة الفرعية:",
+    "commons-import/remove-category": "إزالة هذه الفئة",
+    "commons-import/add": "أضف فئة أخرى",
+    "commons-import/next->": "التالي »",
+    "commons-import/retrieving": "استرجاع الملفات حسب الفئة…",
+    "commons-parsing/start-over": "«ابدأ من جديد",
+    "commons-parsing/conf-pars": "تكوين خيارات التحليل",
+    "commons-parsing/proj-name": "اسم المشروع",
+    "commons-parsing/create-proj": "إنشاء مشروع »",
+    "commons-source/alert-retrieve": "لم يتم تحديد الفئة",
+    "commons-parsing/option": "خيارات :",
+    "commons-parsing/discard": "صف (صفوف) من البيانات",
+    "commons-parsing/limit-next": "تحميل على الأكثر",
+    "commons-parsing/limit": "صف (صفوف) من البيانات",
+    "commons-parsing/wiki-option": "خيارات خاصة بويكيميديا كومنز :",
+    "commons-parsing/discard-next": "تجاهل القيمة",
+    "commons-parsing/categories-column": "تضمين عمود بالفئات",
+    "commons-parsing/mids-column": "تضمين عمود يحتوي على معرفات M",
+    "commons-parsing/preview-button": "تحديث المعاينة",
+    "commons-parsing/disable-auto-preview": "تعطيل المعاينة التلقائية",
+    "commons-parsing/updating-preview": "تحديث المعاينة …"
+}
