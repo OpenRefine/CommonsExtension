@@ -1,1 +1,26 @@
-{}
+{
+    "commons-import/preparing": "Preparing…",
+    "commons-import/creating": "Creating project…",
+    "commons-import/next->": "Next &raquo;",
+    "commons-parsing/start-over": "&laquo; Start over",
+    "commons-parsing/proj-name": "Project&nbsp;name",
+    "commons-parsing/option": "Options:",
+    "commons-parsing/limit-next": "Load at most",
+    "commons-parsing/limit": "row(s) of data",
+    "commons-parsing/wiki-option": "Wikimedia Commons specific options:",
+    "commons-parsing/categories-column": "Include a column with categories",
+    "commons-parsing/preview-button": "Update&nbsp;preview",
+    "commons-parsing/disable-auto-preview": "Disable auto preview",
+    "commons-parsing/create-proj": "Create project &raquo;",
+    "commons-import/import-nested-category": "Sub-category depth:",
+    "commons-parsing/discard": "row(s) of data",
+    "commons-import/add": "Add another category",
+    "commons-parsing/mids-column": "Include a column with M-IDs",
+    "commons-import/import-by-category": "Enter one or more Wikimedia Commons categories from which you want to retrieve files:",
+    "commons-import/remove-category": "Remove this category",
+    "commons-import/retrieving": "Retrieving files by category…",
+    "commons-parsing/conf-pars": "Configure parsing options",
+    "commons-source/alert-retrieve": "No category selected",
+    "commons-parsing/discard-next": "Discard initial",
+    "commons-parsing/updating-preview": "Updating preview…"
+}
