@@ -60,7 +60,7 @@ public class RelatedCategoryFetcher implements Iterator<FileRecord> {
         while (titlesIndex < fileRecordOriginal.size()) {
             titles += "|" + fileRecordOriginal.get(titlesIndex++).fileName;
         }
-        OkHttpClient client = new OkHttpClient.Builder().build();
+        OkHttpClient client = HttpClient.getClient();
         HttpUrl urlRelatedCategoriesBase = HttpUrl.parse(apiUrl).newBuilder()
                 .addQueryParameter("action", "query")
                 .addQueryParameter("prop", "categories")
