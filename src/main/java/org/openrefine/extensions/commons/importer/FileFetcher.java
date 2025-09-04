@@ -43,7 +43,7 @@ public class FileFetcher implements Iterator<JsonNode>{
      */
     public void getCallResults(String category) throws IOException {
 
-        OkHttpClient client = new OkHttpClient.Builder().build();
+        OkHttpClient client = HttpClient.getClient();
         urlBase = HttpUrl.parse(apiUrl).newBuilder()
                 .addQueryParameter("action", "query")
                 .addQueryParameter("list", "categorymembers")
