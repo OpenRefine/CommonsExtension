@@ -43,7 +43,6 @@ public class FileFetcher implements Iterator<JsonNode>{
      */
     public void getCallResults(String category) throws IOException {
 
-        OkHttpClient client = HttpClient.getClient();
         urlBase = HttpUrl.parse(apiUrl).newBuilder()
                 .addQueryParameter("action", "query")
                 .addQueryParameter("list", "categorymembers")
@@ -52,9 +51,7 @@ public class FileFetcher implements Iterator<JsonNode>{
                 .addQueryParameter("cmprop", "title|type|ids")
                 .addQueryParameter("cmlimit", "500")
                 .addQueryParameter("format", "json").build();
-        Request request = new Request.Builder().url(urlBase).build();
-        Response response = client.newCall(request).execute();
-        JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+        JsonNode jsonNode = getJson(urlBase);
         callResults = jsonNode.path("query").path("categorymembers");
         cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
 
@@ -64,14 +61,28 @@ public class FileFetcher implements Iterator<JsonNode>{
      * API call when a cmcontinue token is part of the response
      * @param urlContinue: URL containing the cmcontinue token
      */
-    private void getCallResults(HttpUrl urlContinue) throws IOException {
+    private void getContinuationResults(HttpUrl urlContinue) throws IOException {
 
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        Request request = new Request.Builder().url(urlContinue).build();
-        Response response = client.newCall(request).execute();
-        JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+        JsonNode jsonNode = getJson(urlContinue);
         callResults = jsonNode.path("query").path("categorymembers");
         cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
+
+    }
+
+    private JsonNode getJson(HttpUrl url) throws IOException {
+
+        Request request = new Request.Builder().url(url).build();
+        try (Response response = HttpClient.getClient().newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                if (response.body() != null) {
+                    return new ObjectMapper().readTree(response.body().string());
+                } else  {
+                    return new ObjectMapper().readTree("[]");
+                }
+            } else {
+                throw new IOException("API request failed with status code: " + response.code() + ", body: " + response.message());
+            }
+        }
 
     }
 
@@ -164,7 +175,7 @@ public class FileFetcher implements Iterator<JsonNode>{
             urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
                     .addQueryParameter("cmcontinue", cmcontinue).build();
             try {
-                getCallResults(urlContinue);
+                getContinuationResults(urlContinue);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
