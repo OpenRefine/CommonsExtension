@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -19,9 +18,7 @@ import okhttp3.Response;
 public class FileFetcher implements Iterator<JsonNode>{
     String apiUrl;
     String categoryName;
-    boolean subcategories;
-    HttpUrl urlBase;
-    HttpUrl urlContinue;
+    String cmType;
     JsonNode callResults;
     private int indexRow = 0;
     String cmcontinue;
@@ -29,8 +26,9 @@ public class FileFetcher implements Iterator<JsonNode>{
     public FileFetcher(String apiUrl, String categoryName, boolean subcategories) {
         this.apiUrl = apiUrl;
         this.categoryName = categoryName;
-        this.subcategories = subcategories;
+        this.cmType = subcategories ? "subcat" : "file";
         try {
+            // TODO: it's weird that this uses categoryName as a parameter, but subcategories implicitly from the field
             getCallResults(categoryName);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -43,35 +41,50 @@ public class FileFetcher implements Iterator<JsonNode>{
      */
     public void getCallResults(String category) throws IOException {
 
-        OkHttpClient client = HttpClient.getClient();
-        urlBase = HttpUrl.parse(apiUrl).newBuilder()
-                .addQueryParameter("action", "query")
-                .addQueryParameter("list", "categorymembers")
-                .addQueryParameter("cmtitle", category)
-                .addQueryParameter("cmtype", subcategories ? "subcat":"file")
-                .addQueryParameter("cmprop", "title|type|ids")
-                .addQueryParameter("cmlimit", "500")
-                .addQueryParameter("format", "json").build();
-        Request request = new Request.Builder().url(urlBase).build();
-        Response response = client.newCall(request).execute();
-        JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+        HttpUrl urlBase = buildBaseUrl(category, cmType);
+        JsonNode jsonNode = getJson(urlBase);
         callResults = jsonNode.path("query").path("categorymembers");
         cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
 
+    }
+
+    private HttpUrl buildBaseUrl(String category, String cmtype) {
+        return HttpUrl.parse(apiUrl).newBuilder()
+                .addQueryParameter("action", "query")
+                .addQueryParameter("list", "categorymembers")
+                .addQueryParameter("cmtitle", category)
+                .addQueryParameter("cmtype", cmtype)
+                .addQueryParameter("cmprop", "title|type|ids")
+                .addQueryParameter("cmlimit", "500")
+                .addQueryParameter("format", "json").build();
     }
 
     /**
      * API call when a cmcontinue token is part of the response
      * @param urlContinue: URL containing the cmcontinue token
      */
-    private void getCallResults(HttpUrl urlContinue) throws IOException {
+    private void getContinuationResults(HttpUrl urlContinue) throws IOException {
 
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        Request request = new Request.Builder().url(urlContinue).build();
-        Response response = client.newCall(request).execute();
-        JsonNode jsonNode = new ObjectMapper().readTree(response.body().string());
+        JsonNode jsonNode = getJson(urlContinue);
         callResults = jsonNode.path("query").path("categorymembers");
         cmcontinue = jsonNode.path("continue").path("cmcontinue").asText();
+
+    }
+
+    private JsonNode getJson(HttpUrl url) throws IOException {
+
+        Request request = new Request.Builder().url(url).build();
+        try (Response response = HttpClient.getClient().newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                if (response.body() != null) {
+                    return new ObjectMapper().readTree(response.body().string());
+                } else  {
+                    return new ObjectMapper().readTree("[]");
+                }
+            } else {
+                throw new IOException("API request failed with status code: " + response.code() + ", body: " + response.message());
+            }
+        }
 
     }
 
@@ -161,10 +174,10 @@ public class FileFetcher implements Iterator<JsonNode>{
         indexRow++;
 
         if ((indexRow == callResults.size()) && !cmcontinue.isBlank()) {
-            urlContinue = HttpUrl.parse(urlBase.toString()).newBuilder()
+            HttpUrl urlContinue = buildBaseUrl(categoryName, cmType).newBuilder()
                     .addQueryParameter("cmcontinue", cmcontinue).build();
             try {
-                getCallResults(urlContinue);
+                getContinuationResults(urlContinue);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
