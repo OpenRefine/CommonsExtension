@@ -20,9 +20,9 @@
   </licenses>
 
   <properties>
-    <openrefine.version>3.9.2</openrefine.version>
+    <openrefine.version>3.9.5</openrefine.version>
     <jackson.version>2.18.3</jackson.version>
-    <wdtk.version>0.12.1-SNAPSHOT</wdtk.version>
+    <wdtk.version>0.17.0</wdtk.version>
     <swc-parser-lazy.version>3.1.9</swc-parser-lazy.version>
     <surefire.version>3.5.3</surefire.version>
   </properties>
@@ -36,8 +36,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.14.0</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>11</source>
+          <target>11</target>
           <encoding>UTF-8</encoding>
           <showDeprecation>false</showDeprecation>
         </configuration>
@@ -132,13 +132,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.openrefine.dependencies.wdtk</groupId>
+      <groupId>org.wikidata.wdtk</groupId>
       <artifactId>wdtk-datamodel</artifactId>
       <version>${wdtk.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.openrefine.dependencies.wdtk</groupId>
+      <groupId>org.wikidata.wdtk</groupId>
       <artifactId>wdtk-util</artifactId>
       <version>${wdtk.version}</version>
       <scope>provided</scope>
