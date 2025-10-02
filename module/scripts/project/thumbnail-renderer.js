@@ -120,7 +120,7 @@ class ThumbnailReconRenderer extends ReconCellRenderer {
    See https://www.mediawiki.org/wiki/Requests_for_comment/Standardized_thumbnails_sizes
    */
   getThumbnailUrl(mediaWikiRootUrl, bareFileName, width) {
-     return `${mediaWikiRootUrl}w/thumb.php?f=${encodeURIComponent(bareFileName)}&w=${width}&h=${width}`;
+     return `${mediaWikiRootUrl}w/thumb.php?f=${encodeURIComponent(bareFileName)}&w=${width}&h=${width}&lossy=lossy`;
   }
 }
 
