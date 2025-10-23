@@ -1,1 +1,26 @@
-{}
+{
+    "commons-import/preparing": "Preparant…",
+    "commons-import/creating": "Creant projecte…",
+    "commons-import/import-by-category": "Introduïu una o més categories de Wikimedia Commons de les quals voleu recuperar fitxers:",
+    "commons-import/import-nested-category": "Profunditat de la subcategoria:",
+    "commons-import/remove-category": "Elimina aquesta categoria",
+    "commons-import/add": "Afegeix una altra categoria",
+    "commons-import/next->": "Següent &raquo;",
+    "commons-import/retrieving": "Recuperant fitxers per categoria…",
+    "commons-parsing/start-over": "&laquo; Comença de nou",
+    "commons-parsing/conf-pars": "Configura les opcions d'anàlisi sintàctica",
+    "commons-parsing/proj-name": "Nom del projecte",
+    "commons-parsing/create-proj": "Crea un projecte &raquo;",
+    "commons-source/alert-retrieve": "No s'ha seleccionat cap categoria",
+    "commons-parsing/option": "Opcions:",
+    "commons-parsing/discard-next": "Descarta la inicial",
+    "commons-parsing/discard": "fila(es) de dades",
+    "commons-parsing/limit-next": "Carrega com a màxim",
+    "commons-parsing/limit": "fila(es) de dades",
+    "commons-parsing/wiki-option": "Opcions específiques de Wikimedia Commons:",
+    "commons-parsing/categories-column": "Inclou una columna amb categories",
+    "commons-parsing/mids-column": "Inclou una columna amb M-ID",
+    "commons-parsing/preview-button": "Actualitza la vista prèvia",
+    "commons-parsing/disable-auto-preview": "Desactiva la vista prèvia automàtica",
+    "commons-parsing/updating-preview": "Actualitzant la vista prèvia…"
+}
