@@ -1,1 +1,26 @@
-{}
+{
+    "commons-import/preparing": "準備中…",
+    "commons-import/creating": "創建專案…",
+    "commons-import/import-by-category": "輸入一個或多個您想截取檔案的維基共享資源分類：",
+    "commons-import/import-nested-category": "子分類深度：",
+    "commons-import/remove-category": "移除這個分類",
+    "commons-import/add": "新增另一個分類",
+    "commons-import/next->": "下一個 &raquo;",
+    "commons-import/retrieving": "經由分類截取檔案…",
+    "commons-parsing/start-over": "&laquo; 重新開始",
+    "commons-parsing/conf-pars": "設定解析選項",
+    "commons-parsing/proj-name": "專案&nbsp;名稱",
+    "commons-parsing/create-proj": "新增專案 &raquo;",
+    "commons-source/alert-retrieve": "沒有選取分類",
+    "commons-parsing/option": "選項：",
+    "commons-parsing/discard-next": "棄置最初",
+    "commons-parsing/discard": "列數資料",
+    "commons-parsing/limit-next": "最多載入",
+    "commons-parsing/limit": "列數資料",
+    "commons-parsing/wiki-option": "維基媒體共享資源專門選項：",
+    "commons-parsing/categories-column": "包括分類的欄位",
+    "commons-parsing/mids-column": "包括 M-ID 的欄位",
+    "commons-parsing/preview-button": "上傳&nbsp;預覽",
+    "commons-parsing/disable-auto-preview": "關閉自動預覽",
+    "commons-parsing/updating-preview": "上傳預覽…"
+}
