@@ -73,6 +73,10 @@ value.extractCategories().join('#')
 
 This GREL syntax will return all categories mentioned in the Wikitext, separated by the `#` character, which you can then use to split the resulting cell further as needed.
 
+### Start an OpenRefine project from a local image folder
+
+If you want to upload images to Wikimedia Commons from a local folder, it will be very helpful to install the [Files Extension](https://github.com/OpenRefine/FilesExtension) in OpenRefine first.
+
 ## Development
 
 ### Building from source
