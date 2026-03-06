@@ -60,7 +60,7 @@ function init() {
     "index/styles",
     module,
     [
-      "styles/commons-importing-controller.less",
+      "styles/commons-importing-controller.css",
       "externals/suggest/css/suggest-4_3.min.css"
     ]
   );
@@ -70,7 +70,7 @@ function init() {
     "project/styles",
     module,
     [
-      "styles/thumbnails.less"
+      "styles/thumbnails.css"
     ]
   );
 
