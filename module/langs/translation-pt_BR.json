@@ -1,1 +1,11 @@
-{}
+{
+    "commons-parsing/option": "Opções:",
+    "commons-import/preparing": "Preparando…",
+    "commons-import/creating": "Criando projeto…",
+    "commons-import/next->": "Seg. &raquo;",
+    "commons-parsing/start-over": "&laquo; Recomeçar",
+    "commons-parsing/create-proj": "Criar projeto &raquo;",
+    "commons-parsing/discard": "linha(s) de dados",
+    "commons-parsing/limit-next": "Carregar pelo menos",
+    "commons-parsing/limit": "linha(s) de dados"
+}
