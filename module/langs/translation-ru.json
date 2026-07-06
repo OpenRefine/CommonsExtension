@@ -1,1 +1,15 @@
-{}
+{
+    "commons-import/preparing": "Поготовка…",
+    "commons-import/creating": "Создание проекта…",
+    "commons-import/import-by-category": "Выберите одну или несколько категорий Wikimedia Commons из которых вы хотите получать файлы:",
+    "commons-import/import-nested-category": "Глубина подкатегорий:",
+    "commons-import/remove-category": "Удалить эту категорию",
+    "commons-import/add": "Добавить другую категорию",
+    "commons-import/retrieving": "Получение файлов из категории…",
+    "commons-parsing/conf-pars": "Настроить опции анализа",
+    "commons-parsing/proj-name": "Проект&nbsp;name",
+    "commons-parsing/create-proj": "Создать проект &raquo;",
+    "commons-source/alert-retrieve": "Категория не выбрана",
+    "commons-parsing/option": "Опции:",
+    "commons-parsing/discard": "ряд(ы) данных"
+}
