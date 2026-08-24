@@ -1,1 +1,6 @@
-{}
+{
+    "commons-import/preparing": "Hazırlanır…",
+    "commons-import/creating": "Layihə yaradılır…",
+    "commons-import/remove-category": "Bu kateqoriyanı sil",
+    "commons-import/import-by-category": "Fayl əldə etmək istədiyiniz bir və ya bir neçə Wikimedia Commons kateqoriyasını daxil edin:"
+}
