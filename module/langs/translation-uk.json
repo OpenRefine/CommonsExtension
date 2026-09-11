@@ -1,1 +1,26 @@
-{}
+{
+    "commons-import/preparing": "Підготовка…",
+    "commons-import/creating": "Створення проекту…",
+    "commons-import/import-by-category": "Введуть одну чи кілька категорій Wikimedia Commons, з яких потрібно отримати файли:",
+    "commons-import/import-nested-category": "Глибина підкатегорій:",
+    "commons-import/remove-category": "Видалити цю категорію",
+    "commons-import/add": "Додати ще одну категорію",
+    "commons-import/next->": "Далі &raquo;",
+    "commons-import/retrieving": "Отримання файлів за категоріями…",
+    "commons-parsing/start-over": "&laquo; Почати спочатку",
+    "commons-parsing/conf-pars": "Налаштувати опції аналізу",
+    "commons-parsing/proj-name": "Назва&nbsp;проєкту",
+    "commons-parsing/create-proj": "Створити проєкт &raquo;",
+    "commons-source/alert-retrieve": "Категорія не обрана",
+    "commons-parsing/option": "Опції:",
+    "commons-parsing/discard-next": "Відкинути початкові",
+    "commons-parsing/discard": "рядків даних",
+    "commons-parsing/limit-next": "Завантажити щонайбільше",
+    "commons-parsing/limit": "рядків даних",
+    "commons-parsing/wiki-option": "Спеціальні параметри Wikimedia Commons:",
+    "commons-parsing/categories-column": "Додати стовпець з категоріями",
+    "commons-parsing/mids-column": "Додати стовпець із M-ID",
+    "commons-parsing/preview-button": "Оновити&nbsp;попередній перегляд",
+    "commons-parsing/disable-auto-preview": "Вимкнути автоматичний попередній перегляд",
+    "commons-parsing/updating-preview": "Оновлення попереднього перегляду…"
+}
