@@ -1,1 +1,6 @@
-{}
+{
+    "commons-import/preparing": "തയ്യാറാക്കുന്നു…",
+    "commons-import/creating": "പ്രോജക്റ്റ് സൃഷ്ടിക്കുന്നു…",
+    "commons-import/remove-category": "ഈ വർഗ്ഗം നീക്കം ചെയ്യുക",
+    "commons-import/add": "മറ്റൊരു വർഗ്ഗം ചേർക്കുക"
+}
