@@ -20,5 +20,7 @@
     "commons-parsing/updating-preview": "Actualizando previsualización…",
     "commons-parsing/preview-button": "Actualizar&nbsp;previsualizar",
     "commons-import/retrieving": "Recuperar archivos por categoría…",
-    "commons-import/preparing": "Preparando…"
+    "commons-import/preparing": "Preparando…",
+    "commons-parsing/mids-column": "Incluir una columna con M-IDs",
+    "commons-parsing/limit-next": "Cargar como máximo"
 }
